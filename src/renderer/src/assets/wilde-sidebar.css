@@ -43,6 +43,17 @@
     url('./wilde/oil-slick-contours.svg');
   background-repeat: no-repeat;
   background-size: 100% 100%;
+  /* Dark glow behind all sidebar text (text-shadow inherits) so labels lift off the contours:
+     a tight shadow for crisp edges, then two widening halos for depth. */
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.95),
+    0 0 6px rgb(0 0 0 / 0.9),
+    0 0 14px rgb(0 0 0 / 0.8);
+}
+
+/* Icons are SVG strokes, which text-shadow never reaches; match the glow with drop-shadow. */
+:root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"] [data-wilde-sidebar-material] svg {
+  filter: drop-shadow(0 0 3px rgb(0 0 0 / 0.95)) drop-shadow(0 0 7px rgb(0 0 0 / 0.7));
 }
 
 /* The right panel scopes the translucent family itself (the left sidebar gets it from its
