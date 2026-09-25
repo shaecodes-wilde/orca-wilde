@@ -28,6 +28,7 @@ import { useRightSidebarActivityItems } from './use-right-sidebar-activity-items
 import { useRightSidebarTabRouting } from './use-right-sidebar-tab-routing'
 import { useWindowWidth } from './use-window-width'
 import { WildeSpotifyPlayer } from '../wilde-spotify/WildeSpotifyPlayer'
+import { useWildeAppearance } from '@/hooks/use-wilde-appearance'
 
 const ACTIVITY_BAR_SIDE_WIDTH = 40
 
@@ -40,6 +41,8 @@ function RightSidebarInner(): React.JSX.Element {
   const rightSidebarOpen = useAppStore((s) => s.rightSidebarOpen)
   const rightSidebarWidth = useAppStore((s) => s.rightSidebarWidth)
   const setRightSidebarWidth = useAppStore((s) => s.setRightSidebarWidth)
+  // Why: the Wilde sidebar stays dark in light mode; `dark` scopes stock dark tokens and dark: variants to it.
+  const { enabled: wildeEnabled } = useWildeAppearance()
   const toggleRightSidebar = useAppStore((s) => s.toggleRightSidebar)
   const checksStatus = useAppStore((s) => (s.rightSidebarOpen ? getActiveChecksStatus(s) : null))
   const activityBarPosition = useAppStore((s) => s.activityBarPosition)
@@ -154,7 +157,7 @@ function RightSidebarInner(): React.JSX.Element {
       <div
         // Why static: wilde-sidebar.css paints the material only under the root Wilde gates.
         data-wilde-sidebar-material="right"
-        className="flex flex-col flex-1 min-w-0 bg-sidebar overflow-hidden"
+        className={cn('flex flex-col flex-1 min-w-0 bg-sidebar overflow-hidden', wildeEnabled && 'dark')}
         style={{
           borderLeft: rightSidebarOpen ? '1px solid var(--sidebar-border)' : 'none'
         }}
@@ -205,7 +208,14 @@ function RightSidebarInner(): React.JSX.Element {
       {activityBarPosition === 'side' && (
         <ContextMenu>
           <ContextMenuTrigger asChild>
-            <div className="flex flex-col items-center w-10 min-w-[40px] bg-sidebar border-l border-border side-activity-bar-windows-inset">
+            <div
+              // Why: same Wilde material host as the panel; the fixed photo lines up across both.
+              data-wilde-sidebar-material="right"
+              className={cn(
+                'flex flex-col items-center w-10 min-w-[40px] bg-sidebar border-l border-border side-activity-bar-windows-inset',
+                wildeEnabled && 'dark'
+              )}
+            >
               <TooltipProvider delayDuration={400}>{sideActivityBarIcons}</TooltipProvider>
             </div>
           </ContextMenuTrigger>

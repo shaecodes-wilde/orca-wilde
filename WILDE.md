@@ -1,14 +1,15 @@
 # Orca, Wilde Systems theme
 
-A themed build of [Orca](https://github.com/stablyai/orca) with the Wilde Systems identity: oil-slick
-contour material behind the left and right sidebars, the Wilde Systems mark beside the Orca mark in
+A themed build of [Orca](https://github.com/stablyai/orca) with the Wilde Systems identity: an oil-slick
+photo backdrop behind the left and right sidebars, the Wilde Systems mark beside the Orca mark in
 the title bar, a mint/lavender dark palette, and a matching terminal color theme. It is **not** an
 official Orca release and is not affiliated with or endorsed by stablyai.
 
 It installs over regular Orca and uses the same app identity and profile, so settings, projects,
 sign-ins and the `orca` CLI carry over unchanged. Wilde turns on the first time the build loads a
-profile; switch it off (or tune sidebar material, intensity and motion) in
-**Settings > Appearance > Wilde Systems**. Light mode always shows stock Orca.
+profile; switch it off (or tune sidebar material and intensity) in
+**Settings > Appearance > Wilde Systems**. In light mode the sidebars stay Wilde-dark and the rest
+of the app is stock Orca.
 
 ## Spotify mini-player
 
@@ -45,8 +46,10 @@ Then run the installer from `dist/`. To go back to stock Orca, install it from
 
 ## What changed from upstream
 
-Everything Wilde is gated on `[data-wilde-appearance="on"].dark`, so switching it off restores stock
-styling. The main files:
+Everything Wilde is gated on `[data-wilde-appearance="on"]` (app-wide overrides also on `.dark`;
+the sidebars carry their own `dark` class so they stay Wilde in light mode), so switching it off
+restores stock styling. The sidebar material is `assets/wilde/oil-slick-photo.jpg`, a
+`background-attachment: fixed` layer so both sidebars show one continuous image. The main files:
 
 - `src/renderer/src/assets/wilde-theme.css`, `wilde-sidebar.css`: palette tokens, sidebar material, title bar lockup
 - `src/renderer/src/app-shell/WildeBrandLockup.tsx`: WS mark and wordmark in the title bar

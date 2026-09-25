@@ -1,49 +1,97 @@
-/* Wilde Systems sidebar material. Hosts are the static [data-wilde-sidebar-material] attributes
-   on the left sidebar root and the right sidebar panel; nothing paints unless the root carries
-   the Wilde gates from lib/document-theme.ts, so light mode and "off" stay stock.
+/* Wilde Systems sidebar material. Hosts are the [data-wilde-sidebar-material] attributes on the
+   left sidebar root, the right sidebar panel and the right side activity bar; nothing paints
+   unless the root carries the Wilde gates from lib/document-theme.ts, so "off" stays stock.
 
-   The material is layered backgrounds on the host itself (scrim, veil, contour SVG, harbour),
-   never a positioned overlay: it cannot cover menus, drag regions or the resize handles, and
-   needs no stacking-context changes. Surfaces inside the host read the translucent
-   --wilde-sidebar-* tokens so the contours show through, like the reference design. */
+   The material is layered backgrounds on the host itself (scrim, veil, oil-slick photo,
+   harbour), never a positioned overlay: it cannot cover menus, drag regions or the resize
+   handles, and needs no stacking-context changes. The photo layer is `fixed`, so every host is
+   a window onto one continuous, window-sized image (green on the left, purple on the right).
+   Surfaces inside the host read the translucent --wilde-sidebar-* tokens so the photo shows
+   through as frosted glass.
+
+   Unlike the rest of the theme, the sidebars stay Wilde-dark while the app is light: the hosts
+   carry the `dark` class (for Tailwind dark: variants and stock .dark tokens) and re-declare the
+   Wilde tokens locally, so only the sidebar subtree is affected. */
 
 :root[data-wilde-appearance="on"].dark {
-  /* Solid Wilde panels by default; the oil-slick block below turns them into dark glass. */
-  --wilde-sidebar-surface: var(--wilde-panel);
-  --wilde-sidebar-raised: var(--wilde-raised);
-  /* Global shadcn sidebar family (right sidebar, activity bars) follows the Wilde panel. */
+  /* Global shadcn sidebar family (anything outside the hosts) follows the Wilde panel. */
   --sidebar: var(--wilde-panel);
   --sidebar-foreground: var(--wilde-canvas);
   --sidebar-accent: var(--wilde-raised);
   --sidebar-accent-foreground: var(--wilde-canvas);
   --sidebar-border: var(--wilde-border);
   --sidebar-ring: var(--wilde-mint);
-  /* How much of the contour art the dark scrim lets through, per intensity. */
-  --wilde-material-scrim: rgb(11 12 16 / 0.64);
 }
 
-:root[data-wilde-appearance="on"].dark[data-wilde-intensity="subtle"] {
-  --wilde-material-scrim: rgb(11 12 16 / 0.8);
+:root[data-wilde-appearance="on"] {
+  /* Solid Wilde panels by default; the oil-slick block below turns them into dark glass. */
+  --wilde-sidebar-surface: var(--wilde-panel);
+  --wilde-sidebar-raised: var(--wilde-raised);
+  /* How much of the photo the dark scrim lets through, per intensity. */
+  --wilde-material-scrim: rgb(11 12 16 / 0.5);
 }
 
-:root[data-wilde-appearance="on"].dark[data-wilde-intensity="expressive"] {
-  --wilde-material-scrim: rgb(11 12 16 / 0.42);
+:root[data-wilde-appearance="on"][data-wilde-intensity="subtle"] {
+  --wilde-material-scrim: rgb(11 12 16 / 0.7);
 }
 
-:root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"] {
-  --wilde-sidebar-surface: color-mix(in srgb, var(--wilde-panel) 38%, transparent);
-  --wilde-sidebar-raised: color-mix(in srgb, var(--wilde-raised) 80%, transparent);
+:root[data-wilde-appearance="on"][data-wilde-intensity="expressive"] {
+  --wilde-material-scrim: rgb(11 12 16 / 0.3);
 }
 
-:root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"] [data-wilde-sidebar-material] {
+:root[data-wilde-appearance="on"][data-wilde-material="oil-slick"] {
+  --wilde-sidebar-surface: color-mix(in srgb, var(--wilde-panel) 30%, transparent);
+  --wilde-sidebar-raised: color-mix(in srgb, var(--wilde-raised) 62%, transparent);
+}
+
+/* Host-scoped Wilde tokens, in every theme. `!important` beats the left sidebar's inline
+   appearance vars (tinted / match-terminal) that the stock resolver applies in light mode; in
+   dark mode lib/left-sidebar-appearance.ts already resolves to these same values. */
+:root[data-wilde-appearance="on"] [data-wilde-sidebar-material] {
+  --background: var(--wilde-harbour);
+  --foreground: var(--wilde-canvas);
+  --card: var(--wilde-panel);
+  --card-foreground: var(--wilde-canvas);
+  --popover: var(--wilde-panel);
+  --popover-foreground: var(--wilde-canvas);
+  --primary: var(--wilde-mint);
+  --primary-foreground: var(--wilde-harbour);
+  --ring: var(--wilde-mint);
+  --muted-foreground: var(--wilde-muted);
+  --border: var(--wilde-border);
+  --worktree-sidebar: var(--wilde-sidebar-surface) !important;
+  --worktree-sidebar-foreground: var(--wilde-canvas) !important;
+  --worktree-sidebar-accent: var(--wilde-sidebar-raised) !important;
+  --worktree-sidebar-accent-foreground: var(--wilde-canvas) !important;
+  --worktree-sidebar-border: var(--wilde-border) !important;
+  --worktree-sidebar-ring: var(--wilde-mint) !important;
+  --sidebar: var(--wilde-sidebar-surface);
+  --sidebar-foreground: var(--wilde-canvas);
+  --sidebar-accent: var(--wilde-sidebar-raised);
+  --sidebar-accent-foreground: var(--wilde-canvas);
+  --sidebar-border: var(--wilde-border);
+  --sidebar-ring: var(--wilde-mint);
+  color: var(--wilde-canvas);
+  background-color: var(--wilde-sidebar-surface);
+}
+
+:root[data-wilde-appearance="on"][data-wilde-material="solid"] [data-wilde-sidebar-material] {
+  background-color: var(--wilde-panel);
+}
+
+:root[data-wilde-appearance="on"][data-wilde-material="oil-slick"] [data-wilde-sidebar-material] {
   background-color: var(--wilde-harbour);
   background-image:
     linear-gradient(var(--wilde-material-scrim), var(--wilde-material-scrim)),
     linear-gradient(var(--wilde-material-veil), var(--wilde-material-veil)),
-    url('./wilde/oil-slick-contours.svg');
+    url('./wilde/oil-slick-photo.jpg');
   background-repeat: no-repeat;
-  background-size: 100% 100%;
-  /* Dark glow behind all sidebar text (text-shadow inherits) so labels lift off the contours:
+  background-size: 100% 100%, 100% 100%, cover;
+  background-position: 0 0, 0 0, center;
+  /* Why fixed: anchors the photo to the window, so both sidebars (and the icon strip) show
+     their own region of one continuous image instead of separate crops. */
+  background-attachment: scroll, scroll, fixed;
+  /* Dark glow behind all sidebar text (text-shadow inherits) so labels lift off the photo:
      a tight shadow for crisp edges, then two widening halos for depth. */
   text-shadow:
     0 1px 2px rgb(0 0 0 / 0.95),
@@ -52,39 +100,21 @@
 }
 
 /* Icons are SVG strokes, which text-shadow never reaches; match the glow with drop-shadow. */
-:root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"] [data-wilde-sidebar-material] svg {
+:root[data-wilde-appearance="on"][data-wilde-material="oil-slick"] [data-wilde-sidebar-material] svg {
   filter: drop-shadow(0 0 3px rgb(0 0 0 / 0.95)) drop-shadow(0 0 7px rgb(0 0 0 / 0.7));
 }
 
-/* The right panel scopes the translucent family itself (the left sidebar gets it from its
-   inline resolver in lib/left-sidebar-appearance.ts). */
-:root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"] [data-wilde-sidebar-material="right"] {
-  --sidebar: var(--wilde-sidebar-surface);
-  --sidebar-accent: var(--wilde-sidebar-raised);
-  /* Why: a different slice of the same art, so the two sidebars don't read as mirror copies. */
-  background-size: 100% 100%, 100% 100%, 150% 100%;
-  background-position: 0 0, 0 0, 100% 0;
-}
-
-/* Optional slow drift. Off by default; never runs when the OS asks for reduced motion. */
-@media (prefers-reduced-motion: no-preference) {
-  :root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"][data-wilde-motion="slow"]
-    [data-wilde-sidebar-material] {
-    background-size: 100% 100%, 100% 100%, 100% 118%;
-    animation: wilde-sidebar-drift 48s ease-in-out infinite alternate;
-  }
-
-  :root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"][data-wilde-motion="slow"]
-    [data-wilde-sidebar-material="right"] {
-    background-size: 100% 100%, 100% 100%, 150% 118%;
-  }
-}
-
-@keyframes wilde-sidebar-drift {
-  from {
-    background-position-y: 0, 0, 0%;
-  }
-  to {
-    background-position-y: 0, 0, 100%;
-  }
+/* Frosted glass: raised surfaces (search box, selected rows, cards) blur the photo behind them.
+   Matches the base utility class only, not hover:/data-[…]: variants, so plain hover states
+   stay cheap. */
+:root[data-wilde-appearance="on"][data-wilde-material="oil-slick"]
+  [data-wilde-sidebar-material]
+  :is(
+    [class^="bg-worktree-sidebar-accent"],
+    [class*=" bg-worktree-sidebar-accent"],
+    [class^="bg-sidebar-accent"],
+    [class*=" bg-sidebar-accent"],
+    input
+  ) {
+  backdrop-filter: blur(10px) saturate(1.2);
 }

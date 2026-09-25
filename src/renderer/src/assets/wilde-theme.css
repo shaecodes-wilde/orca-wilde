@@ -1,7 +1,10 @@
-/* Wilde Systems theme fork. Gated on [data-wilde-appearance="on"] + resolved .dark so light
-   mode and the disabled state keep stock tokens untouched (attribute contract lives in
-   lib/document-theme.ts `applyWildeDocumentAttributes`). */
-:root[data-wilde-appearance="on"].dark {
+/* Wilde Systems theme fork. App-wide stock overrides are gated on [data-wilde-appearance="on"] +
+   resolved .dark so light mode and the disabled state keep stock tokens untouched (attribute
+   contract lives in lib/document-theme.ts `applyWildeDocumentAttributes`). */
+
+/* Brand tokens are defined whenever Wilde is on: the sidebars stay Wilde-dark in light mode
+   (wilde-sidebar.css) and read these. Nothing outside Wilde-owned surfaces consumes them. */
+:root[data-wilde-appearance="on"] {
   --wilde-harbour: #0b0c10;
   --wilde-canvas: #f8f8fa;
   --wilde-mint: #8bd8b0;
@@ -11,6 +14,20 @@
   --wilde-raised: #171b24;
   --wilde-border: #292f3a;
   --wilde-muted: #aeb7c8;
+  /* Material veil is the single opacity dial the material layers consume;
+     the per-intensity blocks below set its strength. */
+  --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 10%, transparent);
+}
+
+:root[data-wilde-appearance="on"][data-wilde-intensity="subtle"] {
+  --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 5%, transparent);
+}
+
+:root[data-wilde-appearance="on"][data-wilde-intensity="expressive"] {
+  --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 18%, transparent);
+}
+
+:root[data-wilde-appearance="on"].dark {
   --background: var(--wilde-harbour);
   --foreground: var(--wilde-canvas);
   --card: var(--wilde-panel);
@@ -22,17 +39,6 @@
   --ring: var(--wilde-mint);
   --muted-foreground: var(--wilde-muted);
   /* Do NOT replace --orca-security-*, semantic warnings/errors or all ANSI colours. */
-  /* Material veil is the single opacity dial A4's material layers consume;
-     the per-intensity blocks below set its strength. */
-  --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 10%, transparent);
-}
-
-:root[data-wilde-appearance="on"].dark[data-wilde-intensity="subtle"] {
-  --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 5%, transparent);
-}
-
-:root[data-wilde-appearance="on"].dark[data-wilde-intensity="expressive"] {
-  --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 18%, transparent);
 }
 
 /* Titlebar lockup (app-shell/WildeBrandLockup.tsx): Orca mark | WS mark + wordmark. The

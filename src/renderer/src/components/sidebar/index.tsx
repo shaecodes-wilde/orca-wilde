@@ -19,6 +19,7 @@ import { resolveLeftSidebarStyleVariables } from '@/lib/left-sidebar-appearance'
 import { useSystemPrefersDark } from '@/components/terminal-pane/use-system-prefers-dark'
 import { lazyWithRetry } from '@/lib/lazy-with-retry'
 import { LocalGitToolchainScanBanner } from './LocalGitToolchainScanBanner'
+import { useWildeAppearance } from '@/hooks/use-wilde-appearance'
 
 // Why lazy: the Agents list pulls the whole activity pipeline (virtualizer, markdown
 // previews, thread derivation); users on the workspace view should not load or render any of it.
@@ -56,6 +57,8 @@ function Sidebar({
   const startupWorktreeRefreshCompleted = useAppStore((s) => s.startupWorktreeRefreshCompleted)
   const settings = useAppStore((s) => s.settings)
   const sidebarBody = useAppStore((s) => s.sidebarBody ?? 'workspaces')
+  // Why: the Wilde sidebar stays dark in light mode; `dark` scopes stock dark tokens and dark: variants to it.
+  const { enabled: wildeEnabled } = useWildeAppearance()
   const showAgentDashboard = settings?.experimentalAgentDashboardPopout === true
   const agentDashboardDrawerOpen = useAppStore((s) => s.agentDashboardDrawerOpen)
   const setAgentDashboardDrawerOpen = useAppStore((s) => s.setAgentDashboardDrawerOpen)
@@ -156,7 +159,10 @@ function Sidebar({
         data-native-file-drop-target={sidebarOpen ? nativeDropTarget : undefined}
         // Why static: wilde-sidebar.css paints the material only under the root Wilde gates.
         data-wilde-sidebar-material="left"
-        className="relative min-h-0 flex-shrink-0 bg-worktree-sidebar flex flex-col overflow-hidden scrollbar-sleek-parent"
+        className={cn(
+          'relative min-h-0 flex-shrink-0 bg-worktree-sidebar flex flex-col overflow-hidden scrollbar-sleek-parent',
+          wildeEnabled && 'dark'
+        )}
         style={leftSidebarStyle}
         {...dropHandlers}
       >

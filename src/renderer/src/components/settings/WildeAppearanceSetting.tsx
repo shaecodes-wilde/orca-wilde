@@ -42,7 +42,7 @@ export function WildeAppearanceSetting({
         label={translate('settings.appearance.wilde.enable.title', 'Wilde Systems appearance')}
         description={translate(
           'settings.appearance.wilde.enable.description',
-          'Restyle the app chrome with the Wilde Systems palette while Orca is in dark mode.'
+          'Restyle the app chrome with the Wilde Systems palette. The sidebars keep it in light mode too.'
         )}
         checked={wilde.enabled}
         onChange={() => update({ enabled: !wilde.enabled })}
@@ -104,34 +104,14 @@ export function WildeAppearanceSetting({
             />
           }
         />
-        <SettingsRow
-          label={translate('settings.appearance.wilde.motion.title', 'Motion')}
-          control={
-            <SettingsSegmentedControl<WildeAppearanceV1['motion']>
-              size="sm"
-              value={wilde.motion}
-              onChange={(motion) => update({ motion })}
-              ariaLabel={translate('settings.appearance.wilde.motion.title', 'Motion')}
-              options={[
-                {
-                  value: 'off',
-                  label: translate('settings.appearance.wilde.motion.off', 'Off')
-                },
-                {
-                  value: 'slow',
-                  label: translate('settings.appearance.wilde.motion.slow', 'Slow')
-                }
-              ]}
-            />
-          }
-        />
+        {/* Motion (slow drift) retired with the photo material; the stored field stays for profile compat. */}
         <WildeSpotifySettings />
       </div>
       {wilde.enabled && !resolvedDark ? (
         <p className="text-[11px] text-muted-foreground">
           {translate(
             'settings.appearance.wilde.darkModeHint',
-            'Wilde chrome applies while Orca is in dark mode.'
+            'In light mode only the sidebars keep the Wilde look; the rest of the chrome is stock.'
           )}
         </p>
       ) : null}
