@@ -1,9 +1,7 @@
 import type { CliInstallStatus } from '../../shared/cli-install-types'
 import { getBridgePathFromCommandPath, getPosixDirname, quoteShell } from './wsl-cli-scripts'
 
-// Mirrors CLI_COMMAND_NAME in config/fork-identity.cjs; 'orca'/'orca-ide' stay
-// stock Orca's WSL names, never claimed here.
-const WSL_COMMAND_NAME = 'orca-wilde'
+const WSL_COMMAND_NAME = 'orca-ide'
 
 export type ReadyWslCliState = {
   distro: string

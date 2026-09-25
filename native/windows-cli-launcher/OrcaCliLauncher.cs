@@ -12,7 +12,7 @@ internal static class OrcaCliLauncher
             string launcherDirectory = Path.GetDirectoryName(typeof(OrcaCliLauncher).Assembly.Location);
             string resourcesDirectory = Directory.GetParent(launcherDirectory).FullName;
             string appDirectory = Directory.GetParent(resourcesDirectory).FullName;
-            string electronPath = Path.Combine(appDirectory, "OrcaWilde.exe");
+            string electronPath = Path.Combine(appDirectory, "Orca.exe");
             string cliPath = Path.Combine(
                 resourcesDirectory,
                 "app.asar.unpacked",
@@ -23,13 +23,13 @@ internal static class OrcaCliLauncher
 
             if (!File.Exists(electronPath))
             {
-                Console.Error.WriteLine("Unable to locate OrcaWilde.exe next to \"{0}\"", resourcesDirectory);
+                Console.Error.WriteLine("Unable to locate Orca.exe next to \"{0}\"", resourcesDirectory);
                 return 1;
             }
 
             if (!File.Exists(cliPath))
             {
-                Console.Error.WriteLine("Unable to locate the Orca Wilde CLI entrypoint at \"{0}\"", cliPath);
+                Console.Error.WriteLine("Unable to locate the Orca CLI entrypoint at \"{0}\"", cliPath);
                 return 1;
             }
 
@@ -48,9 +48,11 @@ internal static class OrcaCliLauncher
             MoveEnvironmentVariable("NODE_REPL_EXTERNAL_MODULE", "ORCA_NODE_REPL_EXTERNAL_MODULE");
             Environment.SetEnvironmentVariable("ELECTRON_RUN_AS_NODE", "1");
             Environment.SetEnvironmentVariable("ORCA_WINDOWS_PACKAGED_CLI_LAUNCHER", "1");
-            // Why: the packaged launcher always advertises the fork command; a
-            // caller-set value could otherwise name stock Orca's binary.
-            Environment.SetEnvironmentVariable("ORCA_CLI_COMMAND", "orca-wilde");
+            string requestedCliCommand = Environment.GetEnvironmentVariable("ORCA_CLI_COMMAND");
+            Environment.SetEnvironmentVariable(
+                "ORCA_CLI_COMMAND",
+                requestedCliCommand == "orca-ide" ? "orca-ide" : "orca"
+            );
 
             using (Process child = Process.Start(startInfo))
             {
@@ -60,7 +62,7 @@ internal static class OrcaCliLauncher
         }
         catch (Exception error)
         {
-            Console.Error.WriteLine("Unable to start the Orca Wilde CLI: {0}", error.Message);
+            Console.Error.WriteLine("Unable to start the Orca CLI: {0}", error.Message);
             return 1;
         }
     }

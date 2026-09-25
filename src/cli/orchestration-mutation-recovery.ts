@@ -174,9 +174,7 @@ export function renderResolvedOrchestrationCommand(
   env: NodeJS.ProcessEnv = process.env
 ): string {
   const parts = parseCommandLine(command)
-  // Why two tokens: older prompts rendered the stock `orca` name; both are
-  // rewritten onto this session's resolved executable.
-  if (parts?.[0] !== 'orca' && parts?.[0] !== 'orca-wilde') {
+  if (parts?.[0] !== 'orca') {
     return command
   }
   return renderCommand([executable, ...parts.slice(1)], platform, env)

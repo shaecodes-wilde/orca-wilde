@@ -64,9 +64,8 @@ export abstract class CliInstallLocation {
       // Why: development builds must not claim the production shell command.
       return DEV_COMMAND_NAME
     }
-    // Why `orca-wilde` everywhere: avoids GNOME Orca's /usr/bin/orca on Linux and
-    // never collides with a stock Orca install on any platform.
-    return this.platform === 'linux' ? LINUX_CLI_COMMAND_NAME : 'orca-wilde'
+    // Why: packaged Linux uses `orca-ide` to avoid shadowing GNOME Orca's /usr/bin/orca.
+    return this.platform === 'linux' ? LINUX_CLI_COMMAND_NAME : 'orca'
   }
 
   constructor(options: CliInstallerOptions = {}) {
@@ -88,7 +87,7 @@ export abstract class CliInstallLocation {
     const candidateMacPath = options.defaultMacCommandPath ?? DEFAULT_MAC_COMMAND_PATH
     this.macCommandPath = existsSync(dirname(candidateMacPath))
       ? candidateMacPath
-      : join(this.homePath, '.local', 'bin', 'orca-wilde')
+      : join(this.homePath, '.local', 'bin', 'orca')
     this.privilegedRunner = options.privilegedRunner ?? runMacPrivilegedCommand
     this.userPathReader = options.userPathReader ?? readWindowsUserPathRegistry
     this.userPathMutationReader =
@@ -215,13 +214,7 @@ export abstract class CliInstallLocation {
         return join(this.homePath, '.local', 'bin', DEV_COMMAND_NAME)
       }
       if (this.platform === 'win32') {
-        return join(
-          this.localAppDataPath,
-          'Programs',
-          'Orca Wilde Dev',
-          'bin',
-          `${DEV_COMMAND_NAME}.cmd`
-        )
+        return join(this.localAppDataPath, 'Programs', 'Orca Dev', 'bin', `${DEV_COMMAND_NAME}.cmd`)
       }
     }
 
@@ -231,7 +224,7 @@ export abstract class CliInstallLocation {
 
     if (this.platform === 'linux') {
       // Why: Linux lacks a privileged global command flow; ~/.local/bin is the least-surprising user-scoped dir.
-      // Why `orca-wilde`: avoids GNOME Orca's /usr/bin/orca and stock Orca's orca-ide.
+      // Why `orca-ide`: GNOME Orca ships /usr/bin/orca, so avoid shadowing that screen reader.
       return join(this.homePath, '.local', 'bin', LINUX_CLI_COMMAND_NAME)
     }
 

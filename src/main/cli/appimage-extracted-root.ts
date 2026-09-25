@@ -20,9 +20,7 @@ import {
   resolveAppImageStableLauncherPath
 } from './appimage-stable-launcher'
 
-// Why 'orca-wilde': the fork's extraction cache must not share ~/.cache/orca
-// with a stock Orca install's generations.
-const CACHE_DIR_SEGMENTS = ['orca-wilde', 'appimage'] as const
+const CACHE_DIR_SEGMENTS = ['orca', 'appimage'] as const
 const EXTRACT_OUTPUT_DIR = 'squashfs-root'
 const MAX_GENERATION_ATTEMPTS = 2
 const EXTRACTION_STAGING_PREFIX = '.extract-'

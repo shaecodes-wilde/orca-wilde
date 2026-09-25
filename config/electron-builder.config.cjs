@@ -25,16 +25,6 @@ const {
 const { verifySkillsCliRuntime } = require('./scripts/verify-skills-cli-runtime.cjs')
 const { verifyStaticAppImagePackage } = require('./scripts/static-appimage-package-contract.cjs')
 const { signWindowsUninstallerViaSignPath } = require('./scripts/windows-uninstaller-signing.cjs')
-const {
-  PRODUCT_NAME,
-  APP_ID,
-  WINDOWS_EXECUTABLE_NAME,
-  LINUX_EXECUTABLE_NAME,
-  URI_SCHEME,
-  PUBLISH_OWNER,
-  PUBLISH_REPO,
-  PUBLISH_DEV_CHANNEL_REPOS
-} = require('./fork-identity.cjs')
 
 // Why: dev-channel builds must carry the *release* identity — same bundle id,
 // Developer ID signature, and notarization ticket — or Squirrel.Mac refuses to
@@ -72,13 +62,13 @@ const devChannelBuildVersion = isHourlyChannel
 // or a once-a-day cut cannot be picked up by someone who only meant to ride
 // main's hourlies.
 const devChannelRepo = isHourlyChannel
-  ? PUBLISH_DEV_CHANNEL_REPOS.hourly
+  ? 'orca-hourly'
   : isDailyChannel
-    ? PUBLISH_DEV_CHANNEL_REPOS.daily
+    ? 'orca-daily'
     : isAdhocChannel
-      ? PUBLISH_DEV_CHANNEL_REPOS.adhoc
+      ? 'orca-adhoc'
       : null
-const appId = APP_ID
+const appId = 'com.stablyai.orca'
 const featureWallResources = {
   from: 'resources/onboarding/feature-wall',
   to: 'onboarding/feature-wall'
@@ -175,8 +165,8 @@ const windowsRuntimeResources = existsSync(
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
   appId,
-  productName: PRODUCT_NAME,
-  protocols: [{ name: URI_SCHEME, schemes: [URI_SCHEME] }],
+  productName: 'Orca',
+  protocols: [{ name: 'Orca', schemes: ['orca'] }],
   toolsets: { appimage: '1.0.3' },
   ...(devChannelBuildVersion
     ? { extraMetadata: { version: devChannelBuildVersion } }
@@ -240,10 +230,10 @@ module.exports = {
     // extraResources entry below; keeping them in app.asar would ship every
     // native variant (and duplicate the selected one).
     '!node_modules/sherpa-onnx*{,/**/*}',
-    // Why: the Windows CLI shim ships via extraResources to resources/bin/orca-wilde.cmd
-    // (beside the native resources/bin/orca-wilde.exe). Packing the source tree into
+    // Why: the Windows CLI shim ships via extraResources to resources/bin/orca.cmd
+    // (beside the native resources/bin/orca.exe). Packing the source tree into
     // app.asar too lets asarUnpack:['resources/**'] extract a second copy at
-    // app.asar.unpacked/resources/win32/bin/orca-wilde.cmd with no adjacent orca-wilde.exe,
+    // app.asar.unpacked/resources/win32/bin/orca.cmd with no adjacent orca.exe,
     // which fails to launch the CLI (#7351).
     '!resources/win32{,/**/*}'
   ],
@@ -420,7 +410,7 @@ module.exports = {
     }
   },
   win: {
-    executableName: WINDOWS_EXECUTABLE_NAME,
+    executableName: 'Orca',
     // Why: Windows installers are signed after electron-builder packaging by
     // SignPath, so the packager cannot infer the updater publisherName.
     //
@@ -448,13 +438,12 @@ module.exports = {
       ...windowsRuntimeResources,
       winSpeechNativeResource,
       {
-        from: 'resources/win32/bin/orca-wilde.cmd',
-        to: 'bin/orca-wilde.cmd'
+        from: 'resources/win32/bin/orca.cmd',
+        to: 'bin/orca.cmd'
       },
       {
-        // Why: the build output keeps its upstream filename; `to` is the packaged name.
         from: 'native/windows-cli-launcher/.build/orca.exe',
-        to: 'bin/orca-wilde.exe'
+        to: 'bin/orca.exe'
       },
       {
         from: 'node_modules/agent-browser/bin/agent-browser-win32-x64.exe',
@@ -468,7 +457,7 @@ module.exports = {
     ]
   },
   nsis: {
-    artifactName: 'orca-wilde-windows-setup.${ext}',
+    artifactName: 'orca-windows-setup.${ext}',
     shortcutName: '${productName}',
     uninstallDisplayName: '${productName}',
     createDesktopShortcut: 'always',
@@ -495,19 +484,19 @@ module.exports = {
     entitlementsInherit: 'resources/build/entitlements.mac.plist',
     extendInfo: {
       NSAppleEventsUsageDescription:
-        'Orca Wilde allows terminal-launched developer tools to automate local apps when you request it.',
+        'Orca allows terminal-launched developer tools to automate local apps when you request it.',
       NSBluetoothAlwaysUsageDescription:
-        'Orca Wilde allows terminal-launched developer tools to access Bluetooth devices when you request it.',
+        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
       NSBluetoothPeripheralUsageDescription:
-        'Orca Wilde allows terminal-launched developer tools to access Bluetooth devices when you request it.',
+        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
       NSCameraUsageDescription: "Application requests access to the device's camera.",
       NSLocationUsageDescription:
-        'Orca Wilde allows terminal-launched developer tools to access location when you request it.',
+        'Orca allows terminal-launched developer tools to access location when you request it.',
       NSLocalNetworkUsageDescription:
-        'Orca Wilde allows terminal-launched developer tools to discover and connect to local development servers when you request it.',
+        'Orca allows terminal-launched developer tools to discover and connect to local development servers when you request it.',
       NSMicrophoneUsageDescription: "Application requests access to the device's microphone.",
       NSAudioCaptureUsageDescription:
-        'Orca Wilde allows terminal-launched developer tools to capture desktop audio when you request it.',
+        'Orca allows terminal-launched developer tools to capture desktop audio when you request it.',
       NSBonjourServices: ['_http._tcp', '_https._tcp'],
       NSDocumentsFolderUsageDescription:
         "Application requests access to the user's Documents folder.",
@@ -532,8 +521,8 @@ module.exports = {
       ...createPackagedRuntimeNodeModuleResources('darwin'),
       macSpeechNativeResource,
       {
-        from: 'resources/darwin/bin/orca-wilde',
-        to: 'bin/orca-wilde'
+        from: 'resources/darwin/bin/orca',
+        to: 'bin/orca'
       },
       {
         from: 'node_modules/agent-browser/bin/agent-browser-darwin-${arch}',
@@ -573,7 +562,7 @@ module.exports = {
   // silently downgrading to ad-hoc artifacts that look shippable in CI logs.
   forceCodeSigning: isMacRelease,
   dmg: {
-    artifactName: 'orca-wilde-macos-${arch}.${ext}'
+    artifactName: 'orca-macos-${arch}.${ext}'
   },
   linux: {
     // Why mimeTypes and not fileAssociations: shared-mime-info already maps *.md/*.markdown to
@@ -582,17 +571,16 @@ module.exports = {
     // default. .mdx is deliberately absent: Ubuntu 24.04's mime database maps it to
     // application/x-genesis-32x-rom, so claiming it here would need a glob override.
     mimeTypes: ['text/markdown'],
-    // Why: Ubuntu desktop ships GNOME Orca as the `orca` package and /usr/bin/orca,
-    // and stock Orca owns `orca-ide`. The fork's installer claims neither.
-    executableName: LINUX_EXECUTABLE_NAME,
+    // Why: Ubuntu desktop ships GNOME Orca as the `orca` package and /usr/bin/orca.
+    // The Linux installer should not claim those system package/file names.
+    executableName: 'orca-ide',
     // Why: the icns source lets electron-builder emit standard hicolor PNG
     // sizes; a single 1024px PNG is ignored by some Linux docks/launchers.
     icon: 'resources/build/icon.icns',
     desktop: {
       entry: {
-        // Why: Electron reports WM_CLASS=orca (from package.json name) for the
-        // visible Linux window; GNOME docks need an exact match to group it
-        // with the orca-wilde desktop entry.
+        // Why: Electron reports WM_CLASS=orca for the visible Linux window;
+        // GNOME docks need an exact match to group it with orca-ide.desktop.
         StartupWMClass: 'orca'
       }
     },
@@ -601,8 +589,8 @@ module.exports = {
       ...createPackagedRuntimeNodeModuleResources('linux'),
       linuxSpeechNativeResource,
       {
-        from: 'resources/linux/bin/orca-wilde',
-        to: 'bin/orca-wilde'
+        from: 'resources/linux/bin/orca-ide',
+        to: 'bin/orca-ide'
       },
       {
         from: 'node_modules/agent-browser/bin/agent-browser-linux-${arch}',
@@ -616,18 +604,16 @@ module.exports = {
     ],
     // Keep local artifacts aligned with the release pipeline.
     target: ['AppImage', 'deb', 'rpm'],
-    maintainer: PUBLISH_OWNER,
+    maintainer: 'stablyai',
     category: 'Utility'
   },
   appImage: {
-    artifactName: isLinuxArm64Release
-      ? 'orca-wilde-linux-arm64.${ext}'
-      : 'orca-wilde-linux.${ext}'
+    artifactName: isLinuxArm64Release ? 'orca-linux-arm64.${ext}' : 'orca-linux.${ext}'
   },
   deb: {
-    packageName: LINUX_EXECUTABLE_NAME,
-    artifactName: 'orca-wilde_${version}_${arch}.${ext}',
-    // Why: xvfb lets the bundled `orca-wilde serve` CLI run browser panes on a headless
+    packageName: 'orca-ide',
+    artifactName: 'orca-ide_${version}_${arch}.${ext}',
+    // Why: xvfb lets the bundled `orca serve` CLI run browser panes on a headless
     // Linux host — Chromium needs a display server even for offscreen rendering,
     // and serve starts Xvfb itself when present (see ensure-virtual-display.ts).
     depends: [
@@ -640,7 +626,7 @@ module.exports = {
       'xclip',
       'xvfb'
     ],
-    // Why: symlink the bundled CLI onto PATH at install time so `orca-wilde serve`
+    // Why: symlink the bundled CLI onto PATH at install time so `orca-ide serve`
     // works on a headless host. The in-app CLI registration (CliInstaller) is
     // GUI-triggered and can never run on a server, so without this the CLI is
     // unreachable from the shell on exactly the hosts that need it.
@@ -648,8 +634,8 @@ module.exports = {
     afterRemove: 'resources/linux/packaging/after-remove.sh'
   },
   rpm: {
-    packageName: LINUX_EXECUTABLE_NAME,
-    artifactName: 'orca-wilde-${version}.${arch}.${ext}',
+    packageName: 'orca-ide',
+    artifactName: 'orca-ide-${version}.${arch}.${ext}',
     // Why: see deb depends. RPM distros ship Xvfb as xorg-x11-server-Xvfb (there
     // is no `xvfb` package), so the name differs from the deb here.
     depends: [
@@ -674,9 +660,8 @@ module.exports = {
   npmRebuild: true,
   publish: {
     provider: 'github',
-    // Why: the fork publishes no releases; the updater never reads this feed — see config/fork-identity.cjs.
-    owner: PUBLISH_OWNER,
-    repo: devChannelRepo ?? PUBLISH_REPO,
+    owner: 'stablyai',
+    repo: devChannelRepo ?? 'orca',
     // Why draft on the main repo: `--publish always` otherwise creates a
     // public GitHub release as soon as the first platform uploads, and
     // /releases/latest serves a missing Windows exe. release-cut undrafts
@@ -699,7 +684,7 @@ function chmodUnixCliLaunchers(resourcesDir, electronPlatformName) {
   if (electronPlatformName === 'win32') {
     return
   }
-  for (const launcherName of [LINUX_EXECUTABLE_NAME]) {
+  for (const launcherName of ['orca', 'orca-ide']) {
     const launcherPath = join(resourcesDir, 'bin', launcherName)
     if (!existsSync(launcherPath)) {
       continue

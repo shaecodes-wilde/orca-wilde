@@ -19,8 +19,6 @@ import { buildWslCliStatus, readWslCliCommandFile, resolveReadyWslCliState } fro
 
 const MANAGED_MARKER = getWslLauncherMarker()
 const BRIDGE_MANAGED_MARKER = getWslBridgeMarker()
-// Why 'orca': the pre-fork command name this cleanup exists for. Adoption is
-// gated on OUR MANAGED_MARKER, so stock Orca's own `orca` files never match.
 const LEGACY_WSL_COMMAND_NAME = 'orca'
 const WSL_COMMAND_TIMEOUT_MS = 10_000
 

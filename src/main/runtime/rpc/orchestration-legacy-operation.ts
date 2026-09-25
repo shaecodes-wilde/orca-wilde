@@ -30,7 +30,7 @@ export type LegacyCheckParams = {
   timeoutMs?: number
   compatibilityAck?: string
   compatibilityQuestionAck?: string
-  compatibilityCliCommand?: 'orca' | 'orca-ide' | 'orca-dev' | 'orca-wilde'
+  compatibilityCliCommand?: 'orca' | 'orca-ide' | 'orca-dev'
 }
 
 export type LegacyAskParams = {
@@ -41,8 +41,8 @@ export type LegacyAskParams = {
   resume?: string
   options?: string
   timeoutMs?: number
-  compatibilityCliCommand?: 'orca' | 'orca-ide' | 'orca-dev' | 'orca-wilde'
-  compatibilityWindowsCommand?: 'orca' | 'orca-ide' | 'orca-wilde'
+  compatibilityCliCommand?: 'orca' | 'orca-ide' | 'orca-dev'
+  compatibilityWindowsCommand?: 'orca' | 'orca-ide'
 }
 
 export type LegacyReplyParams = {

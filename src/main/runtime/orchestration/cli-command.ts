@@ -1,9 +1,8 @@
 import type { ProjectExecutionRuntimeResolution } from '../../../shared/project-execution-runtime'
+import { isWslUncPath } from '../../../shared/wsl-paths'
+import { splitWorktreeIdForFilesystem } from '../../../shared/worktree/id'
 
-// Why 'orca' persists: SSH-remote terminals resolve the shared remote relay
-// shim, which keeps the stock name (see ~/.orca-remote). 'orca-dev' is the
-// dev-checkout command. Everything local and packaged is 'orca-wilde'.
-export type OrchestrationCliCommand = 'orca' | 'orca-dev' | 'orca-wilde'
+export type OrchestrationCliCommand = 'orca' | 'orca-dev' | 'orca-ide'
 
 export function resolveTerminalOrchestrationCliCommand(args: {
   connectionId: string | null
@@ -18,7 +17,13 @@ export function resolveTerminalOrchestrationCliCommand(args: {
   if (args.runtimeCliCommand) {
     return args.runtimeCliCommand
   }
-  // Local (native + WSL) packaged/dev terminals all resolve the fork command;
-  // the stock `orca`/`orca-ide` names are never emitted here.
-  return 'orca-wilde'
+  if (args.isWsl !== null && args.isWsl !== undefined) {
+    return args.isWsl ? 'orca-ide' : 'orca'
+  }
+  if (args.projectRuntime?.status === 'resolved' && args.projectRuntime.runtime.kind === 'wsl') {
+    return 'orca-ide'
+  }
+
+  const worktreePath = splitWorktreeIdForFilesystem(args.worktreeId)?.worktreePath
+  return worktreePath && isWslUncPath(worktreePath) ? 'orca-ide' : 'orca'
 }

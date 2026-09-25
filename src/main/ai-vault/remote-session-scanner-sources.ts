@@ -221,23 +221,12 @@ function remoteCodexSources(
 ): RemoteSessionSource[] {
   return [
     joinRemotePath(hostPlatform, remoteHome, '.codex'),
-    // Why two roots: a paired remote may run stock Orca (shared ~/.local/share/orca
-    // managed home) or Orca Wilde (~/.local/share/orca-wilde); probe both.
     joinRemotePath(
       hostPlatform,
       remoteHome,
       '.local',
       'share',
       'orca',
-      'codex-runtime-home',
-      'home'
-    ),
-    joinRemotePath(
-      hostPlatform,
-      remoteHome,
-      '.local',
-      'share',
-      'orca-wilde',
       'codex-runtime-home',
       'home'
     )

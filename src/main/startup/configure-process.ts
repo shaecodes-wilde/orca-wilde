@@ -209,10 +209,6 @@ export function configureDevUserDataPath(isDev: boolean): void {
   }
 
   if (!isDev) {
-    // Why: package.json `name` stays `orca`, so Electron's default userData would
-    // resolve to stock Orca's dir — sharing settings, the single-instance lock,
-    // and the runtime pointer with a sibling install. The fork needs its own.
-    app.setPath('userData', join(app.getPath('appData'), 'orca-wilde'))
     return
   }
   const overrideUserDataPath = process.env.ORCA_DEV_USER_DATA_PATH

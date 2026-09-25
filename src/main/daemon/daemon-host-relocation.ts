@@ -20,7 +20,7 @@ import { inspectProcessLiveness, mergeProcessLivenessVerdict } from './daemon-pr
  * Relocate the terminal daemon's process image out of the app install dir into LOCAL userData so it
  * survives Windows auto-updates: the NSIS installer deletes the old install and force-kills every process
  * imaged under it, which would otherwise kill the daemon and its live terminals. The relocated exe is a
- * run-as-node OrcaWilde.exe copy (not node.exe) so there's no console flash and asar still resolves. Fail-open:
+ * run-as-node Orca.exe copy (not node.exe) so there's no console flash and asar still resolves. Fail-open:
  * any failure returns null and the caller forks the install-dir host (pre-relocation behavior).
  *
  * What escapes the updater is the PATH, not the file name: electron-builder's kill sweep selects
@@ -38,8 +38,8 @@ export type RelocatedDaemonHost = {
 const HOST_SUBDIR = 'daemon-host'
 const MARKER_NAME = '.materialized.json'
 
-// LOCAL appData (not roaming) so OneDrive/roaming never syncs this ~260MB runtime. Shared with NSIS uninstall (config/nsis/orca-installer-hooks.nsh) — keep in sync. 'OrcaWilde' mirrors WINDOWS_DAEMON_ROOT_NAME in config/fork-identity.cjs.
-const LOCAL_HOST_ROOT_NAME = 'OrcaWilde'
+// LOCAL appData (not roaming) so OneDrive/roaming never syncs this ~260MB runtime. Shared with NSIS uninstall (config/nsis/orca-installer-hooks.nsh) — keep in sync.
+const LOCAL_HOST_ROOT_NAME = 'Orca'
 
 /**
  * The host exe keeps the app exe's own file name, so the relocated image is a byte-for-byte,
@@ -50,7 +50,7 @@ const LOCAL_HOST_ROOT_NAME = 'OrcaWilde'
  */
 const daemonHostExeName = (execPath: string): string => winPath.basename(execPath)
 
-// V8 snapshots + ICU data the Electron bootstrap reads even under ELECTRON_RUN_AS_NODE; siblings of OrcaWilde.exe.
+// V8 snapshots + ICU data the Electron bootstrap reads even under ELECTRON_RUN_AS_NODE; siblings of Orca.exe.
 const RUNTIME_DATA_FILES = ['icudtl.dat', 'snapshot_blob.bin', 'v8_context_snapshot.bin']
 
 type CopyOp = {

@@ -92,13 +92,13 @@ function bundledLauncherPath(): string | null {
     return null
   }
   if (process.platform === 'darwin') {
-    return join(process.resourcesPath, 'bin', 'orca-wilde')
+    return join(process.resourcesPath, 'bin', 'orca')
   }
   if (process.platform === 'linux') {
-    return join(process.resourcesPath, 'bin', 'orca-wilde')
+    return join(process.resourcesPath, 'bin', 'orca-ide')
   }
   if (process.platform === 'win32') {
-    return join(process.resourcesPath, 'bin', 'orca-wilde.exe')
+    return join(process.resourcesPath, 'bin', 'orca.exe')
   }
   return null
 }

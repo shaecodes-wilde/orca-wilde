@@ -1,10 +1,10 @@
-; electron-builder NSIS hooks for the Orca Wilde Windows installer.
+; electron-builder NSIS hooks for the Orca Windows installer.
 ;
 ; electron-builder accepts exactly ONE `nsis.include` file, so every customInstall /
-; customUnInstall hook Orca Wilde needs lives here.
+; customUnInstall hook Orca needs lives here.
 
 ; ---------------------------------------------------------------------------
-; Markdown "Open with Orca Wilde" (issue #10138)
+; Markdown "Open with Orca" (issue #10138)
 ;
 ; Why hand-rolled instead of electron-builder's `fileAssociations` on Windows:
 ; app-builder-lib emits !insertmacro APP_ASSOCIATE, whose first line is
@@ -22,7 +22,7 @@
 ; MARKDOWN_PROGID must stay in sync with the extension list handled by
 ; isMarkdownDocumentName() in src/main/ipc/markdown-documents.ts.
 ; ---------------------------------------------------------------------------
-!define MARKDOWN_PROGID "OrcaWilde.Markdown"
+!define MARKDOWN_PROGID "Orca.Markdown"
 
 !macro ORCA_REGISTER_MARKDOWN_OPEN_WITH EXT
   WriteRegNone SHELL_CONTEXT "Software\Classes\${EXT}\OpenWithProgids" "${MARKDOWN_PROGID}"
@@ -50,7 +50,7 @@
 ; Clean up the relocated terminal daemon on a REAL uninstall.
 ;
 ; Why: the daemon host is deliberately copied OUT of the install dir into
-; %LOCALAPPDATA%\OrcaWilde\daemon-host so that app UPDATES cannot kill it —
+; %LOCALAPPDATA%\Orca\daemon-host so that app UPDATES cannot kill it —
 ; electron-builder's kill sweep selects processes whose image path is under
 ; $INSTDIR, and that relocation is what keeps terminals alive across updates.
 ; The same design means a normal uninstall's process sweep and file removal both
@@ -69,9 +69,7 @@
     Push $1
     Push $2
     ; The host exe is a verbatim copy of the app exe, so the app's own image name
-    ; reaches it. No fork build ever shipped a renamed copy (upstream's legacy
-    ; orca-terminal-daemon.exe name is deliberately absent — it belongs to a
-    ; different product's installs and must not be killed from this uninstaller).
+    ; reaches it; the second name covers hosts left by builds that renamed the copy.
     ; Filtered to the current user like upstream's per-user KILL_PROCESS, so an
     ; elevated machine-wide uninstall cannot reach another logged-on user's session.
     ; NSIS expands USERNAME itself: routing through cmd.exe only to get %USERNAME%
@@ -88,12 +86,14 @@
     ${endIf}
     nsExec::Exec 'taskkill /F /IM "${APP_EXECUTABLE_FILENAME}" $2'
     Pop $0
+    nsExec::Exec 'taskkill /F /IM "orca-terminal-daemon.exe" $2'
+    Pop $0
     Pop $2
     Pop $1
     Pop $0
     ; Give the OS a moment to release the image lock before removing the tree.
     Sleep 500
-    RMDir /r "$LOCALAPPDATA\OrcaWilde\daemon-host"
+    RMDir /r "$LOCALAPPDATA\Orca\daemon-host"
   ${endIf}
   ; Why outside the ${isUpdated} guard: customInstall rewrites these on every update, so
   ; dropping them during uninstallOldVersion is correct and keeps the pair symmetric.
