@@ -25,7 +25,7 @@ describe('normalizeWildeAppearance', () => {
       sidebarTreatment: 'oil-slick',
       intensity: 'balanced',
       motion: 'off',
-      terminalBranding: 'badge'
+      terminalBranding: 'off'
     })
   })
 

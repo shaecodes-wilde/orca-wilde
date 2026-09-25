@@ -13,6 +13,11 @@
       "rootDescription": "The app shell could not finish rendering. Retry to remount it, or relaunch Orca if the error persists.",
       "webTitle": "Orca web hit a renderer error.",
       "webDescription": "Retry the web client or reconnect to the paired runtime."
+    },
+    "wildeBrand": {
+      "name": "Wilde Systems",
+      "edition": "Customized Orca edition",
+      "label": "Wilde Systems, customized Orca edition"
     }
   },
   "browser": {
@@ -181,12 +186,6 @@
           "title": "Motion",
           "off": "Off",
           "slow": "Slow"
-        },
-        "terminalBranding": {
-          "title": "Terminal badge",
-          "description": "Show a Wilde Systems badge on terminal surfaces.",
-          "off": "Off",
-          "badge": "Badge"
         },
         "darkModeHint": "Wilde chrome applies while Orca is in dark mode.",
         "search": {

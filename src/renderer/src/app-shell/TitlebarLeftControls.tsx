@@ -17,6 +17,7 @@ import { useShortcutLabel } from '../hooks/useShortcutLabel'
 import { useAppStore } from '../store'
 import { hasCustomTitleBar, isMac } from './app-window-chrome'
 import type { AppChromeLayout } from './use-app-chrome-layout'
+import { WildeBrandLockup } from './WildeBrandLockup'
 
 /**
  * The titlebar's left cluster: window chrome padding, app name, sidebar toggle, and the
@@ -25,6 +26,7 @@ import type { AppChromeLayout } from './use-app-chrome-layout'
  */
 export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): React.JSX.Element {
   const toggleSidebar = useAppStore((s) => s.toggleSidebar)
+  const sidebarWidth = useAppStore((s) => s.sidebarWidth)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const canGoBackWorktree = useAppStore(canGoBackWorktreeHistory)
   const canGoForwardWorktree = useAppStore(canGoForwardWorktreeHistory)
@@ -48,6 +50,10 @@ export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): R
           /* Why: Windows/Linux remove the native title bar, so render the logo plus a ··· button that pops the application menu (as Alt does). */
           <>
             <img src={logo} alt="" aria-hidden className="titlebar-logo" />
+            <WildeBrandLockup
+              sidebarWidth={sidebarWidth}
+              isFloating={layout.leftTitlebarChromeLayout.isFloating}
+            />
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -88,6 +94,13 @@ export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): R
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>
+        )}
+        {/* Why: macOS has no custom-titlebar logo, so the Wilde mark sits after the app name. */}
+        {isMac && (
+          <WildeBrandLockup
+            sidebarWidth={sidebarWidth}
+            isFloating={layout.leftTitlebarChromeLayout.isFloating}
+          />
         )}
         {layout.showSidebar && (
           <Tooltip>

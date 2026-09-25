@@ -11,7 +11,6 @@
    outranks `.dark` on specificity regardless of source order. */
 @import './wilde-theme.css';
 @import './wilde-sidebar.css';
-@import './wilde-terminal.css';
 
 @font-face {
   font-family: 'Geist';

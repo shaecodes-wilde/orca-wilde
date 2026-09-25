@@ -154,6 +154,8 @@ function Sidebar({
       <div
         ref={containerRef}
         data-native-file-drop-target={sidebarOpen ? nativeDropTarget : undefined}
+        // Why static: wilde-sidebar.css paints the material only under the root Wilde gates.
+        data-wilde-sidebar-material="left"
         className="relative min-h-0 flex-shrink-0 bg-worktree-sidebar flex flex-col overflow-hidden scrollbar-sleek-parent"
         style={leftSidebarStyle}
         {...dropHandlers}

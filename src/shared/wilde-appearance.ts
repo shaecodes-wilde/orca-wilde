@@ -14,8 +14,11 @@ export const NEW_WILDE_PROFILE_APPEARANCE: WildeAppearanceV1 = {
   sidebarTreatment: 'oil-slick',
   intensity: 'balanced',
   motion: 'off',
-  terminalBranding: 'badge'
+  terminalBranding: 'off'
 }
+
+/** Terminal palette seeded alongside NEW_WILDE_PROFILE_APPEARANCE (renderer/lib/terminal-themes/wilde.ts). */
+export const NEW_WILDE_PROFILE_TERMINAL_THEME_DARK = 'Wilde Systems Dark'
 
 export const DISABLED_WILDE_APPEARANCE: WildeAppearanceV1 = {
   version: 1,
@@ -58,6 +61,6 @@ export function normalizeWildeAppearance(value: unknown): WildeAppearanceV1 | un
     sidebarTreatment: enumOr(value.sidebarTreatment, ['solid', 'oil-slick'] as const, 'oil-slick'),
     intensity: enumOr(value.intensity, ['subtle', 'balanced', 'expressive'] as const, 'balanced'),
     motion: enumOr(value.motion, ['off', 'slow'] as const, 'off'),
-    terminalBranding: enumOr(value.terminalBranding, ['off', 'badge'] as const, 'badge')
+    terminalBranding: enumOr(value.terminalBranding, ['off', 'badge'] as const, 'off')
   }
 }

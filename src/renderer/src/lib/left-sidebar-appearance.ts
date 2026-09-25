@@ -120,15 +120,15 @@ function resolveTintedSurfaceVariables(
 // the stock resolver resumes the moment Wilde disables or the theme resolves light.
 function buildWildeSidebarVariables(): LeftSidebarStyleVariables {
   return {
-    '--worktree-sidebar': 'var(--wilde-panel)',
+    '--worktree-sidebar': 'var(--wilde-sidebar-surface)',
     '--worktree-sidebar-foreground': 'var(--wilde-canvas)',
-    '--worktree-sidebar-accent': 'var(--wilde-raised)',
+    '--worktree-sidebar-accent': 'var(--wilde-sidebar-raised)',
     '--worktree-sidebar-accent-foreground': 'var(--wilde-canvas)',
     '--worktree-sidebar-border': 'var(--wilde-border)',
     '--worktree-sidebar-ring': 'var(--wilde-mint)',
-    '--sidebar': 'var(--wilde-panel)',
+    '--sidebar': 'var(--wilde-sidebar-surface)',
     '--sidebar-foreground': 'var(--wilde-canvas)',
-    '--sidebar-accent': 'var(--wilde-raised)',
+    '--sidebar-accent': 'var(--wilde-sidebar-raised)',
     '--sidebar-accent-foreground': 'var(--wilde-canvas)',
     '--sidebar-border': 'var(--wilde-border)',
     '--sidebar-ring': 'var(--wilde-mint)'

@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto'
 import type { PersistedState } from '../../../shared/persisted-state-types'
-import { NEW_WILDE_PROFILE_APPEARANCE } from '../../../shared/wilde-appearance'
+import {
+  NEW_WILDE_PROFILE_APPEARANCE,
+  NEW_WILDE_PROFILE_TERMINAL_THEME_DARK
+} from '../../../shared/wilde-appearance'
 
 import type { StoreRuntimeState } from './store-runtime-state'
 
@@ -20,7 +23,10 @@ export class LoadedCohortMigrationOperations {
       ...state,
       settings: {
         ...state.settings,
-        wildeAppearance: NEW_WILDE_PROFILE_APPEARANCE
+        wildeAppearance: NEW_WILDE_PROFILE_APPEARANCE,
+        // Why safe: this branch only runs for a brand-new profile, so the stored terminal theme
+        // is still the stock default rather than a user choice.
+        terminalThemeDark: NEW_WILDE_PROFILE_TERMINAL_THEME_DARK
       }
     }
   }

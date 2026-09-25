@@ -1,0 +1,79 @@
+/* Wilde Systems sidebar material. Hosts are the static [data-wilde-sidebar-material] attributes
+   on the left sidebar root and the right sidebar panel; nothing paints unless the root carries
+   the Wilde gates from lib/document-theme.ts, so light mode and "off" stay stock.
+
+   The material is layered backgrounds on the host itself (scrim, veil, contour SVG, harbour),
+   never a positioned overlay: it cannot cover menus, drag regions or the resize handles, and
+   needs no stacking-context changes. Surfaces inside the host read the translucent
+   --wilde-sidebar-* tokens so the contours show through, like the reference design. */
+
+:root[data-wilde-appearance="on"].dark {
+  /* Solid Wilde panels by default; the oil-slick block below turns them into dark glass. */
+  --wilde-sidebar-surface: var(--wilde-panel);
+  --wilde-sidebar-raised: var(--wilde-raised);
+  /* Global shadcn sidebar family (right sidebar, activity bars) follows the Wilde panel. */
+  --sidebar: var(--wilde-panel);
+  --sidebar-foreground: var(--wilde-canvas);
+  --sidebar-accent: var(--wilde-raised);
+  --sidebar-accent-foreground: var(--wilde-canvas);
+  --sidebar-border: var(--wilde-border);
+  --sidebar-ring: var(--wilde-mint);
+  /* How much of the contour art the dark scrim lets through, per intensity. */
+  --wilde-material-scrim: rgb(11 12 16 / 0.64);
+}
+
+:root[data-wilde-appearance="on"].dark[data-wilde-intensity="subtle"] {
+  --wilde-material-scrim: rgb(11 12 16 / 0.8);
+}
+
+:root[data-wilde-appearance="on"].dark[data-wilde-intensity="expressive"] {
+  --wilde-material-scrim: rgb(11 12 16 / 0.42);
+}
+
+:root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"] {
+  --wilde-sidebar-surface: color-mix(in srgb, var(--wilde-panel) 38%, transparent);
+  --wilde-sidebar-raised: color-mix(in srgb, var(--wilde-raised) 80%, transparent);
+}
+
+:root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"] [data-wilde-sidebar-material] {
+  background-color: var(--wilde-harbour);
+  background-image:
+    linear-gradient(var(--wilde-material-scrim), var(--wilde-material-scrim)),
+    linear-gradient(var(--wilde-material-veil), var(--wilde-material-veil)),
+    url('./wilde/oil-slick-contours.svg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+/* The right panel scopes the translucent family itself (the left sidebar gets it from its
+   inline resolver in lib/left-sidebar-appearance.ts). */
+:root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"] [data-wilde-sidebar-material="right"] {
+  --sidebar: var(--wilde-sidebar-surface);
+  --sidebar-accent: var(--wilde-sidebar-raised);
+  /* Why: a different slice of the same art, so the two sidebars don't read as mirror copies. */
+  background-size: 100% 100%, 100% 100%, 150% 100%;
+  background-position: 0 0, 0 0, 100% 0;
+}
+
+/* Optional slow drift. Off by default; never runs when the OS asks for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"][data-wilde-motion="slow"]
+    [data-wilde-sidebar-material] {
+    background-size: 100% 100%, 100% 100%, 100% 118%;
+    animation: wilde-sidebar-drift 48s ease-in-out infinite alternate;
+  }
+
+  :root[data-wilde-appearance="on"].dark[data-wilde-material="oil-slick"][data-wilde-motion="slow"]
+    [data-wilde-sidebar-material="right"] {
+    background-size: 100% 100%, 100% 100%, 150% 118%;
+  }
+}
+
+@keyframes wilde-sidebar-drift {
+  from {
+    background-position-y: 0, 0, 0%;
+  }
+  to {
+    background-position-y: 0, 0, 100%;
+  }
+}

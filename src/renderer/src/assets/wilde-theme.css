@@ -34,3 +34,52 @@
 :root[data-wilde-appearance="on"].dark[data-wilde-intensity="expressive"] {
   --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 18%, transparent);
 }
+
+/* Titlebar lockup (app-shell/WildeBrandLockup.tsx): Orca mark | WS mark + wordmark. The
+   component only mounts while Wilde is painting, so these rules need no gate. It stays in the
+   titlebar drag region on purpose — nothing here is interactive. */
+.wilde-brand-lockup {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 7px;
+  height: 100%;
+  margin-right: 4px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.wilde-brand-lockup-divider {
+  width: 1px;
+  height: 16px;
+  margin-right: 1px;
+  background: var(--wilde-border);
+}
+
+.wilde-brand-lockup-mark {
+  /* Source mark kept as-is (no recolour, crop or glow); 22px is the compact titlebar size. */
+  height: 22px;
+  width: auto;
+}
+
+.wilde-brand-lockup-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.wilde-brand-lockup-name {
+  color: var(--wilde-canvas);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.wilde-brand-lockup-edition {
+  color: var(--wilde-muted);
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+}

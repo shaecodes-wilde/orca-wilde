@@ -124,34 +124,6 @@ export function WildeAppearanceSetting({
             />
           }
         />
-        <SettingsRow
-          label={translate('settings.appearance.wilde.terminalBranding.title', 'Terminal badge')}
-          description={translate(
-            'settings.appearance.wilde.terminalBranding.description',
-            'Show a Wilde Systems badge on terminal surfaces.'
-          )}
-          control={
-            <SettingsSegmentedControl<WildeAppearanceV1['terminalBranding']>
-              size="sm"
-              value={wilde.terminalBranding}
-              onChange={(terminalBranding) => update({ terminalBranding })}
-              ariaLabel={translate(
-                'settings.appearance.wilde.terminalBranding.title',
-                'Terminal badge'
-              )}
-              options={[
-                {
-                  value: 'off',
-                  label: translate('settings.appearance.wilde.terminalBranding.off', 'Off')
-                },
-                {
-                  value: 'badge',
-                  label: translate('settings.appearance.wilde.terminalBranding.badge', 'Badge')
-                }
-              ]}
-            />
-          }
-        />
       </div>
       {wilde.enabled && !resolvedDark ? (
         <p className="text-[11px] text-muted-foreground">
