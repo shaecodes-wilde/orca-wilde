@@ -5,6 +5,8 @@ import { translate } from '@/i18n/i18n'
 import { useWildeAppearance } from '@/hooks/use-wilde-appearance'
 import type { WildeSpotifyMediaCommand } from '../../../../shared/wilde-spotify'
 import { WildeSpotifyRecentMenu } from './WildeSpotifyRecentMenu'
+import { WildeSpotifyVisualizer } from './WildeSpotifyVisualizer'
+import { WildeSpotifyVolume } from './WildeSpotifyVolume'
 import {
   estimatePositionMs,
   getWildeSpotifyApi,
@@ -35,10 +37,10 @@ export function WildeSpotifyPlayer(): React.JSX.Element | null {
       .then(setSupported)
   }, [])
   const visible = active && supported && config?.enabled === true
-  return visible ? <PlayerCard /> : null
+  return visible ? <PlayerCard visualizer={config.visualizer} /> : null
 }
 
-function PlayerCard(): React.JSX.Element {
+function PlayerCard({ visualizer }: { visualizer: boolean }): React.JSX.Element {
   const nowPlaying = useWildeSpotifyNowPlaying(true)
   const account = useWildeSpotifyAccount()
   const connected = account?.state === 'connected'
@@ -52,6 +54,7 @@ function PlayerCard(): React.JSX.Element {
   const errorTimer = useRef<number | null>(null)
   const [dragRatio, setDragRatio] = useState<number | null>(null)
   const barRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   const showError = (message: string): void => {
     setError(message)
@@ -76,12 +79,12 @@ function PlayerCard(): React.JSX.Element {
   if (!nowPlaying.available) {
     return (
       <div data-wilde-spotify-player="" className="wilde-spotify">
-        <div className="wilde-spotify-card wilde-spotify-card-idle">
+        <div ref={cardRef} className="wilde-spotify-card wilde-spotify-card-idle">
           <Music2 size={15} className="wilde-spotify-idle-icon" />
           <span className="wilde-spotify-idle-text">
             {translate('wildeSpotify.idle', 'Spotify isn’t playing')}
           </span>
-          <WildeSpotifyRecentMenu connected={connected} onError={showError} />
+          <WildeSpotifyRecentMenu connected={connected} onError={showError} anchorRef={cardRef} />
         </div>
         {error ? <div className="wilde-spotify-error">{error}</div> : null}
       </div>
@@ -132,7 +135,7 @@ function PlayerCard(): React.JSX.Element {
 
   return (
     <div data-wilde-spotify-player="" className="wilde-spotify">
-      <div className="wilde-spotify-card">
+      <div ref={cardRef} className="wilde-spotify-card">
         <div className="wilde-spotify-top">
           {nowPlaying.artwork ? (
             <img src={nowPlaying.artwork} alt="" className="wilde-spotify-art" />
@@ -160,7 +163,7 @@ function PlayerCard(): React.JSX.Element {
           >
             <Heart size={15} fill={details?.liked ? 'currentColor' : 'none'} />
           </button>
-          <WildeSpotifyRecentMenu connected={connected} onError={showError} />
+          <WildeSpotifyRecentMenu connected={connected} onError={showError} anchorRef={cardRef} />
         </div>
 
         <div
@@ -219,6 +222,8 @@ function PlayerCard(): React.JSX.Element {
           >
             <SkipBack size={16} fill="currentColor" />
           </button>
+          <div className="wilde-spotify-play-wrap">
+            {visualizer ? <WildeSpotifyVisualizer playing={playing} /> : null}
           <button
             type="button"
             className="wilde-spotify-play"
@@ -227,6 +232,7 @@ function PlayerCard(): React.JSX.Element {
           >
             {playing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
           </button>
+          </div>
           <button
             type="button"
             className="wilde-spotify-icon-button"
@@ -236,6 +242,11 @@ function PlayerCard(): React.JSX.Element {
           >
             <SkipForward size={16} fill="currentColor" />
           </button>
+          {connected ? (
+            <div className="wilde-spotify-volume-slot">
+              <WildeSpotifyVolume initialVolume={details?.volumePercent ?? null} onError={showError} />
+            </div>
+          ) : null}
         </div>
       </div>
       {error ? <div className="wilde-spotify-error">{error}</div> : null}

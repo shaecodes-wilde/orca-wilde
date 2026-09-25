@@ -63,6 +63,14 @@ export class WildeSpotifyMediaSession {
     }
   }
 
+  /** Passive listener: sees state changes without starting the bridge (used to gate the audio tap). */
+  observe(listener: (state: WildeSpotifyNowPlaying) => void): () => void {
+    this.listeners.add(listener)
+    return () => {
+      this.listeners.delete(listener)
+    }
+  }
+
   async command(command: WildeSpotifyMediaCommand): Promise<boolean> {
     this.ensureStarted()
     return this.send(command)

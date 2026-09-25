@@ -4,13 +4,18 @@ import { DEFAULT_WILDE_SPOTIFY_CONFIG, normalizeWildeSpotifyConfig } from './wil
 describe('normalizeWildeSpotifyConfig', () => {
   it('defaults to enabled with no client id', () => {
     expect(normalizeWildeSpotifyConfig(undefined)).toEqual(DEFAULT_WILDE_SPOTIFY_CONFIG)
-    expect(normalizeWildeSpotifyConfig('nope')).toEqual({ enabled: true, clientId: null })
+    expect(normalizeWildeSpotifyConfig('nope')).toEqual({
+      enabled: true,
+      clientId: null,
+      visualizer: true
+    })
   })
 
   it('keeps a well-formed client id and an explicit off', () => {
     expect(
       normalizeWildeSpotifyConfig({ enabled: false, clientId: ' 0123456789abcdef0123456789abcdef ' })
-    ).toEqual({ enabled: false, clientId: '0123456789abcdef0123456789abcdef' })
+    ).toEqual({ enabled: false, clientId: '0123456789abcdef0123456789abcdef', visualizer: true })
+    expect(normalizeWildeSpotifyConfig({ visualizer: false }).visualizer).toBe(false)
   })
 
   it('drops client ids that are not plain alphanumerics', () => {

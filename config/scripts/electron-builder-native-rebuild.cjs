@@ -14,6 +14,11 @@ function runElectronBuilderNativeRebuild(context, runner = execFileSync, runtime
       cwd: projectDir,
       stdio: 'inherit'
     })
+    // Wilde build: the Spotify visualizer's audio tap ships in extraResources on Windows.
+    runner(process.execPath, ['config/scripts/build-wilde-spotify-audio-tap.mjs'], {
+      cwd: projectDir,
+      stdio: 'inherit'
+    })
   }
   runner(process.execPath, args, {
     cwd: projectDir,

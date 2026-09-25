@@ -32,9 +32,15 @@ export type WildeSpotifyConfig = {
   enabled: boolean
   /** Client ID of the user's own Spotify developer app (PKCE; no secret). */
   clientId: string | null
+  /** Radial visualizer around play/pause, fed by the Spotify-only audio tap. */
+  visualizer: boolean
 }
 
-export const DEFAULT_WILDE_SPOTIFY_CONFIG: WildeSpotifyConfig = { enabled: true, clientId: null }
+export const DEFAULT_WILDE_SPOTIFY_CONFIG: WildeSpotifyConfig = {
+  enabled: true,
+  clientId: null,
+  visualizer: true
+}
 
 export type WildeSpotifyAccountStatus =
   | { state: 'no-client-id' }
@@ -51,6 +57,8 @@ export type WildeSpotifyPlaybackDetails = {
   progressMs: number
   durationMs: number
   isPlaying: boolean
+  /** Spotify's own (in-app) volume on the active device, when it reports one. */
+  volumePercent: number | null
 }
 
 export type WildeSpotifyRecentContext = {
@@ -61,6 +69,9 @@ export type WildeSpotifyRecentContext = {
   imageUrl: string | null
   playedAt: string
 }
+
+/** Band levels (0..1, low to high frequency) from the Spotify-only audio tap. */
+export type WildeSpotifyBands = number[]
 
 export type WildeSpotifyActionResult = { ok: true } | { ok: false; message: string }
 
@@ -77,5 +88,5 @@ export function normalizeWildeSpotifyConfig(value: unknown): WildeSpotifyConfig 
     typeof record.clientId === 'string' && /^[A-Za-z0-9]{16,64}$/.test(record.clientId.trim())
       ? record.clientId.trim()
       : null
-  return { enabled: record.enabled !== false, clientId }
+  return { enabled: record.enabled !== false, clientId, visualizer: record.visualizer !== false }
 }

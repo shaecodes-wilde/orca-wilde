@@ -18396,7 +18396,14 @@
       "connectedAs": "Connected as {{value0}}",
       "connecting": "Waiting for Spotify in your browser…",
       "needsClientId": "Add your Client ID to connect.",
-      "notConnected": "Not connected."
+      "notConnected": "Not connected.",
+      "visualizer": "Visualizer",
+      "visualizerDescription": "Lavender bars around play/pause that move with Spotify’s audio only. Audio is analysed on this PC, never recorded, and capture stops while paused."
+    },
+    "volume": {
+      "title": "Spotify volume",
+      "mute": "Mute",
+      "unmute": "Unmute"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ListMusic, Loader2 } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { translate } from '@/i18n/i18n'
@@ -14,14 +14,39 @@ type MenuState =
 /** "Recently played" flyout: distinct albums/playlists/artists; clicking one plays it on this PC. */
 export function WildeSpotifyRecentMenu({
   connected,
-  onError
+  onError,
+  anchorRef
 }: {
   connected: boolean
   onError: (message: string) => void
+  /** The player card: the menu centers on it and matches its width. */
+  anchorRef: React.RefObject<HTMLDivElement | null>
 }): React.JSX.Element {
   const [open, setOpen] = useState(false)
   const [menu, setMenu] = useState<MenuState>({ kind: 'idle' })
   const [startingUri, setStartingUri] = useState<string | null>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  // Measured on open: the menu matches the card's width and lines up with its edges.
+  const [fit, setFit] = useState<{ width: number; alignOffset: number; sideOffset: number } | null>(
+    null
+  )
+
+  const measureFit = (): void => {
+    const card = anchorRef.current?.getBoundingClientRect()
+    const trigger = triggerRef.current?.getBoundingClientRect()
+    if (!card || !trigger) {
+      setFit(null)
+      return
+    }
+    // Why align="end" + a negative offset: floating-ui negates alignOffset for end alignment, so
+    // this pushes the menu's right edge from the ≡ button out to the card's right edge.
+    setFit({
+      width: card.width,
+      alignOffset: -(card.right - trigger.right),
+      // Clear the card's top edge (the ≡ button sits below it), then a small gap.
+      sideOffset: trigger.top - card.top + 8
+    })
+  }
 
   const load = async (): Promise<void> => {
     const api = getWildeSpotifyApi()
@@ -50,6 +75,9 @@ export function WildeSpotifyRecentMenu({
     <Popover
       open={open}
       onOpenChange={(next) => {
+        if (next) {
+          measureFit()
+        }
         setOpen(next)
         if (next && connected) {
           void load()
@@ -57,11 +85,24 @@ export function WildeSpotifyRecentMenu({
       }}
     >
       <PopoverTrigger asChild>
-        <button type="button" className="wilde-spotify-icon-button" aria-label={label} title={label}>
+        <button
+          ref={triggerRef}
+          type="button"
+          className="wilde-spotify-icon-button"
+          aria-label={label}
+          title={label}
+        >
           <ListMusic size={15} />
         </button>
       </PopoverTrigger>
-      <PopoverContent side="top" align="end" sideOffset={8} className="wilde-spotify-menu w-72 p-0">
+      <PopoverContent
+        side="top"
+        align="end"
+        alignOffset={fit?.alignOffset ?? 0}
+        sideOffset={fit?.sideOffset ?? 10}
+        className="wilde-spotify-menu wilde-spotify-recent p-0"
+        style={{ width: fit?.width ?? 288 }}
+      >
         <div className="wilde-spotify-menu-header">{label}</div>
         {!connected ? (
           <div className="wilde-spotify-menu-note">

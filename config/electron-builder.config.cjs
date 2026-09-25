@@ -458,6 +458,11 @@ module.exports = {
         from: 'native/wilde-spotify-windows/media-session.ps1',
         to: 'wilde-spotify-windows/media-session.ps1'
       },
+      {
+        // Wilde Spotify visualizer: Spotify-only audio tap (config/scripts/build-wilde-spotify-audio-tap.mjs).
+        from: 'native/wilde-spotify-windows/.build/wilde-spotify-audio-tap.exe',
+        to: 'wilde-spotify-windows/wilde-spotify-audio-tap.exe'
+      },
       featureWallResources
     ]
   },

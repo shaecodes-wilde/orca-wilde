@@ -1,5 +1,6 @@
 import type {
   WildeSpotifyAccountStatus,
+  WildeSpotifyBands,
   WildeSpotifyActionResult,
   WildeSpotifyConfig,
   WildeSpotifyMediaCommand,
@@ -25,4 +26,9 @@ export type WildeSpotifyApi = {
     { ok: true; contexts: WildeSpotifyRecentContext[] } | { ok: false; message: string }
   >
   playContext: (contextUri: string) => Promise<WildeSpotifyActionResult>
+  /** Spotify's in-app volume (0–100) on this PC's Spotify app. */
+  setVolume: (percent: number) => Promise<WildeSpotifyActionResult>
+  isVisualizerSupported: () => Promise<boolean>
+  /** Band levels from the Spotify-only audio tap; capture runs only while subscribed and playing. */
+  onBands: (callback: (bands: WildeSpotifyBands) => void) => () => void
 }

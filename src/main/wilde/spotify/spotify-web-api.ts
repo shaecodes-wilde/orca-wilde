@@ -92,6 +92,8 @@ export function collectRecentContexts(body: unknown): {
 export class WildeSpotifyApi {
   private readonly contextLookupCache = new Map<string, Pick<WildeSpotifyRecentContext, 'name' | 'subtitle' | 'imageUrl'>>()
 
+  private volumeDevice: { id: string | null; at: number } | null = null
+
   constructor(
     private readonly auth: WildeSpotifyAuth,
     private readonly fetchImpl: Fetch = fetch
@@ -141,12 +143,29 @@ export class WildeSpotifyApi {
       liked: trackUri ? await this.isSaved(trackUri, trackId) : false,
       progressMs: typeof playback.progress_ms === 'number' ? playback.progress_ms : 0,
       durationMs: typeof item.duration_ms === 'number' ? item.duration_ms : 0,
-      isPlaying: playback.is_playing === true
+      isPlaying: playback.is_playing === true,
+      volumePercent:
+        isPlainRecord(playback.device) && typeof playback.device.volume_percent === 'number'
+          ? playback.device.volume_percent
+          : null
     }
   }
 
   async seek(positionMs: number): Promise<void> {
     await this.request('PUT', `/me/player/seek?position_ms=${Math.max(0, Math.round(positionMs))}`)
+  }
+
+  /** Spotify's own (in-app) volume on this PC's Spotify app — not the Windows volume. */
+  async setVolume(percent: number): Promise<void> {
+    const volume = Math.min(100, Math.max(0, Math.round(percent)))
+    // Why cached: dragging the slider sends several updates a second; one device lookup per
+    // drag keeps us well under Spotify's rate limit.
+    if (!this.volumeDevice || Date.now() - this.volumeDevice.at > 30_000) {
+      this.volumeDevice = { id: await this.findDesktopDeviceId(), at: Date.now() }
+    }
+    const deviceId = this.volumeDevice.id
+    const device = deviceId ? `&device_id=${encodeURIComponent(deviceId)}` : ''
+    await this.request('PUT', `/me/player/volume?volume_percent=${volume}${device}`)
   }
 
   async setSaved(trackUri: string, trackId: string, saved: boolean): Promise<void> {

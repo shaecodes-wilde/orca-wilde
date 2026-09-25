@@ -79,6 +79,26 @@ describe('WildeSpotifyApi.request', () => {
     await expect(api.playContext('spotify:album:a')).rejects.toThrow('open on this PC')
   })
 
+  it('sets the Spotify app volume on the desktop device and caches the device lookup', async () => {
+    const { asAuth } = fakeAuth(['t'])
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ devices: [{ id: 'pc', type: 'Computer', is_active: true }] }), {
+          status: 200
+        })
+      )
+      .mockResolvedValue(new Response(null, { status: 204 }))
+    const api = new WildeSpotifyApi(asAuth, fetchImpl)
+
+    await api.setVolume(64.4)
+    await api.setVolume(120)
+    expect(fetchImpl).toHaveBeenCalledTimes(3)
+    expect(fetchImpl.mock.calls[1][0]).toContain('/me/player/volume?volume_percent=64&device_id=pc')
+    expect(fetchImpl.mock.calls[1][1].method).toBe('PUT')
+    expect(fetchImpl.mock.calls[2][0]).toContain('volume_percent=100')
+  })
+
   it('plays a context on the desktop app, preferring the active computer', async () => {
     const { asAuth } = fakeAuth(['t'])
     const fetchImpl = vi

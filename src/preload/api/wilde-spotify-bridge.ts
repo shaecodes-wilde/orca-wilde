@@ -1,5 +1,9 @@
 import { ipcRenderer } from 'electron'
-import type { WildeSpotifyAccountStatus, WildeSpotifyNowPlaying } from '../../shared/wilde-spotify'
+import type {
+  WildeSpotifyAccountStatus,
+  WildeSpotifyBands,
+  WildeSpotifyNowPlaying
+} from '../../shared/wilde-spotify'
 import type { WildeSpotifyApi } from './wilde-spotify-api'
 
 export const wildeSpotifyApi = {
@@ -29,5 +33,18 @@ export const wildeSpotifyApi = {
   setLiked: (trackUri, trackId, liked) =>
     ipcRenderer.invoke('wildeSpotify:setLiked', trackUri, trackId, liked),
   getRecent: () => ipcRenderer.invoke('wildeSpotify:getRecent'),
-  playContext: (contextUri) => ipcRenderer.invoke('wildeSpotify:playContext', contextUri)
+  playContext: (contextUri) => ipcRenderer.invoke('wildeSpotify:playContext', contextUri),
+  setVolume: (percent) => ipcRenderer.invoke('wildeSpotify:setVolume', percent),
+  isVisualizerSupported: () => ipcRenderer.invoke('wildeSpotify:isVisualizerSupported'),
+  onBands: (callback) => {
+    const listener = (_event: Electron.IpcRendererEvent, bands: WildeSpotifyBands): void =>
+      callback(bands)
+    ipcRenderer.on('wildeSpotify:bands', listener)
+    ipcRenderer.send('wildeSpotify:subscribeBands')
+    return () => {
+      ipcRenderer.removeListener('wildeSpotify:bands', listener)
+      // Why: capture stops as soon as no visible player is listening.
+      ipcRenderer.send('wildeSpotify:unsubscribeBands')
+    }
+  }
 } satisfies WildeSpotifyApi

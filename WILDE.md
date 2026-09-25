@@ -25,6 +25,14 @@ playback control):
    and click **Connect Spotify**. No client secret is needed (PKCE); the refresh token is sealed
    with Windows secure storage in the Orca profile.
 
+Also on the card: a **volume** button (bottom right) that sets Spotify's own in-app volume, not
+the Windows volume (scroll over it to step ±5; Premium), and a **visualizer** ring of lavender bars
+around play/pause. The visualizer listens to Spotify's audio only (WASAPI process loopback via
+`native/wilde-spotify-windows/SpotifyAudioTap.cs`, compiled with the .NET Framework `csc.exe` that
+ships with Windows), analyses it in memory (never recorded), and captures nothing while paused or
+while Orca is hidden; it costs about 1.5% of one CPU core while playing. Switch it off with
+**Visualizer** in Settings.
+
 Turn the player off with the **Spotify player** switch in the same section. Code:
 `src/main/wilde/spotify/`, `native/wilde-spotify-windows/media-session.ps1`,
 `src/renderer/src/components/wilde-spotify/`.

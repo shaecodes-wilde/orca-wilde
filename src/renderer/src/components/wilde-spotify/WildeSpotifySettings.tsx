@@ -73,6 +73,16 @@ export function WildeSpotifySettings(): React.JSX.Element | null {
         checked={config.enabled}
         onChange={() => void updateConfig({ enabled: !config.enabled })}
       />
+      <SettingsSwitchRow
+        label={translate('wildeSpotify.settings.visualizer', 'Visualizer')}
+        description={translate(
+          'wildeSpotify.settings.visualizerDescription',
+          'Lavender bars around play/pause that move with Spotify’s audio only. Audio is analysed on this PC, never recorded, and capture stops while paused.'
+        )}
+        checked={config.visualizer}
+        disabled={!config.enabled}
+        onChange={() => void updateConfig({ visualizer: !config.visualizer })}
+      />
       <SettingsRow
         label={translate('wildeSpotify.settings.account', 'Spotify account')}
         description={translate(

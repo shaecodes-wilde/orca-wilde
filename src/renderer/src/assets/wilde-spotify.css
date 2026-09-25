@@ -182,11 +182,101 @@
 }
 
 .wilde-spotify-controls {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  padding-top: 2px;
+  /* Room for the 68px visualizer ring around play/pause without touching the skip buttons. */
+  gap: 26px;
+  min-height: 68px;
+}
+
+.wilde-spotify-play-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.wilde-spotify-visualizer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.wilde-spotify-play-wrap .wilde-spotify-play {
+  position: relative;
+}
+
+.wilde-spotify-volume-slot {
+  position: absolute;
+  top: 50%;
+  right: -4px;
+  transform: translateY(-50%);
+}
+
+/* Vertical Spotify volume slider (WildeSpotifyVolume.tsx). */
+.wilde-spotify-volume {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 6px;
+}
+
+.wilde-spotify-volume-value {
+  color: var(--wilde-canvas);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wilde-spotify-volume-track {
+  position: relative;
+  width: 6px;
+  height: 110px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wilde-canvas) 14%, transparent);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.wilde-spotify-volume-track::before {
+  /* Wider invisible hit area so the slim track is easy to grab. */
+  content: '';
+  position: absolute;
+  inset: -4px -10px;
+}
+
+.wilde-spotify-volume-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(0deg, var(--wilde-lavender), var(--wilde-mint));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--wilde-mint) 55%, transparent);
+}
+
+.wilde-spotify-volume-thumb {
+  position: absolute;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--wilde-canvas);
+  box-shadow: 0 0 8px var(--wilde-mint);
+  transform: translate(-50%, 50%);
+}
+
+.wilde-spotify-volume-track:focus-visible {
+  outline: 2px solid var(--wilde-mint);
+  outline-offset: 4px;
+}
+
+.wilde-spotify-volume-mute {
+  width: 26px;
+  height: 26px;
 }
 
 .wilde-spotify-play {
@@ -301,4 +391,52 @@
 .wilde-spotify-menu-subtitle {
   color: var(--wilde-muted);
   font-size: 11px;
+}
+
+/* Popups rise out of the player: a short spring up on open, a quick sink on close. Overrides
+   the stock popover zoom (unlayered CSS beats the Tailwind animation utilities). */
+.wilde-spotify-menu[data-state='open'] {
+  transform-origin: bottom center;
+  animation: wilde-spotify-rise 240ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.wilde-spotify-menu[data-state='closed'] {
+  transform-origin: bottom center;
+  animation: wilde-spotify-sink 130ms ease-in forwards;
+}
+
+@keyframes wilde-spotify-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wilde-spotify-sink {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wilde-spotify-menu[data-state='open'],
+  .wilde-spotify-menu[data-state='closed'] {
+    animation-name: wilde-spotify-fade;
+    transform: none;
+  }
+}
+
+@keyframes wilde-spotify-fade {
+  from {
+    opacity: 0;
+  }
 }

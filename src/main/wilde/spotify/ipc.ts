@@ -1,6 +1,7 @@
 import { app, ipcMain, type WebContents } from 'electron'
 import type {
   WildeSpotifyAccountStatus,
+  WildeSpotifyBands,
   WildeSpotifyActionResult,
   WildeSpotifyConfig,
   WildeSpotifyMediaCommand,
@@ -8,6 +9,7 @@ import type {
   WildeSpotifyPlaybackDetails,
   WildeSpotifyRecentContext
 } from '../../../shared/wilde-spotify'
+import { WildeSpotifyAudioTap } from './audio-tap-host'
 import { WildeSpotifyMediaSession } from './media-session-host'
 import { WildeSpotifyAuth } from './spotify-auth'
 import { readWildeSpotifyConfig, writeWildeSpotifyConfig } from './spotify-store'
@@ -15,14 +17,36 @@ import { WildeSpotifyApi } from './spotify-web-api'
 
 const NOW_PLAYING_EVENT = 'wildeSpotify:nowPlaying'
 const ACCOUNT_EVENT = 'wildeSpotify:account'
+const BANDS_EVENT = 'wildeSpotify:bands'
 
-let config: WildeSpotifyConfig = { enabled: true, clientId: null }
+let config: WildeSpotifyConfig = { enabled: true, clientId: null, visualizer: true }
 let accountStatus: WildeSpotifyAccountStatus = { state: 'disconnected' }
 const mediaSession = new WildeSpotifyMediaSession()
 const auth = new WildeSpotifyAuth(() => config.clientId)
 const api = new WildeSpotifyApi(auth)
 const nowPlayingSubscribers = new Map<number, { contents: WebContents; unsubscribe: () => void }>()
 const accountSubscribers = new Map<number, WebContents>()
+const bandSubscribers = new Map<number, WebContents>()
+const bandDestroyHooked = new Set<number>()
+const audioTap = new WildeSpotifyAudioTap((bands: WildeSpotifyBands) => {
+  for (const [id, contents] of bandSubscribers) {
+    if (contents.isDestroyed()) {
+      bandSubscribers.delete(id)
+    } else {
+      contents.send(BANDS_EVENT, bands)
+    }
+  }
+})
+
+/**
+ * Captures Spotify's audio only while it can be seen: the visualizer is on, a visible player is
+ * subscribed, and Spotify is playing. Paused means no capture at all.
+ */
+function updateAudioTap(): void {
+  const state = mediaSession.getState()
+  const playing = state.available && state.status === 'Playing'
+  audioTap.setActive(config.enabled && config.visualizer && bandSubscribers.size > 0 && playing)
+}
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
@@ -75,14 +99,20 @@ const HANDLE_CHANNELS = [
   'wildeSpotify:seek',
   'wildeSpotify:setLiked',
   'wildeSpotify:getRecent',
-  'wildeSpotify:playContext'
+  'wildeSpotify:playContext',
+  'wildeSpotify:setVolume',
+  'wildeSpotify:isVisualizerSupported'
 ] as const
 
 /** IPC for the Wilde Spotify mini-player (right sidebar). Windows-only now-playing; Web API anywhere. */
 export function registerWildeSpotifyHandlers(): void {
   config = readWildeSpotifyConfig()
   void refreshAccountStatus()
-  app.once('will-quit', () => mediaSession.dispose())
+  app.once('will-quit', () => {
+    audioTap.dispose()
+    mediaSession.dispose()
+  })
+  mediaSession.observe(() => updateAudioTap())
   // Why: registration can run again after a renderer recovery; ipcMain.handle throws on duplicates.
   for (const channel of HANDLE_CHANNELS) {
     ipcMain.removeHandler(channel)
@@ -96,6 +126,7 @@ export function registerWildeSpotifyHandlers(): void {
       // A different Spotify app cannot use the old app's refresh token.
       auth.logout()
     }
+    updateAudioTap()
     await refreshAccountStatus()
     return config
   })
@@ -169,4 +200,27 @@ export function registerWildeSpotifyHandlers(): void {
     }
   )
   ipcMain.handle('wildeSpotify:playContext', (_event, contextUri: string) => run(() => api.playContext(contextUri)))
+
+  ipcMain.handle('wildeSpotify:setVolume', (_event, percent: number) => run(() => api.setVolume(percent)))
+
+  ipcMain.handle('wildeSpotify:isVisualizerSupported', (): boolean => audioTap.isSupported)
+  ipcMain.removeAllListeners('wildeSpotify:subscribeBands')
+  ipcMain.removeAllListeners('wildeSpotify:unsubscribeBands')
+  ipcMain.on('wildeSpotify:subscribeBands', (event) => {
+    const contents = event.sender
+    if (!bandDestroyHooked.has(contents.id)) {
+      bandDestroyHooked.add(contents.id)
+      contents.once('destroyed', () => {
+        bandDestroyHooked.delete(contents.id)
+        bandSubscribers.delete(contents.id)
+        updateAudioTap()
+      })
+    }
+    bandSubscribers.set(contents.id, contents)
+    updateAudioTap()
+  })
+  ipcMain.on('wildeSpotify:unsubscribeBands', (event) => {
+    bandSubscribers.delete(event.sender.id)
+    updateAudioTap()
+  })
 }
