@@ -14,20 +14,17 @@ import {
 import { pruneAppImageExtractedRoots } from './appimage-extraction-pruning'
 import { withAppImageRegistrationLock } from './appimage-registration-lock'
 import { getBundledLauncherPath } from './bundled-cli-launcher-path'
+import { LINUX_SERVE_DISPATCHER_MARKER } from './cli-install-constants'
 import { quoteShell } from './cli-install-path-format'
 
-// Why: marks a dispatcher this function wrote so repeat serve starts overwrite
-// our own file idempotently but never clobber a user's own ~/.local/bin/orca.
-const DISPATCHER_MARKER = '# orca-serve-bare-orca-dispatcher'
-
 export type LinuxBareOrcaDispatcherOptions = {
-  /** Packaged app resources root; the bundled `orca-ide` launcher lives under it. */
+  /** Packaged app resources root; the bundled `orca-wilde` launcher lives under it. */
   resourcesPath: string
   /** Test seam — defaults to the real home directory. */
   homePath?: string
   /** Trusted caller override; production requires the complete AppImage runtime identity. */
   appImagePath?: string | null
-  /** Test seam — defaults to $XDG_CACHE_HOME/orca/appimage. */
+  /** Test seam — defaults to $XDG_CACHE_HOME/orca-wilde/appimage. */
   appImageCacheRootPath?: string
   /** Test seam — defaults to running the AppImage's own `--appimage-extract`. */
   appImageExtractRunner?: (appImagePath: string, cwd: string) => Promise<void>
@@ -41,21 +38,22 @@ export type LinuxBareOrcaDispatcherState =
 export type LinuxBareOrcaDispatcherResult = {
   state: LinuxBareOrcaDispatcherState
   dispatcherPath: string
-  /** The bundled `orca-ide` launcher the dispatcher execs. */
+  /** The bundled `orca-wilde` launcher the dispatcher execs. */
   target: string | null
 }
 
-// Why: on Linux the CLI installs as `orca-ide`, not bare `orca`, to avoid
-// shadowing GNOME Orca's /usr/bin/orca. But the Claude Team launcher typed into
-// the initial managed terminal invokes the literal `orca claude-teams`, so a
-// headless serve box needs a bare-`orca` dispatcher on the managed-terminal PATH
-// (~/.local/bin, which patchPackagedProcessPath puts ahead of /usr/bin). It is a
-// plain file, not a managed symlink, so CliInstaller.removeLegacyLinuxCommandIfManaged
-// never reclaims it.
+// Why: the packaged CLI is `orca-wilde`, but a headless serve box has no GUI to
+// run "Install CLI" from, so serve drops this dispatcher at ~/.local/bin/orca-wilde
+// to put the command on the managed-terminal PATH (~/.local/bin, which
+// patchPackagedProcessPath puts ahead of /usr/bin). It is a plain file, not a
+// managed symlink, so CliInstaller.removeLegacyLinuxCommandIfManaged never
+// reclaims it; its marker makes CliCommandInspection treat it as our stale file
+// so a later "Install CLI" replaces it with the real symlink instead of
+// reporting a conflict.
 export async function installLinuxBareOrcaDispatcher(
   options: LinuxBareOrcaDispatcherOptions
 ): Promise<LinuxBareOrcaDispatcherResult> {
-  const dispatcherPath = join(options.homePath ?? homedir(), '.local', 'bin', 'orca')
+  const dispatcherPath = join(options.homePath ?? homedir(), '.local', 'bin', 'orca-wilde')
   if (existsSync(dispatcherPath) && !(await isOwnedDispatcher(dispatcherPath))) {
     return { state: 'skipped-foreign', dispatcherPath, target: null }
   }
@@ -74,7 +72,7 @@ export async function installLinuxBareOrcaDispatcher(
     : { state: 'skipped-foreign', dispatcherPath, target: null }
 }
 
-/** Bare-`orca` script that execs the one Linux CLI launcher. */
+/** Bare-`orca-wilde` script that execs the one Linux CLI launcher. */
 export function buildBareOrcaCliScript(launcherPath: string): string {
   return `#!/usr/bin/env bash\nexec ${quoteShell(launcherPath)} "$@"\n`
 }
@@ -120,14 +118,14 @@ async function resolveStableLauncherPath(
 }
 
 function insertDispatcherMarker(script: string): string {
-  return script.replace('\n', `\n${DISPATCHER_MARKER}\n`)
+  return script.replace('\n', `\n${LINUX_SERVE_DISPATCHER_MARKER}\n`)
 }
 
 async function isOwnedDispatcher(dispatcherPath: string): Promise<boolean> {
   try {
     return (
       (await lstat(dispatcherPath)).isFile() &&
-      (await readFile(dispatcherPath, 'utf8')).split('\n')[1] === DISPATCHER_MARKER
+      (await readFile(dispatcherPath, 'utf8')).split('\n')[1] === LINUX_SERVE_DISPATCHER_MARKER
     )
   } catch {
     return false
@@ -136,7 +134,7 @@ async function isOwnedDispatcher(dispatcherPath: string): Promise<boolean> {
 
 async function publishDispatcher(dispatcherPath: string, content: string): Promise<boolean> {
   const directoryPath = dirname(dispatcherPath)
-  const temporaryPath = join(directoryPath, `.orca-dispatcher-${process.pid}-${randomUUID()}`)
+  const temporaryPath = join(directoryPath, `.orca-wilde-dispatcher-${process.pid}-${randomUUID()}`)
   await mkdir(directoryPath, { recursive: true })
   await writeFile(temporaryPath, content, { encoding: 'utf8', flag: 'wx', mode: 0o755 })
   try {
@@ -146,7 +144,7 @@ async function publishDispatcher(dispatcherPath: string, content: string): Promi
 
     const displacedPath = join(
       directoryPath,
-      `.orca-preserved-dispatcher-${process.pid}-${randomUUID()}`
+      `.orca-wilde-preserved-dispatcher-${process.pid}-${randomUUID()}`
     )
     try {
       await rename(dispatcherPath, displacedPath)

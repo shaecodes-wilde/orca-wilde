@@ -86,5 +86,5 @@ boundary. Changing host-published content reaches old clients even without a
 wire-shape change, so preserve established semantics or negotiate the behavior.
 
 For WSL, use the exact executable and arguments returned by Orca so the distro
-and packaged launcher remain bound. Do not translate a printed `orca-ide`
+and packaged launcher remain bound. Do not translate a printed `orca-wilde`
 recovery command into a PATH-resolved local command.

@@ -194,7 +194,7 @@ export class ClaudeManagedAuthStorage {
     if (!distro || !home?.startsWith('/')) {
       throw new Error('Could not resolve the active WSL home directory for Claude login.')
     }
-    const linuxPath = `${home.replace(/\/$/, '')}/.local/share/orca/claude-accounts/${accountId}/auth`
+    const linuxPath = `${home.replace(/\/$/, '')}/.local/share/orca-wilde/claude-accounts/${accountId}/auth`
     const created = await runWslProcess({
       distro,
       loginPath: 'none',
@@ -221,7 +221,7 @@ export class ClaudeManagedAuthStorage {
     expectedAccountId?: string
   ): Promise<string> {
     if (
-      !wslInfo.linuxPath.includes('/.local/share/orca/claude-accounts/') ||
+      !wslInfo.linuxPath.includes('/.local/share/orca-wilde/claude-accounts/') ||
       !wslInfo.linuxPath.endsWith('/auth')
     ) {
       throw new Error('Managed WSL Claude auth storage is outside Orca account storage.')
@@ -246,7 +246,7 @@ export class ClaudeManagedAuthStorage {
         script: [
           'set -euo pipefail',
           `candidate=${shellQuote(wslInfo.linuxPath)}`,
-          'managed_root="${HOME%/}/.local/share/orca/claude-accounts"',
+          'managed_root="${HOME%/}/.local/share/orca-wilde/claude-accounts"',
           'candidate_real=$(readlink -f -- "$candidate")',
           'managed_root_real=$(readlink -f -- "$managed_root")',
           'test -f "$candidate_real/.orca-managed-claude-auth"',

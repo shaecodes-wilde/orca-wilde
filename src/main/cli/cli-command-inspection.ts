@@ -3,7 +3,11 @@ import { lstat, readFile, readlink } from 'node:fs/promises'
 import { basename, dirname, resolve } from 'node:path'
 import type { CliInstallMethod, CliInstallStatus } from '../../shared/cli-install-types'
 import { isAppImageExtractedLauncherPath } from './appimage-extracted-root'
-import { DEV_COMMAND_NAME, DEV_LAUNCHER_DIR } from './cli-install-constants'
+import {
+  DEV_COMMAND_NAME,
+  DEV_LAUNCHER_DIR,
+  LINUX_SERVE_DISPATCHER_MARKER
+} from './cli-install-constants'
 import { buildWindowsForwarder, extractManagedUnixLauncherTarget } from './cli-dev-launcher'
 import { isMissingError } from './cli-install-errors'
 import { CliInstallLocation } from './cli-install-location'
@@ -11,9 +15,10 @@ import { isPathInsideOrEqual, samePathEntry } from './cli-install-path-format'
 import { extractLegacyAppImageCliWrapperTarget } from './legacy-appimage-cli-wrapper'
 
 // Why: electron-builder's /opt directory name varies with productName sanitization, which is why
-// resources/linux/packaging/after-install.sh enumerates all three of these. A symlink into one is a
-// previous packaged Orca and is ours to reclaim; anything else stays a conflict.
-const PACKAGED_LINUX_LAUNCHER_DIRECTORIES = ['/opt/Orca', '/opt/orca-ide', '/opt/orca']
+// resources/linux/packaging/after-install.sh enumerates these. A symlink into one is a
+// previous packaged Orca Wilde and is ours to reclaim; stock Orca's /opt/Orca dirs are
+// deliberately absent — never reclaim another product's files.
+const PACKAGED_LINUX_LAUNCHER_DIRECTORIES = ['/opt/Orca Wilde', '/opt/orca-wilde']
 
 export class CliCommandInspection extends CliInstallLocation {
   protected async inspectSymlink(
@@ -37,6 +42,20 @@ export class CliCommandInspection extends CliInstallLocation {
               state: 'stale',
               currentTarget: managedTarget,
               detail: `${commandPath} contains an older Orca launcher.`
+            })
+          }
+          // Why: the serve-time dispatcher shares the `orca-wilde` command path —
+          // it is ours, so registering the CLI replaces it with the real symlink
+          // instead of reporting a foreign-file conflict.
+          if (currentContent.includes(LINUX_SERVE_DISPATCHER_MARKER)) {
+            return this.buildStatus({
+              commandPath,
+              launcherPath,
+              installMethod: 'symlink',
+              supported: true,
+              state: 'stale',
+              currentTarget: null,
+              detail: `${commandPath} contains the Orca Wilde serve dispatcher.`
             })
           }
         }

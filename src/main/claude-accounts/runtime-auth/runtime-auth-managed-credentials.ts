@@ -93,7 +93,7 @@ export class ClaudeRuntimeAuthManagedCredentials extends ClaudeRuntimeAuthCreden
     const wslInfo = parseWslUncPath(account.managedAuthPath)
     if (wslInfo) {
       if (
-        !wslInfo.linuxPath.includes('/.local/share/orca/claude-accounts/') ||
+        !wslInfo.linuxPath.includes('/.local/share/orca-wilde/claude-accounts/') ||
         !wslInfo.linuxPath.endsWith('/auth')
       ) {
         return null
@@ -107,7 +107,7 @@ export class ClaudeRuntimeAuthManagedCredentials extends ClaudeRuntimeAuthCreden
             script: [
               'set -euo pipefail',
               `candidate=${shellQuote(wslInfo.linuxPath)}`,
-              'managed_root="${HOME%/}/.local/share/orca/claude-accounts"',
+              'managed_root="${HOME%/}/.local/share/orca-wilde/claude-accounts"',
               'candidate_real=$(readlink -f -- "$candidate")',
               'managed_root_real=$(readlink -f -- "$managed_root")',
               'test -f "$candidate_real/.orca-managed-claude-auth"',

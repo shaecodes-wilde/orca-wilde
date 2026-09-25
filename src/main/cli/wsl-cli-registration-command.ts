@@ -14,6 +14,8 @@ import {
 
 const MANAGED_MARKER = getWslLauncherMarker()
 const BRIDGE_MANAGED_MARKER = getWslBridgeMarker()
+// Why 'orca': removes only files carrying the fork's own managed marker —
+// stock Orca or user-owned `orca` commands never match.
 const LEGACY_WSL_COMMAND_NAME = 'orca'
 
 export function buildWslCliInstallCommand(

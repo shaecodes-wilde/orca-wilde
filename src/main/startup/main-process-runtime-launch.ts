@@ -187,7 +187,7 @@ async function launchServeMode(
       )
     }
   }
-  // Why: Linux CLI installs as `orca-ide`, but the Claude Team launcher invokes bare `orca`; drop a ~/.local/bin dispatcher (ahead of /usr/bin) so it resolves. Best-effort.
+  // Why: on a headless serve box nothing ever runs "Install CLI", so drop a ~/.local/bin/orca-wilde dispatcher (ahead of /usr/bin) so the packaged command resolves. Best-effort.
   if (process.platform === 'linux' && app.isPackaged && process.resourcesPath) {
     try {
       const dispatcher = await installLinuxBareOrcaDispatcher({

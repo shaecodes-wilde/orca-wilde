@@ -4,6 +4,7 @@ import {
   mkdirSync,
   readFileSync,
   statSync,
+  unlinkSync,
   writeFileSync,
   type Stats
 } from 'node:fs'
@@ -32,17 +33,16 @@ export type LinuxTerminalOrcaCliShimOptions = {
   resourcesPath?: string | null
   /** Trusted caller override; production requires the complete AppImage runtime identity. */
   appImagePath?: string | null
-  /** Test seam — defaults to $XDG_CACHE_HOME/orca/appimage. */
+  /** Test seam — defaults to $XDG_CACHE_HOME/orca-wilde/appimage. */
   appImageCacheRootPath?: string
 }
 
-// Why: on Linux the CLI installs as `orca-ide` so it never shadows the GNOME
-// Orca screen reader at /usr/bin/orca — but agent-facing surfaces (skills,
-// dispatch preambles, CLI hints) all invoke bare `orca`, so on stock Ubuntu an
-// agent inside an Orca terminal would launch the screen reader instead
-// (stablyai/orca#7904). Prepending this userData-scoped shim dir to managed-PTY
-// PATH makes bare `orca` resolve to the Orca CLI inside Orca terminals only,
-// leaving the user's own shells (and their screen reader) untouched.
+// Why: the packaged CLI is `orca-wilde` — it never shadows GNOME Orca's
+// /usr/bin/orca or stock Orca's `orca-ide` — and agent-facing surfaces invoke
+// `orca-wilde` by name. Prepending this userData-scoped shim dir to managed-PTY
+// PATH makes `orca-wilde` resolve to the Orca Wilde CLI inside Orca Wilde
+// terminals even before the user registers the CLI, while leaving the user's
+// own shells (and any stock `orca`/`orca-ide`) untouched (stablyai/orca#7904).
 export function ensureLinuxTerminalOrcaCliShimDir(
   options: LinuxTerminalOrcaCliShimOptions
 ): string | null {
@@ -215,13 +215,18 @@ function ensureShimForLauncher(userDataPath: string, launcherPath: string): stri
 
 function ensureShimForScript(userDataPath: string, script: string): string | null {
   const shimDir = join(userDataPath, SHIM_DIR_NAME)
-  const shimPath = join(shimDir, 'orca')
+  const shimPath = join(shimDir, 'orca-wilde')
   try {
     if (readShim(shimPath) !== script) {
       mkdirSync(shimDir, { recursive: true })
       writeFileSync(shimPath, script, 'utf8')
     }
     chmodSync(shimPath, 0o755)
+    // Why: stock builds wrote the shim as `orca`; a reused dev profile would keep
+    // shadowing GNOME/stock commands. Drop the old name; `orca` is not ours.
+    try {
+      unlinkSync(join(shimDir, 'orca'))
+    } catch {}
   } catch {
     return null
   }

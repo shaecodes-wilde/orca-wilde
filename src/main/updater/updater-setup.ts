@@ -34,17 +34,36 @@ export type UpdaterSetupOptions = {
   installMode?: UpdateInstallMode
 }
 
+// The fork has no update feed yet (see the call site below). Returning a value
+// instead of exporting a constant keeps callers' `!== null` checks un-narrowed.
+function getForkUpdateFeedUrl(): string | null {
+  return null
+}
+
 /** Initializes electron-updater and attaches lifecycle/event bridges. */
 export class UpdaterSetup extends UpdaterDownloadInstall {
+  // Why every entry point is gated, not just setFeedURL: the release-feed resolver
+  // (updater-release-feed.ts) falls back to stablyai/orca's feed on its own, so any
+  // check that reaches electron-updater could install stock Orca over this fork.
   checkForUpdates(): void {
+    if (getForkUpdateFeedUrl() === null) {
+      return
+    }
     this.checkForUpdatesInBackground()
   }
 
   checkForUpdatesFromMenu(options?: UpdateCheckOptions): void {
+    if (getForkUpdateFeedUrl() === null) {
+      this.sendStatus({ state: 'not-available', userInitiated: true })
+      return
+    }
     super.checkForUpdatesFromMenu(options)
   }
 
   downloadUpdate(): void {
+    if (getForkUpdateFeedUrl() === null) {
+      return
+    }
     super.downloadUpdate()
   }
 
@@ -139,6 +158,11 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
     if (is.dev) {
       return
     }
+    // Why: no fork feed means no electron-updater wiring at all â€” no handlers,
+    // nudges, wake/focus checks or scheduled background checks.
+    if (getForkUpdateFeedUrl() === null) {
+      return
+    }
 
     const autoUpdater = this.getAutoUpdater()
     autoUpdater.autoDownload = false
@@ -155,11 +179,15 @@ export class UpdaterSetup extends UpdaterDownloadInstall {
     // Why: our only on-machine window into electron-updater; otherwise an unexpected update-not-available or failed fetch is invisible.
     autoUpdater.logger = createUpdaterDiagnosticLogger() as never
 
-    // Security: never re-add a verifyUpdateCodeSignature override — a no-op disables electron-updater's built-in Authenticode check and accepts any installer.
-    if (this.activeUpdateSource === 'release') {
+    // Security: never re-add a verifyUpdateCodeSignature override â€” a no-op disables electron-updater's built-in Authenticode check and accepts any installer.
+    // Why the fork ships no feed: the stock generic URL pointed at upstream releases, which would
+    // replace Orca Wilde installs with Orca binaries. Returns null until a fork release feed exists;
+    // the setFeedURL path stays intact â€” do not weaken signature validation when re-enabling.
+    const forkUpdateFeedUrl = getForkUpdateFeedUrl()
+    if (this.activeUpdateSource === 'release' && forkUpdateFeedUrl !== null) {
       autoUpdater.setFeedURL({
         provider: 'generic',
-        url: 'https://github.com/stablyai/orca/releases/latest/download'
+        url: forkUpdateFeedUrl
       })
     }
     if (this.autoUpdaterInitialized) {

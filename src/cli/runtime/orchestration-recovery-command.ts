@@ -9,7 +9,9 @@ export function resolveOrchestrationCliExecutable(
   if (env.ORCA_DEV_REPO_ROOT) {
     return 'orca-dev'
   }
-  return platform === 'linux' ? 'orca-ide' : 'orca'
+  // Why no `orca`/`orca-ide` fallback: both are stock Orca names (and bare
+  // `orca` is GNOME Orca on Linux); the packaged command is `orca-wilde`.
+  return 'orca-wilde'
 }
 
 export function buildOrchestrationRecoveryCommand(

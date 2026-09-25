@@ -122,7 +122,7 @@ export const AI_VAULT_AGENT_SOURCES: AiVaultAgentSourceTable = {
         // Why: Orca-launched WSL Codex sessions use an Orca-owned CODEX_HOME,
         // not the user's default ~/.codex history root.
         ...wslHomeDirs.map((homeDir) =>
-          join(homeDir, '.local', 'share', 'orca', 'codex-runtime-home', 'home', 'sessions')
+          join(homeDir, '.local', 'share', 'orca-wilde', 'codex-runtime-home', 'home', 'sessions')
         ),
         ...(options.additionalCodexSessionsDirs ?? [])
       ]),

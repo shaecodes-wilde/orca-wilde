@@ -57,14 +57,14 @@ export class CodexManagedHomePath {
       })
     }
     if (
-      !wslInfo.linuxPath.includes('/.local/share/orca/codex-accounts/') ||
+      !wslInfo.linuxPath.includes('/.local/share/orca-wilde/codex-accounts/') ||
       !wslInfo.linuxPath.endsWith('/home')
     ) {
       throw new Error('Managed WSL Codex home is outside Orca account storage.')
     }
     if (
       expectedAccountId !== undefined &&
-      !wslInfo.linuxPath.endsWith(`/.local/share/orca/codex-accounts/${expectedAccountId}/home`)
+      !wslInfo.linuxPath.endsWith(`/.local/share/orca-wilde/codex-accounts/${expectedAccountId}/home`)
     ) {
       throw new Error('Managed WSL Codex home does not match its persisted account ID.')
     }
@@ -93,7 +93,7 @@ export class CodexManagedHomePath {
       account.managedHomeRuntime !== 'wsl' ||
       account.wslDistro !== wslInfo.distro ||
       account.wslLinuxHomePath !== wslInfo.linuxPath ||
-      !wslInfo.linuxPath.endsWith(`/.local/share/orca/codex-accounts/${account.id}/home`)
+      !wslInfo.linuxPath.endsWith(`/.local/share/orca-wilde/codex-accounts/${account.id}/home`)
     ) {
       return
     }
@@ -132,7 +132,7 @@ export class CodexManagedHomePath {
         [
           'set -euo pipefail',
           `candidate=${quotePosixShell(wslInfo.linuxPath)}`,
-          'managed_root="${HOME%/}/.local/share/orca/codex-accounts"',
+          'managed_root="${HOME%/}/.local/share/orca-wilde/codex-accounts"',
           'candidate_real=$(readlink -f -- "$candidate")',
           'managed_root_real=$(readlink -f -- "$managed_root")',
           'test -f "$candidate_real/.orca-managed-home"',

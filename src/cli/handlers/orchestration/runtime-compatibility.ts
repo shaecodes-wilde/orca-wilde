@@ -1,19 +1,34 @@
 import { RuntimeClientError } from '../../runtime-client'
 
-export function resolveCompatibilityCliCommand(): 'orca' | 'orca-ide' | 'orca-dev' {
+export function resolveCompatibilityCliCommand():
+  | 'orca'
+  | 'orca-ide'
+  | 'orca-dev'
+  | 'orca-wilde' {
   const configured = process.env.ORCA_CLI_COMMAND
-  if (configured === 'orca' || configured === 'orca-ide' || configured === 'orca-dev') {
+  // Why accept stock names: a caller may export ORCA_CLI_COMMAND pointing at a
+  // stock Orca shim (e.g. a remote-managed session); pass it through verbatim.
+  if (
+    configured === 'orca' ||
+    configured === 'orca-ide' ||
+    configured === 'orca-dev' ||
+    configured === 'orca-wilde'
+  ) {
     return configured
   }
-  return process.platform === 'linux' ? 'orca-ide' : 'orca'
+  return 'orca-wilde'
 }
 
-export function resolvePackagedWindowsCompatibilityCommand(): 'orca' | 'orca-ide' | undefined {
+export function resolvePackagedWindowsCompatibilityCommand():
+  | 'orca'
+  | 'orca-ide'
+  | 'orca-wilde'
+  | undefined {
   if (process.env.ORCA_WINDOWS_PACKAGED_CLI_LAUNCHER !== '1') {
     return undefined
   }
   const command = process.env.ORCA_CLI_COMMAND
-  if (command === 'orca' || command === 'orca-ide') {
+  if (command === 'orca' || command === 'orca-ide' || command === 'orca-wilde') {
     return command
   }
   throw new RuntimeClientError(

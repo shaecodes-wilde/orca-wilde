@@ -271,11 +271,11 @@ export function buildPtyHostEnv(
     delete baseEnv.ORCA_CODEX_LAUNCH_PREFLIGHT
   }
 
-  // Why: WSL shells need the managed userData root for shell-ready wrappers; dev-mode terminals need the same export so `orca` targets the live dev instance.
+  // Why: WSL shells need the managed userData root for shell-ready wrappers; dev-mode terminals need the same export so `orca-dev` targets the live dev instance.
   if (opts.isWsl) {
     baseEnv.ORCA_USER_DATA_PATH = opts.userDataPath
-    // Why: managed WSL registration uses `orca-ide`; exposing that literal scopes agent guidance to WSL without a bare-orca shim.
-    baseEnv.ORCA_CLI_COMMAND = opts.isPackaged ? 'orca-ide' : 'orca-dev'
+    // Why: managed WSL registration uses `orca-wilde`; exposing that literal scopes agent guidance to WSL without a bare-orca shim.
+    baseEnv.ORCA_CLI_COMMAND = opts.isPackaged ? 'orca-wilde' : 'orca-dev'
   } else {
     if (!opts.isPackaged) {
       baseEnv.ORCA_USER_DATA_PATH ??= opts.userDataPath
@@ -293,7 +293,7 @@ export function buildPtyHostEnv(
     baseEnv.BROWSER === undefined &&
     process.env.BROWSER === undefined
   ) {
-    const cliCommand = opts.isWsl ? (opts.isPackaged ? 'orca-ide' : 'orca-dev') : 'orca'
+    const cliCommand = opts.isWsl ? (opts.isPackaged ? 'orca-wilde' : 'orca-dev') : 'orca-wilde'
     baseEnv.BROWSER = `${cliCommand} open-url --url %s`
   }
 

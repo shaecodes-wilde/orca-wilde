@@ -112,7 +112,7 @@ export function formatMessagesForInjection(messages: MessageRow[]): string {
 export function formatMessagePointer(
   count: number,
   mailboxHandle?: string,
-  cliCommand: OrchestrationCliCommand = 'orca'
+  cliCommand: OrchestrationCliCommand = 'orca-wilde'
 ): string {
   const noun = count === 1 ? 'message' : 'messages'
   const runFlag = mailboxHandle?.startsWith('run:')
