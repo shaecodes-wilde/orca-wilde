@@ -4,7 +4,7 @@ import { getWildeSpotifyApi } from './use-wilde-spotify'
 const SIZE = 72
 const BAR_COUNT = 48
 const INNER_RADIUS = 21
-const MAX_BAR = 13
+const MAX_BAR = 9
 const MIN_BAR = 1
 
 /**

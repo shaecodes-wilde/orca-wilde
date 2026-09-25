@@ -186,9 +186,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Room for the 68px visualizer ring around play/pause without touching the skip buttons. */
-  gap: 26px;
-  min-height: 68px;
+  gap: 18px;
+  padding-top: 2px;
 }
 
 .wilde-spotify-play-wrap {
