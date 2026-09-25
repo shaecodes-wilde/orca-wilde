@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Bare `orca` inside Orca Wilde terminals (PATH-scoped by orca-cli-child-path.ts); forwards to
+# this app's own CLI so upstream `orca <command>` hints never reach a stock Orca install.
+exec "$(cd "$(dirname "${BASH_SOURCE[0]}")/../bin" && pwd)/orca-wilde" "$@"

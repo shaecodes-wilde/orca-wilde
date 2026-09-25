@@ -65,8 +65,8 @@ export function installedElectronCandidates(
   const joinPath = platform === 'win32' ? win32.join : posix.join
   if (platform === 'darwin') {
     return [
-      '/Applications/Orca Wilde.app/Contents/MacOS/OrcaWilde',
-      joinPath(homePath, 'Applications', 'Orca Wilde.app', 'Contents', 'MacOS', 'OrcaWilde')
+      '/Applications/Orca Wilde.app/Contents/MacOS/Orca Wilde',
+      joinPath(homePath, 'Applications', 'Orca Wilde.app', 'Contents', 'MacOS', 'Orca Wilde')
     ]
   }
   if (platform === 'win32') {

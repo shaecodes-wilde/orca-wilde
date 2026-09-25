@@ -54,10 +54,13 @@ export function prependOrcaCliDirToChildPath(
     }
   } else if (opts.resourcesPath && (platform === 'darwin' || platform === 'win32')) {
     // Why: global CLI registration is optional, but agents in Orca-managed PTYs must always reach this app's bundled CLI.
-    const bundledCliBin = join(opts.resourcesPath, 'bin')
+    // Why terminal-alias: upstream agent-facing hints (skills, recovery commands, reply banners)
+    // name bare `orca`; inside this app's PTYs that must reach this app's CLI, never a stock Orca
+    // CLI the user registered globally. The dir is packaged outside bin/, so it is PTY-scoped only.
+    const bundledCliDirs = `${join(opts.resourcesPath, 'bin')}${pathDelimiter}${join(opts.resourcesPath, 'terminal-alias')}`
     const inheritedPath = readInheritedPath(env, platform)
     env[resolvePathEnvKey(env, platform)] = inheritedPath
-      ? `${bundledCliBin}${pathDelimiter}${inheritedPath}`
-      : bundledCliBin
+      ? `${bundledCliDirs}${pathDelimiter}${inheritedPath}`
+      : bundledCliDirs
   }
 }

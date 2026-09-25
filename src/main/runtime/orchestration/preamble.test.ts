@@ -86,7 +86,7 @@ describe('buildDispatchPreamble', () => {
     const result = buildDispatchPreamble(baseParams({ dispatchCapability: 'dcap_secret' }))
     const commandLines = result
       .split('\n')
-      .filter((line) => line.trimStart().startsWith('orca orchestration'))
+      .filter((line) => line.trimStart().startsWith('orca-wilde orchestration'))
 
     expect(commandLines).toHaveLength(5)
     expect(result).not.toContain('\\\n')
@@ -247,15 +247,15 @@ describe('buildDispatchPreamble', () => {
     expect(result).toContain('refactor the auth module')
   })
 
-  it('uses orca CLI by default when devMode is not set', () => {
+  it('uses the orca-wilde CLI by default when devMode is not set', () => {
     const result = buildDispatchPreamble(baseParams())
-    expect(result).toContain('orca orchestration send')
-    expect(result).toContain('orca orchestration check')
-    expect(result).toContain('orca orchestration ask')
+    expect(result).toContain('orca-wilde orchestration send')
+    expect(result).toContain('orca-wilde orchestration check')
+    expect(result).toContain('orca-wilde orchestration ask')
   })
 
   it('uses orca-dev CLI when devMode is true', () => {
-    const result = buildDispatchPreamble(baseParams({ devMode: true, cliCommand: 'orca-ide' }))
+    const result = buildDispatchPreamble(baseParams({ devMode: true, cliCommand: 'orca-wilde' }))
     expect(result).toContain('orca-dev orchestration send')
     expect(result).toContain('orca-dev orchestration check')
     expect(result).toContain('orca-dev orchestration ask')
@@ -265,19 +265,19 @@ describe('buildDispatchPreamble', () => {
     }
   })
 
-  it('uses orca CLI when devMode is false', () => {
+  it('uses the orca-wilde CLI when devMode is false', () => {
     const result = buildDispatchPreamble(baseParams({ devMode: false }))
-    expect(result).toContain('orca orchestration send')
-    expect(result).toContain('orca orchestration check')
+    expect(result).toContain('orca-wilde orchestration send')
+    expect(result).toContain('orca-wilde orchestration check')
   })
 
-  it('uses the exact orca-ide command for packaged WSL workers', () => {
-    const result = buildDispatchPreamble(baseParams({ cliCommand: 'orca-ide' }))
+  it('uses the exact runtime-resolved command (bare orca for SSH-remote workers)', () => {
+    const result = buildDispatchPreamble(baseParams({ cliCommand: 'orca' }))
 
-    expect(result).toContain('orca-ide orchestration send')
-    expect(result).toContain('orca-ide orchestration check')
-    expect(result).toContain('orca-ide orchestration ask')
-    expect(result).not.toMatch(/(^|\s)orca orchestration/m)
+    expect(result).toContain('orca orchestration send')
+    expect(result).toContain('orca orchestration check')
+    expect(result).toContain('orca orchestration ask')
+    expect(result).not.toMatch(/orca-wilde orchestration/)
   })
 
   it('appends a BASE DRIFT section when baseDrift.behind > 0', () => {

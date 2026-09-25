@@ -162,7 +162,7 @@ export function parseLegacyOptions(raw: string | undefined): string[] {
 export function supportedLegacyHints(
   message: MessageRow,
   principal: LegacyCompatibilityPrincipalRow,
-  cliCommand: 'orca' | 'orca-ide' | 'orca-dev'
+  cliCommand: 'orca' | 'orca-ide' | 'orca-dev' | 'orca-wilde'
 ): string[] {
   if (
     principal.role !== 'coordinator' ||

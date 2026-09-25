@@ -352,14 +352,16 @@ describe('configureDevUserDataPath', () => {
     expect(app.setPath).toHaveBeenCalledWith('userData', join('/tmp/app-data', 'orca-dev'))
   })
 
-  it('leaves packaged runs on the default userData path', async () => {
+  it('moves packaged runs onto the fork-owned orca-wilde userData path', async () => {
     const { app } = await import('electron')
     const { configureDevUserDataPath } = await import('./configure-process')
 
     vi.mocked(app.setPath).mockClear()
     configureDevUserDataPath(false)
 
-    expect(app.setPath).not.toHaveBeenCalled()
+    // Why: package.json `name` stays `orca`, so the default would share stock Orca's userData.
+    expect(app.setPath).toHaveBeenCalledTimes(1)
+    expect(app.setPath).toHaveBeenCalledWith('userData', join('/tmp/app-data', 'orca-wilde'))
   })
 })
 

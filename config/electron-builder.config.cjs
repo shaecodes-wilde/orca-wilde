@@ -457,6 +457,14 @@ module.exports = {
         to: 'bin/orca-wilde.exe'
       },
       {
+        // Why: a second copy of the native launcher answers to bare `orca` inside Orca Wilde
+        // terminals only (orca-cli-child-path.ts prepends this dir to PTY PATHs). It sits outside
+        // bin/ because Install CLI puts bin/ on the user PATH, where `orca` belongs to stock Orca.
+        // The launcher resolves the app from its parent dir, so it works from here unchanged.
+        from: 'native/windows-cli-launcher/.build/orca.exe',
+        to: 'terminal-alias/orca.exe'
+      },
+      {
         from: 'node_modules/agent-browser/bin/agent-browser-win32-x64.exe',
         to: 'agent-browser-win32-x64.exe'
       },
@@ -534,6 +542,11 @@ module.exports = {
       {
         from: 'resources/darwin/bin/orca-wilde',
         to: 'bin/orca-wilde'
+      },
+      {
+        // Why: bare `orca` inside Orca Wilde terminals only — see the Windows terminal-alias entry.
+        from: 'resources/darwin/terminal-alias/orca',
+        to: 'terminal-alias/orca'
       },
       {
         from: 'node_modules/agent-browser/bin/agent-browser-darwin-${arch}',
@@ -699,8 +712,11 @@ function chmodUnixCliLaunchers(resourcesDir, electronPlatformName) {
   if (electronPlatformName === 'win32') {
     return
   }
-  for (const launcherName of [LINUX_EXECUTABLE_NAME]) {
-    const launcherPath = join(resourcesDir, 'bin', launcherName)
+  const launcherPaths = [
+    join(resourcesDir, 'bin', LINUX_EXECUTABLE_NAME),
+    join(resourcesDir, 'terminal-alias', 'orca')
+  ]
+  for (const launcherPath of launcherPaths) {
     if (!existsSync(launcherPath)) {
       continue
     }
