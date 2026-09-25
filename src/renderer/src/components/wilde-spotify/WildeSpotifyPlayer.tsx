@@ -40,6 +40,32 @@ export function WildeSpotifyPlayer(): React.JSX.Element | null {
   return visible ? <PlayerCard visualizer={config.visualizer} /> : null
 }
 
+/**
+ * The player floats over the bottom of the sidebar panel. Publishes its height to the panel as
+ * --wilde-spotify-inset so scroll areas can pad their end (and non-list tabs stop above it).
+ */
+function useWildeSpotifyInset(): React.RefObject<HTMLDivElement | null> {
+  const rootRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const root = rootRef.current
+    const host = root?.parentElement
+    if (!root || !host) {
+      return
+    }
+    const publish = (): void => {
+      host.style.setProperty('--wilde-spotify-inset', `${Math.ceil(root.offsetHeight)}px`)
+    }
+    publish()
+    const observer = new ResizeObserver(publish)
+    observer.observe(root)
+    return () => {
+      observer.disconnect()
+      host.style.removeProperty('--wilde-spotify-inset')
+    }
+  }, [])
+  return rootRef
+}
+
 function PlayerCard({ visualizer }: { visualizer: boolean }): React.JSX.Element {
   const nowPlaying = useWildeSpotifyNowPlaying(true)
   const account = useWildeSpotifyAccount()
@@ -55,6 +81,7 @@ function PlayerCard({ visualizer }: { visualizer: boolean }): React.JSX.Element 
   const [dragRatio, setDragRatio] = useState<number | null>(null)
   const barRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+  const rootRef = useWildeSpotifyInset()
 
   const showError = (message: string): void => {
     setError(message)
@@ -78,7 +105,7 @@ function PlayerCard({ visualizer }: { visualizer: boolean }): React.JSX.Element 
 
   if (!nowPlaying.available) {
     return (
-      <div data-wilde-spotify-player="" className="wilde-spotify">
+      <div ref={rootRef} data-wilde-spotify-player="" className="wilde-spotify">
         <div ref={cardRef} className="wilde-spotify-card wilde-spotify-card-idle">
           <Music2 size={15} className="wilde-spotify-idle-icon" />
           <span className="wilde-spotify-idle-text">
@@ -134,7 +161,7 @@ function PlayerCard({ visualizer }: { visualizer: boolean }): React.JSX.Element 
   )
 
   return (
-    <div data-wilde-spotify-player="" className="wilde-spotify">
+    <div ref={rootRef} data-wilde-spotify-player="" className="wilde-spotify">
       <div ref={cardRef} className="wilde-spotify-card">
         <div className="wilde-spotify-top">
           {nowPlaying.artwork ? (

@@ -11,6 +11,8 @@ const AiVaultPanel = lazy(() => import('./AiVaultPanel'))
 const FolderWorkspaceWorktreesPanel = lazy(() => import('./FolderWorkspaceWorktreesPanel'))
 const FolderWorkspacePrChecksPanel = lazy(() => import('./FolderWorkspacePrChecksPanel'))
 const PluginPanel = lazy(() => import('./PluginPanel'))
+// Wilde build: Google Drive browser.
+const WildeDrivePanel = lazy(() => import('../wilde-drive/WildeDrivePanel'))
 
 type RightSidebarPanelContentProps = {
   effectiveTab: ActiveRightSidebarTab
@@ -25,6 +27,7 @@ export function RightSidebarPanelContent({
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <Suspense fallback={null}>
         {effectiveTab === 'explorer' && <FileExplorer />}
+        {effectiveTab === 'gdrive' && <WildeDrivePanel />}
         {effectiveTab === 'source-control' && <SourceControl />}
         {effectiveTab === 'checks' && <ChecksPanel />}
         {/* Why: SSH port forwarding still depends on the raw ports.detect data,

@@ -15,6 +15,7 @@ import {
 import { useShortcutLabel } from '@/hooks/useShortcutLabel'
 import { translate } from '@/i18n/i18n'
 import { AgentSessionHistoryIcon } from './agent-session-history-icon'
+import { GoogleDriveIcon } from '../wilde-drive/google-drive-icon'
 import type { ActivityBarItem } from './activity-bar-buttons'
 
 export type RightSidebarActivityItems = {
@@ -66,6 +67,13 @@ export function useRightSidebarActivityItems({
         icon: Files,
         title: translate('auto.components.right.sidebar.index.8bc2bbc3a0', 'Explorer'),
         shortcut: explorerShortcut === 'Unassigned' ? '' : explorerShortcut
+      },
+      // Wilde build: Google Drive browser. No workspace-kind flag, so it shows on every workspace.
+      {
+        id: 'gdrive',
+        icon: GoogleDriveIcon,
+        title: translate('wildeDrive.title', 'Google Drive'),
+        shortcut: ''
       },
       {
         id: 'vault',

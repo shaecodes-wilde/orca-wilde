@@ -27,7 +27,7 @@ const HEX6 = /^#[0-9a-f]{6}$/i
 function channelLuminance(hex: string): number {
   const channel = (v: number) => {
     const c = v / 255
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
   }
   return (
     0.2126 * channel(Number.parseInt(hex.slice(1, 3), 16)) +

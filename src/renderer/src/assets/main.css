@@ -12,6 +12,7 @@
 @import './wilde-theme.css';
 @import './wilde-sidebar.css';
 @import './wilde-spotify.css';
+@import './wilde-agents.css';
 
 @font-face {
   font-family: 'Geist';

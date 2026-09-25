@@ -139,7 +139,8 @@ export function FileExplorerFilesTreePane({
       )}
       viewportRef={scrollRef}
       viewportTabIndex={-1}
-      viewportClassName="h-full min-h-0 py-2"
+      // Why: --wilde-spotify-inset lets the last rows scroll above the floating Wilde player.
+      viewportClassName="h-full min-h-0 pt-2 pb-[calc(0.5rem+var(--wilde-spotify-inset,0px))]"
       data-native-file-drop-target={isFilesViewActive ? 'file-explorer' : undefined}
       data-native-file-drop-dir={visibleFilesWorktreePath ?? undefined}
       onWheelCapture={handleWheelCapture}

@@ -95,6 +95,7 @@ export function AgentDashboardToolbar({
               'Search worktree, project, or agent…'
             )}
             aria-label={translate('dashboardPopout.search.label', 'Search agents')}
+            data-wilde-agents-search=""
             className="h-7 bg-muted/55 pr-16 pl-7 text-xs"
           />
           {query ? (
@@ -138,7 +139,10 @@ export function AgentDashboardToolbar({
                 <Filter className="size-3" />
                 {translate('dashboardPopout.filters.label', 'Filter')}
                 {activeCount > 0 ? (
-                  <span className="rounded-full bg-foreground px-1.5 py-px text-[10px] leading-none text-background">
+                  <span
+                    data-wilde-agents-badge=""
+                    className="rounded-full bg-foreground px-1.5 py-px text-[10px] leading-none text-background"
+                  >
                     {activeCount}
                   </span>
                 ) : null}

@@ -82,7 +82,10 @@ export function SearchResultsPane({
         </div>
       )}
 
-      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto scrollbar-sleek">
+      <div
+        ref={scrollRef}
+        className="flex-1 min-h-0 overflow-y-auto scrollbar-sleek pb-[var(--wilde-spotify-inset,0px)]"
+      >
         {rows.length > 0 && (
           <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
             {virtualizer.getVirtualItems().map((virtualRow) => {

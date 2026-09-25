@@ -195,7 +195,9 @@
             "wilde": "wilde",
             "theme": "theme",
             "sidebar": "sidebar",
-            "branding": "branding"
+            "branding": "branding",
+            "spotify": "spotify",
+            "googleDrive": "google drive"
           }
         }
       }
@@ -18404,6 +18406,47 @@
       "title": "Spotify volume",
       "mute": "Mute",
       "unmute": "Unmute"
+    }
+  },
+  "wildeDrive": {
+    "title": "Google Drive",
+    "invalidName": "That name can’t be used on Google Drive",
+    "createFailed": "Couldn’t create {{value0}}",
+    "renameFailed": "Couldn’t rename {{value0}}",
+    "deleteFailed": "Couldn’t delete {{value0}}",
+    "openFailed": "Couldn’t open {{value0}}",
+    "revealFailed": "Couldn’t show it in File Explorer",
+    "setup": {
+      "title": "Choose your Google Drive folder",
+      "body": "Pick the drive or folder Google Drive for desktop mounts (for example H:\\). You can change it later in Settings → Appearance → Wilde Systems.",
+      "browse": "Browse…"
+    },
+    "unavailable": "Can’t open {{value0}}",
+    "unavailableBody": "Make sure Google Drive for desktop is running and the drive is mounted. ({{value0}})",
+    "retry": "Retry",
+    "changeFolder": "Change folder…",
+    "searching": "Searching Google Drive…",
+    "noMatches": "No files match this search",
+    "loading": "Loading…",
+    "emptyFolder": "This folder is empty",
+    "collapseAll": "Collapse All",
+    "refresh": "Refresh Google Drive",
+    "truncated": "Showing the first {{value0}} matches",
+    "menu": {
+      "newFile": "New File…",
+      "newFolder": "New Folder…",
+      "reveal": "Reveal in File Explorer",
+      "open": "Open",
+      "openDefault": "Open in Default App",
+      "copyPath": "Copy Path",
+      "rename": "Rename…",
+      "delete": "Move to Recycle Bin"
+    },
+    "settings": {
+      "title": "Google Drive folder",
+      "description": "The drive or folder the Google Drive tab in the right sidebar browses, usually where Google Drive for desktop mounts (for example H:\\).",
+      "placeholder": "H:')}",
+      "browse": "Browse…"
     }
   }
 }

@@ -94,6 +94,8 @@ export type RightSidebarTab =
   | 'source-control'
   | 'checks'
   | 'ports'
+  // Wilde build: Google Drive browser (components/wilde-drive).
+  | 'gdrive'
   // Plugin-contributed panels are keyed `plugin:<pluginId>/<panelId>` so the
   // static union stays closed while plugin tabs remain type-representable.
   | `plugin:${string}`

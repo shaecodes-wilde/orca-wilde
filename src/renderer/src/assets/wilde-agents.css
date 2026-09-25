@@ -1,0 +1,156 @@
+/* Wilde Agents dashboard (dashboard-popout/AgentKanbanBoard + dashboard/AgentDashboardDrawer).
+   Hooks are data-wilde-agents* attributes on upstream markup; everything is gated on the Wilde
+   dark appearance so stock Orca (and Wilde in light mode) keeps upstream styling.
+   One accent: the lavender→mint gradient. Cards waiting on you pulse instead of turning orange. */
+
+:root[data-wilde-appearance='on'].dark {
+  --wilde-agents-gradient: linear-gradient(
+    135deg,
+    var(--wilde-lavender),
+    var(--wilde-mint)
+  );
+  --wilde-agents-glass: color-mix(in srgb, var(--wilde-panel) 70%, transparent);
+  --wilde-agents-line: color-mix(in srgb, var(--wilde-lavender) 22%, transparent);
+}
+
+/* ── Backdrop: frosted, so terminal text behind the drawer can't be read ── */
+:root[data-wilde-appearance='on'].dark .workspace-kanban-sheet-content[data-agent-dashboard-sheet] {
+  background: color-mix(in srgb, var(--wilde-harbour) 62%, transparent) !important;
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: inset 1px 0 0 var(--wilde-agents-line);
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-agents] {
+  /* Needs-you accents (ask box, state dots) follow the Wilde accent instead of orange. */
+  --agent-question: var(--wilde-lavender);
+  --agent-question-text: color-mix(in srgb, var(--wilde-lavender) 55%, var(--wilde-canvas));
+}
+
+/* ── Header and toolbar ── */
+:root[data-wilde-appearance='on'].dark [data-wilde-agents] > .border-b,
+:root[data-wilde-appearance='on'].dark [data-wilde-agents] .border-b {
+  border-color: var(--wilde-agents-line);
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-agents-title] {
+  background: var(--wilde-agents-gradient);
+  background-clip: text;
+  color: transparent;
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-agents-search] {
+  border-color: var(--wilde-agents-line);
+  background: var(--wilde-agents-glass);
+  backdrop-filter: blur(10px) saturate(1.2);
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-agents-search]:focus-visible {
+  border-color: var(--wilde-mint);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--wilde-mint) 45%, transparent);
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-agents] button[data-slot='dropdown-menu-trigger'],
+:root[data-wilde-appearance='on'].dark [data-wilde-agents] [data-slot='button'][aria-haspopup='menu'] {
+  border-color: var(--wilde-agents-line);
+  background: var(--wilde-agents-glass);
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-agents-badge] {
+  background: var(--wilde-agents-gradient);
+  color: var(--wilde-harbour);
+}
+
+/* ── Glass columns ── */
+:root[data-wilde-appearance='on'].dark [data-wilde-agents-column] {
+  border-color: var(--wilde-agents-line);
+  border-radius: 12px;
+  background: var(--wilde-agents-glass);
+  backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--wilde-canvas) 6%, transparent);
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-agents-column] > header > span:first-child {
+  color: color-mix(in srgb, var(--wilde-lavender) 70%, var(--wilde-canvas));
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-agents-count] {
+  background: color-mix(in srgb, var(--wilde-lavender) 16%, transparent);
+  color: var(--wilde-canvas);
+}
+
+/* ── Cards: gradient border (padding-box fill over a border-box gradient) + faint wash ── */
+:root[data-wilde-appearance='on'].dark [data-wilde-agent-card] {
+  --wilde-card-fill: color-mix(in srgb, var(--wilde-raised) 90%, transparent);
+  --wilde-card-edge: var(--wilde-agents-gradient);
+  border-color: transparent;
+  background:
+    linear-gradient(
+        150deg,
+        color-mix(in srgb, var(--wilde-lavender) 8%, transparent),
+        color-mix(in srgb, var(--wilde-mint) 4%, transparent) 60%,
+        transparent
+      )
+      padding-box,
+    linear-gradient(var(--wilde-card-fill), var(--wilde-card-fill)) padding-box,
+    var(--wilde-card-edge) border-box;
+  transition:
+    box-shadow 160ms ease,
+    filter 160ms ease;
+}
+
+/* Working/idle cards: the same edge, quieter. */
+:root[data-wilde-appearance='on'].dark [data-wilde-agent-card='active'] {
+  --wilde-card-edge: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--wilde-lavender) 40%, transparent),
+    color-mix(in srgb, var(--wilde-mint) 40%, transparent)
+  );
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-agent-card]:hover {
+  box-shadow: 0 0 14px color-mix(in srgb, var(--wilde-lavender) 22%, transparent);
+  filter: brightness(1.06);
+}
+
+/* Waiting on you: a slow breathing glow in the accent gradient. */
+:root[data-wilde-appearance='on'].dark [data-wilde-agent-card='needs-you'] {
+  animation: wilde-agents-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes wilde-agents-breathe {
+  0%,
+  100% {
+    box-shadow:
+      0 0 6px color-mix(in srgb, var(--wilde-lavender) 18%, transparent),
+      0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow:
+      -4px -2px 18px color-mix(in srgb, var(--wilde-lavender) 45%, transparent),
+      4px 2px 18px color-mix(in srgb, var(--wilde-mint) 40%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-wilde-appearance='on'].dark [data-wilde-agent-card='needs-you'] {
+    animation: none;
+    box-shadow: 0 0 14px color-mix(in srgb, var(--wilde-lavender) 38%, transparent);
+  }
+}
+
+/* Done check marks and review pills follow the palette (closed stays destructive). */
+:root[data-wilde-appearance='on'].dark [data-wilde-agents] .text-emerald-500 {
+  color: var(--wilde-mint);
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-review-state='open'] {
+  border-color: color-mix(in srgb, var(--wilde-mint) 35%, transparent);
+  background: color-mix(in srgb, var(--wilde-mint) 12%, transparent);
+  color: var(--wilde-mint);
+}
+
+:root[data-wilde-appearance='on'].dark [data-wilde-review-state='merged'] {
+  border-color: color-mix(in srgb, var(--wilde-lavender) 35%, transparent);
+  background: color-mix(in srgb, var(--wilde-lavender) 12%, transparent);
+  color: var(--wilde-lavender);
+}

@@ -83,7 +83,14 @@ function RightSidebarInner(): React.JSX.Element {
   const topActivityStripRef = useMeasuredWidth(setTopActivityStripWidth)
 
   const panelContent = rightSidebarOpen ? (
-    <div className="flex flex-col flex-1 min-h-0 overflow-hidden scrollbar-sleek-parent">
+    <div
+      className="relative flex flex-col flex-1 min-h-0 overflow-hidden scrollbar-sleek-parent"
+      // Why: the Wilde Spotify card floats over the file lists (Explorer, Drive) so rows scroll
+      // under it; every other tab stops above it. wilde-spotify.css reads this attribute.
+      data-wilde-player-overlay={
+        effectiveTab === 'explorer' || effectiveTab === 'gdrive' ? 'on' : 'off'
+      }
+    >
       {/* Why: sidebar panels no longer use key={activeWorktreeId} because
           the full unmount/remount cycle on every worktree switch triggered
           an IPC storm (watchWorktree + readDir + git:branchCompare + …)
@@ -96,6 +103,8 @@ function RightSidebarInner(): React.JSX.Element {
           competed with file Explorer/Search for vertical space. The right
           sidebar is back to tab-only content. */}
       <RightSidebarPanelContent effectiveTab={effectiveTab} rightSidebarOpen={rightSidebarOpen} />
+      {/* Wilde build: Spotify mini-player floating at the bottom of the panel (renders nothing when off). */}
+      <WildeSpotifyPlayer />
     </div>
   ) : null
 
@@ -193,9 +202,6 @@ function RightSidebarInner(): React.JSX.Element {
         )}
 
         {panelContent}
-
-        {/* Wilde build: Spotify mini-player docked under the panel (renders nothing when off). */}
-        <WildeSpotifyPlayer />
 
         {/* Resize handle on LEFT side */}
         <div

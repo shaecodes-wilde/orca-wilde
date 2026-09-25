@@ -82,12 +82,18 @@ function KanbanColumn({
   return (
     // Why: attention no longer tints the whole column — the cards inside carry
     // their own state color, so a column border would double-signal it.
-    <section className="flex min-w-[264px] flex-1 flex-col rounded-xl border border-border/60 bg-muted/30">
+    <section
+      data-wilde-agents-column=""
+      className="flex min-w-[264px] flex-1 flex-col rounded-xl border border-border/60 bg-muted/30"
+    >
       <header className="flex items-center gap-2 px-3 py-2">
         <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
           {bucketLabel(bucket)}
         </span>
-        <span className="ml-auto rounded-full bg-background px-1.5 text-[11px] tabular-nums text-muted-foreground">
+        <span
+          data-wilde-agents-count=""
+          className="ml-auto rounded-full bg-background px-1.5 text-[11px] tabular-nums text-muted-foreground"
+        >
           {cards.length}
         </span>
       </header>
@@ -243,10 +249,12 @@ export function AgentKanbanBoard({
     // window's provider is harmless.
     <TooltipProvider delayDuration={300}>
       <div
+        // Wilde build: wilde-agents.css restyles the board (drawer and pop-out) under this hook.
+        data-wilde-agents=""
         className={cn('relative flex flex-col bg-background text-foreground', containerClassName)}
       >
         <div className="flex shrink-0 items-center gap-2 border-b border-border px-4 py-2.5">
-          <h1 className="text-[13px] font-semibold">
+          <h1 data-wilde-agents-title="" className="text-[13px] font-semibold">
             {translate('dashboardPopout.title', 'Agents')}
           </h1>
           <span className="text-[11px] text-muted-foreground">

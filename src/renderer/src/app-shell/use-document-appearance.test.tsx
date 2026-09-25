@@ -3,6 +3,7 @@ import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getDefaultSettings } from '../../../shared/constants'
 import { useAppStore } from '../store'
+import type * as DocumentThemeModule from '../lib/document-theme'
 
 const mocks = vi.hoisted(() => ({
   applyDocumentTheme: vi.fn(),
@@ -10,7 +11,7 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('../lib/document-theme', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../lib/document-theme')>()),
+  ...(await importOriginal<typeof DocumentThemeModule>()),
   applyDocumentTheme: mocks.applyDocumentTheme
 }))
 

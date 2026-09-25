@@ -4,7 +4,7 @@ import { getWildeSpotifyApi } from './use-wilde-spotify'
 const SIZE = 72
 const BAR_COUNT = 48
 const INNER_RADIUS = 21
-const MAX_BAR = 9
+const MAX_BAR = 6
 const MIN_BAR = 1
 
 /**
@@ -116,7 +116,7 @@ export function WildeSpotifyVisualizer({ playing }: { playing: boolean }): React
       const cos = Math.cos(angle)
       const sin = Math.sin(angle)
       context.globalAlpha = 0.35 + next * 0.65
-      context.shadowBlur = 4 + next * 8
+      context.shadowBlur = 3 + next * 5
       context.beginPath()
       context.moveTo(center + cos * INNER_RADIUS, center + sin * INNER_RADIUS)
       context.lineTo(center + cos * (INNER_RADIUS + length), center + sin * (INNER_RADIUS + length))

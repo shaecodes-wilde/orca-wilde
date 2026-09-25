@@ -2779,6 +2779,19 @@
     }
   },
   "settings": {
+    "appearance": {
+      "wilde": {
+        "darkModeHint": "Wilde chrome applies while Orca is in dark mode.",
+        "enable": {
+          "description": "Restyle the app chrome with the Wilde Systems palette while Orca is in dark mode."
+        },
+        "motion": {
+          "off": "Off",
+          "slow": "Slow",
+          "title": "Motion"
+        }
+      }
+    },
     "browser": {
       "clientHostedRemote": {
         "description": "Render remote workspace pages on this desktop; network traffic still goes through the remote host. Applies to new pages only.",
@@ -2791,6 +2804,11 @@
         "probeSkippedHosts": "Hosts routed without the connection check (Try anyway):",
         "title": "Browse through SSH workspace hosts"
       }
+    }
+  },
+  "wildeDrive": {
+    "settings": {
+      "placeholder": "H:')}"
     }
   },
   "worktreeJumpPalette": {

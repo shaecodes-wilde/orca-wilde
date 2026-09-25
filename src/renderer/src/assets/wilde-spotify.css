@@ -2,7 +2,12 @@
    is painting, so these rules use Wilde tokens directly and need no root gate. */
 
 .wilde-spotify {
-  flex-shrink: 0;
+  /* Floats over the bottom of the sidebar panel; rows scroll behind the solid card. */
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
   padding: 8px 10px 10px;
   /* Same lift-off-the-contours glow as the sidebar text (wilde-sidebar.css). */
   text-shadow:
@@ -24,11 +29,15 @@
       color-mix(in srgb, var(--wilde-mint) 5%, transparent) 60%,
       transparent
     ),
-    color-mix(in srgb, var(--wilde-harbour) 78%, transparent);
+    var(--wilde-harbour);
   box-shadow:
     0 8px 24px rgb(0 0 0 / 0.45),
     inset 0 1px 0 color-mix(in srgb, var(--wilde-canvas) 8%, transparent);
-  backdrop-filter: blur(10px) saturate(1.2);
+}
+
+/* Tabs that aren't file lists stop above the floating player instead of running under it. */
+[data-wilde-player-overlay='off'] > :first-child {
+  padding-bottom: var(--wilde-spotify-inset, 0px);
 }
 
 .wilde-spotify-card-idle {

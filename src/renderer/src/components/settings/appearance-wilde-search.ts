@@ -13,6 +13,8 @@ export const getWildeAppearanceEntry = createLocalizedCatalog((): SettingsSearch
     ...translateSearchKeyword('settings.appearance.wilde.search.keyword.wilde', 'wilde'),
     ...translateSearchKeyword('settings.appearance.wilde.search.keyword.theme', 'theme'),
     ...translateSearchKeyword('settings.appearance.wilde.search.keyword.sidebar', 'sidebar'),
-    ...translateSearchKeyword('settings.appearance.wilde.search.keyword.branding', 'branding')
+    ...translateSearchKeyword('settings.appearance.wilde.search.keyword.branding', 'branding'),
+    ...translateSearchKeyword('settings.appearance.wilde.search.keyword.spotify', 'spotify'),
+    ...translateSearchKeyword('settings.appearance.wilde.search.keyword.googleDrive', 'google drive')
   ]
 }))

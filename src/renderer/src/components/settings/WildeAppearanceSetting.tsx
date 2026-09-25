@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 import { useWildeAppearance } from '@/hooks/use-wilde-appearance'
 import { WildeSpotifySettings } from '../wilde-spotify/WildeSpotifySettings'
+import { WildeDriveSettings } from '../wilde-drive/WildeDriveSettings'
 import {
   SettingsRow,
   SettingsSegmentedControl,
@@ -107,6 +108,8 @@ export function WildeAppearanceSetting({
         {/* Motion (slow drift) retired with the photo material; the stored field stays for profile compat. */}
         <WildeSpotifySettings />
       </div>
+      {/* The Drive tab works with or without the Wilde look, so it stays editable either way. */}
+      <WildeDriveSettings />
       {wilde.enabled && !resolvedDark ? (
         <p className="text-[11px] text-muted-foreground">
           {translate(

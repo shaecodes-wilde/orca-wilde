@@ -154,6 +154,7 @@ function ReviewPill({ card }: { card: DashboardCard }): React.JSX.Element | null
     <span
       role="img"
       aria-label={`${title} #${card.review.number}`}
+      data-wilde-review-state={card.review.state}
       className={cn(
         'inline-flex shrink-0 items-center gap-0.5 rounded-full border px-1 py-px text-[10px] leading-none tabular-nums',
         presentation.className
@@ -222,6 +223,7 @@ export const AgentKanbanCard = memo(
         // the card from its old column to its new one when its bucket changes.
         // paneKey has ':'/'/' which aren't valid in a custom-ident, so slugify.
         style={{ viewTransitionName: `agentcard-${card.paneKey.replace(/[^a-zA-Z0-9]/g, '-')}` }}
+        data-wilde-agent-card={needsYou ? 'needs-you' : isDone ? 'done' : 'active'}
         className={cn(
           'group flex w-full flex-col gap-1.5 rounded-lg border p-2.5 text-left transition-colors',
           needsYou
