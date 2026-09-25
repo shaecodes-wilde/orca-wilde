@@ -187,7 +187,7 @@ describe('formatMessagesForInjection', () => {
 describe('formatMessagePointer', () => {
   it('formats a singular pointer without message content', () => {
     expect(formatMessagePointer(1, 'run:run_1')).toBe(
-      '\nYou have 1 orchestration message. Run `orca-wilde orchestration check --run run_1`.\n'
+      '\nYou have 1 orchestration message. Run `orca orchestration check --run run_1`.\n'
     )
   })
 
@@ -196,8 +196,8 @@ describe('formatMessagePointer', () => {
   })
 
   it('uses the terminal-resolved CLI command', () => {
-    expect(formatMessagePointer(1, 'run:run_wsl', 'orca-dev')).toContain(
-      '`orca-dev orchestration check --run run_wsl`'
+    expect(formatMessagePointer(1, 'run:run_wsl', 'orca-ide')).toContain(
+      '`orca-ide orchestration check --run run_wsl`'
     )
     expect(formatMessagePointer(1, 'run:run_dev', 'orca-dev')).toContain(
       '`orca-dev orchestration check --run run_dev`'

@@ -4,12 +4,12 @@ import { getDevInstanceIdentity, shouldApplyPreReadyAppName } from './dev-instan
 describe('dev-instance-identity', () => {
   it('keeps packaged identity stable', () => {
     expect(getDevInstanceIdentity(false, {})).toMatchObject({
-      name: 'Orca Wilde',
-      appName: 'Orca Wilde',
+      name: 'Orca',
+      appName: 'Orca',
       isDev: false,
       devLabel: null,
       dockBadgeLabel: null,
-      appUserModelId: 'systems.wilde.orca'
+      appUserModelId: 'com.stablyai.orca'
     })
   })
 
@@ -20,9 +20,9 @@ describe('dev-instance-identity', () => {
     // Per-branch label differs (window title / app menu)...
     expect(a.name).not.toBe(b.name)
     // ...but the Keychain-driving appName is identical and distinct from prod.
-    expect(a.appName).toBe('Orca Wilde Dev')
-    expect(b.appName).toBe('Orca Wilde Dev')
-    expect(a.appName).not.toBe('Orca Wilde')
+    expect(a.appName).toBe('Orca Dev')
+    expect(b.appName).toBe('Orca Dev')
+    expect(a.appName).not.toBe('Orca')
   })
 
   it('never renames a packaged build before ready', () => {
@@ -50,9 +50,9 @@ describe('dev-instance-identity', () => {
       devWorktreeName: 'dev-indicator',
       devRepoRoot: '/repo/worktrees/dev-indicator'
     })
-    expect(identity.name).toBe('Orca Wilde: nwparker/dev-indicator')
+    expect(identity.name).toBe('Orca: nwparker/dev-indicator')
     expect(identity.dockBadgeLabel).toBeNull()
-    expect(identity.appUserModelId).toMatch(/^systems\.wilde\.orca\.dev\.[a-f0-9]{10}$/)
+    expect(identity.appUserModelId).toMatch(/^com\.stablyai\.orca\.dev\.[a-f0-9]{10}$/)
   })
 
   it('includes the branch when it differs from the worktree basename', () => {
@@ -63,7 +63,7 @@ describe('dev-instance-identity', () => {
     })
 
     expect(identity.devLabel).toBe('payment-ui @ feature/billing-shell')
-    expect(identity.name).toBe('Orca Wilde: feature/billing-shell')
+    expect(identity.name).toBe('Orca: feature/billing-shell')
     expect(identity.dockBadgeLabel).toBeNull()
   })
 
@@ -75,7 +75,7 @@ describe('dev-instance-identity', () => {
     })
 
     expect(identity.devLabel).toBe('manual label')
-    expect(identity.name).toBe('Orca Wilde: feature/other')
+    expect(identity.name).toBe('Orca: feature/other')
     expect(identity.dockBadgeLabel).toBeNull()
   })
 })

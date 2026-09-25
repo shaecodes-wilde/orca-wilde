@@ -93,7 +93,7 @@ describe('structuredWorkerChildIdentityEnv', () => {
     installFakeAppEnvironment({ isPackaged: () => true, getPath: () => USER_DATA })
     registerWorker()
     const env = structuredWorkerChildIdentityEnv(SESSION_ID, { PATH: '/usr/bin' })
-    expect(env.PATH).toBe(`${join(RESOURCES, 'bin')}:${join(RESOURCES, 'terminal-alias')}:/usr/bin`)
+    expect(env.PATH).toBe(`${join(RESOURCES, 'bin')}:/usr/bin`)
   })
 
   it('gives a packaged-Windows worker the bundled CLI dir under the env block spelling', () => {
@@ -101,7 +101,7 @@ describe('structuredWorkerChildIdentityEnv', () => {
     installFakeAppEnvironment({ isPackaged: () => true, getPath: () => USER_DATA })
     registerWorker()
     const env = structuredWorkerChildIdentityEnv(SESSION_ID, { Path: 'C:\\Windows' })
-    expect(env.Path).toBe(`${join(RESOURCES, 'bin')};${join(RESOURCES, 'terminal-alias')};C:\\Windows`)
+    expect(env.Path).toBe(`${join(RESOURCES, 'bin')};C:\\Windows`)
     expect(env.PATH).toBeUndefined()
   })
 

@@ -119,7 +119,7 @@ describe('claude agent teams shim env', () => {
     async () => {
       const root = await mkdtemp(join(tmpdir(), 'orca-agent-teams-cli-'))
       roots.push(root)
-      const cliPath = join(root, 'orca-wilde.cmd')
+      const cliPath = join(root, 'orca.cmd')
       await writeFile(cliPath, '@echo off\r\n', 'utf8')
 
       expect(resolveClaudeAgentTeamsShimBin({ Path: root })).toBe(cliPath)

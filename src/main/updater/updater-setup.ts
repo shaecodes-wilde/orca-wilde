@@ -21,7 +21,6 @@ import { recordUpdaterLifecycle } from '../updater-lifecycle-diagnostics'
 import { AUTO_UPDATE_CHECK_INTERVAL_MS } from './updater-state'
 import { UpdaterDownloadInstall } from './updater-download-install'
 import type { UpdateInstallMode } from './updater-state'
-import { getForkUpdateFeedUrl } from './fork-update-feed'
 
 export type UpdaterSetupOptions = {
   getLastUpdateCheckAt?: () => number | null
@@ -33,6 +32,12 @@ export type UpdaterSetupOptions = {
   setDismissedUpdateNudgeId?: (id: string | null) => void
   getReleaseChannelOverride?: () => ReleaseChannel | null
   installMode?: UpdateInstallMode
+}
+
+// The fork has no update feed yet (see the call site below). Returning a value
+// instead of exporting a constant keeps callers' `!== null` checks un-narrowed.
+function getForkUpdateFeedUrl(): string | null {
+  return null
 }
 
 /** Initializes electron-updater and attaches lifecycle/event bridges. */

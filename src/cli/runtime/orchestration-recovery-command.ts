@@ -1,6 +1,6 @@
 export function resolveOrchestrationCliExecutable(
   env: NodeJS.ProcessEnv = process.env,
-  _platform: NodeJS.Platform = process.platform
+  platform: NodeJS.Platform = process.platform
 ): string {
   const configured = env.ORCA_CLI_COMMAND?.trim()
   if (configured) {

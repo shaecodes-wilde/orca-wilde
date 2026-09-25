@@ -53,7 +53,7 @@ describe('prependOrcaCliDirToChildPath', () => {
     expect(env.PATH).toBe('/usr/bin')
   })
 
-  it('leads packaged macOS PATH with the bundled CLI and terminal-alias dirs', () => {
+  it('leads packaged macOS PATH with the bundled CLI dir', () => {
     const env: Record<string, string> = { PATH: '/usr/bin' }
     prependOrcaCliDirToChildPath(env, {
       isPackaged: true,
@@ -61,11 +61,11 @@ describe('prependOrcaCliDirToChildPath', () => {
       resourcesPath: RESOURCES,
       platform: 'darwin'
     })
-    expect(env.PATH).toBe(`${join(RESOURCES, 'bin')}:${join(RESOURCES, 'terminal-alias')}:/usr/bin`)
+    expect(env.PATH).toBe(`${join(RESOURCES, 'bin')}:/usr/bin`)
     expect(shim.ensureLinuxTerminalOrcaCliShimDir).not.toHaveBeenCalled()
   })
 
-  it('leads packaged Windows PATH with the bundled CLI and alias dirs under the env block spelling', () => {
+  it('leads packaged Windows PATH with the bundled CLI dir under the env block spelling', () => {
     const env: Record<string, string> = { Path: 'C:\\Windows\\System32' }
     prependOrcaCliDirToChildPath(env, {
       isPackaged: true,
@@ -73,9 +73,7 @@ describe('prependOrcaCliDirToChildPath', () => {
       resourcesPath: RESOURCES,
       platform: 'win32'
     })
-    expect(env.Path).toBe(
-      `${join(RESOURCES, 'bin')};${join(RESOURCES, 'terminal-alias')};C:\\Windows\\System32`
-    )
+    expect(env.Path).toBe(`${join(RESOURCES, 'bin')};C:\\Windows\\System32`)
     expect(env.PATH).toBeUndefined()
   })
 
