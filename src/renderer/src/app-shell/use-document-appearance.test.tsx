@@ -9,7 +9,8 @@ const mocks = vi.hoisted(() => ({
   buildAppFontFamily: vi.fn((fontFamily: string | null | undefined) => fontFamily ?? '')
 }))
 
-vi.mock('../lib/document-theme', () => ({
+vi.mock('../lib/document-theme', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/document-theme')>()),
   applyDocumentTheme: mocks.applyDocumentTheme
 }))
 

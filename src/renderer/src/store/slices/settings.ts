@@ -22,6 +22,7 @@ import {
 } from '../../../../shared/tui-agent-launch-defaults'
 import { bumpProviderRuntimeSessionGeneration } from '@/lib/provider-runtime-context'
 import { normalizeUiLanguage } from '../../../../shared/ui-language'
+import { normalizeWildeAppearance } from '../../../../shared/wilde-appearance'
 import { normalizeDesktopTerminalScrollbackRows } from '../../../../shared/terminal-scrollback-policy'
 import { translate } from '@/i18n/i18n'
 import {
@@ -128,6 +129,9 @@ function normalizeSettingsUpdates(
     sanitizedUpdates.mobilePairingCustomAddresses = normalizeMobilePairingCustomAddresses(
       updates.mobilePairingCustomAddresses
     )
+  }
+  if ('wildeAppearance' in updates) {
+    sanitizedUpdates.wildeAppearance = normalizeWildeAppearance(updates.wildeAppearance)
   }
   return sanitizedUpdates
 }

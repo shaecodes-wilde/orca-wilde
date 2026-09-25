@@ -8,12 +8,14 @@ import { SHOW_UI_LANGUAGE_SETTING } from '@/i18n/supported-languages'
 import { getStatusBarToggles } from './appearance-status-bar-search'
 import { getUsagePercentageDisplayEntry } from './appearance-usage-percentage-search'
 import { getMenuBarIconEntries, getSystemTrayEntries } from './appearance-system-presence-search'
+import { getWildeAppearanceEntry } from './appearance-wilde-search'
 
 export {
   getMenuBarIconEntries,
   getStatusBarToggles,
   getSystemTrayEntries,
-  getUsagePercentageDisplayEntry
+  getUsagePercentageDisplayEntry,
+  getWildeAppearanceEntry
 }
 
 export const getThemeEntries = createLocalizedCatalog((): SettingsSearchEntry[] => [
@@ -234,6 +236,7 @@ export function getAppearancePaneSearchEntries(
   return [
     ...getAppearanceSectionEntries(),
     ...getThemeEntries(),
+    getWildeAppearanceEntry(),
     ...(SHOW_UI_LANGUAGE_SETTING ? getLanguageEntries() : []),
     ...getTypographyEntries(),
     ...getZoomEntries(),

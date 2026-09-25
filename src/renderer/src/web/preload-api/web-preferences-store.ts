@@ -19,6 +19,7 @@ import {
 import { normalizeTerminalCursorStyleDefault } from '../../../../shared/terminal-cursor-style-settings'
 import { normalizeTerminalCustomThemes } from '../../../../shared/terminal-custom-themes'
 import { normalizeUiLanguage } from '../../../../shared/ui-language'
+import { normalizeWildeAppearance } from '../../../../shared/wilde-appearance'
 import { readStoredWebRuntimeEnvironment } from '../web-runtime-environment'
 import { mergeSettings, mergeWebUIState } from './web-preference-normalization'
 import { callRuntimeResult } from './web-runtime-calls'
@@ -39,7 +40,9 @@ export function getStoredSettings(): GlobalSettings {
     ...normalizeTerminalCursorStyleDefault(stored),
     ...normalizeOsc52ClipboardDefaultOn(stored),
     terminalCustomThemes: normalizeTerminalCustomThemes(stored.terminalCustomThemes),
-    uiLanguage: normalizeUiLanguage(stored.uiLanguage)
+    uiLanguage: normalizeUiLanguage(stored.uiLanguage),
+    // Device-local: the runtime whitelist below never carries it, so localStorage is authoritative.
+    wildeAppearance: normalizeWildeAppearance(stored.wildeAppearance)
   }
   if (
     rawStoredSettings &&
@@ -55,7 +58,8 @@ export function getStoredSettings(): GlobalSettings {
       stored.terminalAllowOsc52ClipboardDefaultedOnForAllUsers !==
         migratedStored.terminalAllowOsc52ClipboardDefaultedOnForAllUsers ||
       stored.terminalCustomThemes !== migratedStored.terminalCustomThemes ||
-      stored.uiLanguage !== migratedStored.uiLanguage)
+      stored.uiLanguage !== migratedStored.uiLanguage ||
+      stored.wildeAppearance !== migratedStored.wildeAppearance)
   ) {
     try {
       const parsed = JSON.parse(rawStoredSettings) as unknown

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import type { PersistedState } from '../../../shared/persisted-state-types'
+import { NEW_WILDE_PROFILE_APPEARANCE } from '../../../shared/wilde-appearance'
 
 import type { StoreRuntimeState } from './store-runtime-state'
 
@@ -7,6 +8,22 @@ type LoadedCohortMigrationOperationsRuntime = Pick<StoreRuntimeState, 'loadNeeds
 
 export class LoadedCohortMigrationOperations {
   constructor(private readonly runtime: LoadedCohortMigrationOperationsRuntime) {}
+
+  /** Fresh profiles get the Wilde fork enabled; existing/imported files are left untouched. */
+  seedWildeAppearance(state: PersistedState, fileExistedOnLoad: boolean): PersistedState {
+    if (fileExistedOnLoad || state.settings?.wildeAppearance !== undefined) {
+      return state
+    }
+    // Why: mark dirty so the seed persists; else a fresh install re-reads as "existing" once its file lands.
+    this.runtime.loadNeedsSave = true
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        wildeAppearance: NEW_WILDE_PROFILE_APPEARANCE
+      }
+    }
+  }
 
   migrateTabSwitchKeybindings(state: PersistedState, fileExistedOnLoad: boolean): PersistedState {
     const existing = state.settings?.tabSwitchKeybindingSeed

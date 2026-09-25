@@ -1,8 +1,42 @@
 import type { GlobalSettings } from '../../../shared/global-settings-types'
+import { normalizeWildeAppearance } from '../../../shared/wilde-appearance'
 
 export type DocumentThemePreference = GlobalSettings['theme']
 
 export const THEME_TRANSITION_DISABLED_CLASS = 'theme-transition-disabled'
+
+export const WILDE_APPEARANCE_ATTRIBUTE = 'data-wilde-appearance'
+export const WILDE_MATERIAL_ATTRIBUTE = 'data-wilde-material'
+export const WILDE_INTENSITY_ATTRIBUTE = 'data-wilde-intensity'
+export const WILDE_MOTION_ATTRIBUTE = 'data-wilde-motion'
+
+const WILDE_ATTRIBUTES = [
+  WILDE_APPEARANCE_ATTRIBUTE,
+  WILDE_MATERIAL_ATTRIBUTE,
+  WILDE_INTENSITY_ATTRIBUTE,
+  WILDE_MOTION_ATTRIBUTE
+] as const
+
+type WildeAttributeRoot = Pick<HTMLElement, 'setAttribute' | 'removeAttribute'>
+
+// Why intent, not resolved theme: the attributes describe the stored setting and CSS gates on
+// `[data-wilde-appearance='on'].dark`, so OS dark↔light flips need zero DOM churn here.
+export function applyWildeDocumentAttributes(
+  wilde: unknown,
+  root: WildeAttributeRoot = document.documentElement
+): void {
+  const appearance = normalizeWildeAppearance(wilde)
+  if (appearance?.version === 1 && appearance.enabled) {
+    root.setAttribute(WILDE_APPEARANCE_ATTRIBUTE, 'on')
+    root.setAttribute(WILDE_MATERIAL_ATTRIBUTE, appearance.sidebarTreatment)
+    root.setAttribute(WILDE_INTENSITY_ATTRIBUTE, appearance.intensity)
+    root.setAttribute(WILDE_MOTION_ATTRIBUTE, appearance.motion)
+    return
+  }
+  for (const attribute of WILDE_ATTRIBUTES) {
+    root.removeAttribute(attribute)
+  }
+}
 
 const DARK_MODE_QUERY = '(prefers-color-scheme: dark)'
 

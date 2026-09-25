@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { buildAppFontFamily } from '@/lib/app-font-family'
-import { applyDocumentTheme } from '../lib/document-theme'
+import { applyDocumentTheme, applyWildeDocumentAttributes } from '../lib/document-theme'
 import { scheduleRuntimeGraphSync } from '../runtime/sync-runtime-graph'
 import { useAppStore } from '../store'
 
@@ -8,6 +8,7 @@ import { useAppStore } from '../store'
 export function useDocumentAppearance(): void {
   const theme = useAppStore((s) => s.settings?.theme)
   const appFontFamily = useAppStore((s) => s.settings?.appFontFamily)
+  const wildeAppearance = useAppStore((s) => s.settings?.wildeAppearance)
 
   useEffect(() => {
     if (!theme) {
@@ -32,6 +33,10 @@ export function useDocumentAppearance(): void {
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
   }, [theme])
+
+  useEffect(() => {
+    applyWildeDocumentAttributes(wildeAppearance)
+  }, [wildeAppearance])
 
   useEffect(() => {
     document.documentElement.style.setProperty(

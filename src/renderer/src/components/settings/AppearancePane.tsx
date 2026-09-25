@@ -23,6 +23,7 @@ import {
   getThemeEntries,
   getTitlebarEntries,
   getTypographyEntries,
+  getWildeAppearanceEntry,
   getZoomEntries
 } from './appearance-search'
 import { getTerminalAppearanceSearchEntries } from './terminal-search'
@@ -138,6 +139,7 @@ export function AppearancePane({
   const interfaceSearchEntries = [
     { title: interfaceTitle },
     ...getThemeEntries(),
+    getWildeAppearanceEntry(),
     ...getZoomEntries(),
     ...getTypographyEntries(),
     ...(SHOW_UI_LANGUAGE_SETTING ? getLanguageEntries() : []),

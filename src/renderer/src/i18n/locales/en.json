@@ -160,6 +160,45 @@
           "statusItem": "status item",
           "activity": "activity"
         }
+      },
+      "wilde": {
+        "enable": {
+          "title": "Wilde Systems appearance",
+          "description": "Restyle the app chrome with the Wilde Systems palette while Orca is in dark mode."
+        },
+        "sidebarTreatment": {
+          "title": "Sidebar treatment",
+          "solid": "Solid",
+          "oilSlick": "Oil Slick"
+        },
+        "intensity": {
+          "title": "Intensity",
+          "subtle": "Subtle",
+          "balanced": "Balanced",
+          "expressive": "Expressive"
+        },
+        "motion": {
+          "title": "Motion",
+          "off": "Off",
+          "slow": "Slow"
+        },
+        "terminalBranding": {
+          "title": "Terminal badge",
+          "description": "Show a Wilde Systems badge on terminal surfaces.",
+          "off": "Off",
+          "badge": "Badge"
+        },
+        "darkModeHint": "Wilde chrome applies while Orca is in dark mode.",
+        "search": {
+          "title": "Wilde Systems",
+          "description": "Restyle the app chrome with the Wilde Systems palette while Orca is in dark mode.",
+          "keyword": {
+            "wilde": "wilde",
+            "theme": "theme",
+            "sidebar": "sidebar",
+            "branding": "branding"
+          }
+        }
       }
     },
     "browser": {

@@ -22,6 +22,7 @@ import {
   getThemeEntries,
   getTitlebarEntries,
   getTypographyEntries,
+  getWildeAppearanceEntry,
   getZoomEntries
 } from './appearance-search'
 import {
@@ -30,6 +31,7 @@ import {
   UI_LANGUAGE_CHOICES
 } from '@/i18n/supported-languages'
 import { translate } from '@/i18n/i18n'
+import { WildeAppearanceSetting } from './WildeAppearanceSetting'
 import type { UiLanguage } from '../../../../shared/ui-language'
 import { matchesSettingsSearch, normalizeSettingsSearchQuery } from './settings-search'
 import { usePluginLanguagePacks } from '@/store/plugin-language-packs'
@@ -64,6 +66,7 @@ export function AppearanceInterfaceSection({
   const menuBarIconEntry = getMenuBarIconEntries({ showMenuBarIcon: true })[0]
   const systemTrayEntry = getSystemTrayEntries({ showSystemTray: true })[0]
   const themeEntry = getThemeEntries()[0]
+  const wildeEntry = getWildeAppearanceEntry()
   const themeLabel = translate('auto.components.settings.AppearancePane.932ff1fbff', 'Theme')
   const titlebarEntry = getTitlebarEntries()[0]
   const typographyEntry = getTypographyEntries()[0]
@@ -111,6 +114,15 @@ export function AppearanceInterfaceSection({
             />
           }
         />
+      </SearchableSetting>
+
+      <SearchableSetting
+        title={wildeEntry.title}
+        description={wildeEntry.description}
+        keywords={wildeEntry.keywords}
+        forceVisible={forceVisiblePrimary}
+      >
+        <WildeAppearanceSetting settings={settings} updateSettings={updateSettings} />
       </SearchableSetting>
 
       {SHOW_UI_LANGUAGE_SETTING ? (

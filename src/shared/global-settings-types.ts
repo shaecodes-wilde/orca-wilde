@@ -42,6 +42,7 @@ import type {
   ExternalWorktreeVisibility,
   WorktreeVisibilitySourcePreferences
 } from './repo-types'
+import type { WildeAppearanceV1 } from './wilde-appearance'
 
 /** MiniMax account region used to select the quota endpoint. */
 export type MiniMaxEndpoint = 'overseas' | 'cn'
@@ -82,6 +83,8 @@ export type GlobalSettings = {
   leftSidebarAppearanceMode: LeftSidebarAppearanceMode
   leftSidebarTintColor?: string
   leftSidebarTintOpacity?: number
+  /** Device-local Wilde Systems appearance fork state; intentionally absent from the host-synced RPC schema. */
+  wildeAppearance?: WildeAppearanceV1
   uiLanguage: UiLanguage
   appIcon: AppIconId
   appFontFamily: string

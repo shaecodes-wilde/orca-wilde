@@ -8,6 +8,7 @@ import { normalizeTerminalCustomThemes } from '../../../shared/terminal-custom-t
 import { projectSourceControlAiToLegacyCommitMessageAi } from '../../../shared/source-control-ai'
 import { normalizeUiLanguage } from '../../../shared/ui-language'
 import { normalizeNativeChatShellEnvironmentVariables } from '../../../shared/native-chat-shell-environment'
+import { normalizeWildeAppearance } from '../../../shared/wilde-appearance'
 import { stripRetiredGlobalSettings } from '../applying-settings/terminal-settings-migrations'
 import { readLegacySidekickFlag } from '../applying-settings/onboarding-normalization'
 import { normalizeMachineName } from '../../../shared/machine-name'
@@ -117,6 +118,7 @@ export function normalizeLoadedGlobalSettings(
     // Why: missing means default-on; round-trips unchanged on non-mac since darwin consumers gate the effect.
     showMenuBarIcon: parsed.settings?.showMenuBarIcon !== false,
     uiLanguage: normalizeUiLanguage(parsed.settings?.uiLanguage),
+    wildeAppearance: normalizeWildeAppearance(parsed.settings?.wildeAppearance),
     // Why: the structured runtime reads these per launch; a malformed hand-edited value must not fail a chat.
     nativeChatInheritShellEnvironment: parsed.settings?.nativeChatInheritShellEnvironment !== false,
     nativeChatShellEnvironmentVariables: normalizeNativeChatShellEnvironmentVariables(

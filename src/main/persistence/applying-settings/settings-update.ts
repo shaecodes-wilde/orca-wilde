@@ -16,6 +16,7 @@ import { normalizeTerminalShortcutPolicy } from '../../../shared/keybindings'
 import { normalizeSourceControlGroupOrder } from '../../../shared/source-control-group-order'
 import { normalizeAppIconId } from '../../../shared/app-icon'
 import { normalizeUiLanguage } from '../../../shared/ui-language'
+import { normalizeWildeAppearance } from '../../../shared/wilde-appearance'
 import { normalizeWorktreeVisibilityDefaults } from '../../../shared/external-worktree-visibility'
 import { normalizePRBotAuthorOverrides } from '../../../shared/pr-bot-author-overrides'
 import { normalizeMachineName } from '../../../shared/machine-name'
@@ -179,6 +180,11 @@ export function updateSettings(
   }
   if ('uiLanguage' in updates) {
     sanitizedUpdates.uiLanguage = normalizeUiLanguage(updates.uiLanguage)
+  }
+  // Every writer (desktop IPC, web RPC, CLI) crosses this boundary; v1 payloads re-emit
+  // complete so the shallow merge below never persists a partial Wilde object.
+  if ('wildeAppearance' in updates) {
+    sanitizedUpdates.wildeAppearance = normalizeWildeAppearance(updates.wildeAppearance)
   }
   if ('prBotAuthorOverrides' in updates) {
     // Why: every writer (desktop IPC, web RPC, migrations) hits this boundary, so the persisted list stays bounded and well-formed.

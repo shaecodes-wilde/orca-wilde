@@ -6,6 +6,12 @@
 @import './markdown-preview.css';
 @import './terminal.css';
 @import './mobile-page.css';
+/* Wilde fork sheets. @import must precede rule bodies, so "after token defs" is
+   impossible literally — the gated `[data-wilde-appearance="on"].dark` selector
+   outranks `.dark` on specificity regardless of source order. */
+@import './wilde-theme.css';
+@import './wilde-sidebar.css';
+@import './wilde-terminal.css';
 
 @font-face {
   font-family: 'Geist';
@@ -121,6 +127,14 @@
   --color-git-graph-lane-4: var(--git-graph-lane-4);
   --color-git-graph-lane-5: var(--git-graph-lane-5);
   --color-annotation-highlight: var(--annotation-highlight);
+  --color-wilde-harbour: var(--wilde-harbour);
+  --color-wilde-canvas: var(--wilde-canvas);
+  --color-wilde-mint: var(--wilde-mint);
+  --color-wilde-lavender: var(--wilde-lavender);
+  --color-wilde-panel: var(--wilde-panel);
+  --color-wilde-raised: var(--wilde-raised);
+  --color-wilde-border: var(--wilde-border);
+  --color-wilde-muted: var(--wilde-muted);
   --shadow-floating: 0 10px 24px rgb(0 0 0 / 0.18);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);

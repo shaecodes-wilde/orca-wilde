@@ -1,0 +1,36 @@
+/* Wilde Systems theme fork. Gated on [data-wilde-appearance="on"] + resolved .dark so light
+   mode and the disabled state keep stock tokens untouched (attribute contract lives in
+   lib/document-theme.ts `applyWildeDocumentAttributes`). */
+:root[data-wilde-appearance="on"].dark {
+  --wilde-harbour: #0b0c10;
+  --wilde-canvas: #f8f8fa;
+  --wilde-mint: #8bd8b0;
+  --wilde-lavender: #ab9cd9;
+  /* Derived UI proposals, not additional canonical brand colours. */
+  --wilde-panel: #11131a;
+  --wilde-raised: #171b24;
+  --wilde-border: #292f3a;
+  --wilde-muted: #aeb7c8;
+  --background: var(--wilde-harbour);
+  --foreground: var(--wilde-canvas);
+  --card: var(--wilde-panel);
+  --card-foreground: var(--wilde-canvas);
+  --popover: var(--wilde-panel);
+  --popover-foreground: var(--wilde-canvas);
+  --primary: var(--wilde-mint);
+  --primary-foreground: var(--wilde-harbour);
+  --ring: var(--wilde-mint);
+  --muted-foreground: var(--wilde-muted);
+  /* Do NOT replace --orca-security-*, semantic warnings/errors or all ANSI colours. */
+  /* Material veil is the single opacity dial A4's material layers consume;
+     the per-intensity blocks below set its strength. */
+  --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 10%, transparent);
+}
+
+:root[data-wilde-appearance="on"].dark[data-wilde-intensity="subtle"] {
+  --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 5%, transparent);
+}
+
+:root[data-wilde-appearance="on"].dark[data-wilde-intensity="expressive"] {
+  --wilde-material-veil: color-mix(in srgb, var(--wilde-lavender) 18%, transparent);
+}

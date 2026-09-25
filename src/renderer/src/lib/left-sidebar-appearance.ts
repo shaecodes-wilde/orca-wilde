@@ -4,6 +4,7 @@ import {
   normalizeLeftSidebarTintColor,
   normalizeLeftSidebarTintOpacity
 } from '../../../shared/left-sidebar-appearance'
+import { normalizeWildeAppearance } from '../../../shared/wilde-appearance'
 import { resolveEffectiveTerminalAppearance } from './terminal-theme'
 
 type LeftSidebarAppearanceSettings = Pick<
@@ -12,6 +13,7 @@ type LeftSidebarAppearanceSettings = Pick<
   | 'leftSidebarTintColor'
   | 'leftSidebarTintOpacity'
   | 'theme'
+  | 'wildeAppearance'
   | 'terminalThemeDark'
   | 'terminalDividerColorDark'
   | 'terminalUseSeparateLightTheme'
@@ -113,12 +115,49 @@ function resolveTintedSurfaceVariables(
   return buildSurfaceVariables({ background, foreground: 'var(--foreground)' })
 }
 
+// Wilde mirrors point at the gated root --wilde-* tokens instead of resolved colors, so the
+// material swap (solid ↔ oil-slick) lives in CSS and stored modes/tints stay untouched;
+// the stock resolver resumes the moment Wilde disables or the theme resolves light.
+function buildWildeSidebarVariables(): LeftSidebarStyleVariables {
+  return {
+    '--worktree-sidebar': 'var(--wilde-panel)',
+    '--worktree-sidebar-foreground': 'var(--wilde-canvas)',
+    '--worktree-sidebar-accent': 'var(--wilde-raised)',
+    '--worktree-sidebar-accent-foreground': 'var(--wilde-canvas)',
+    '--worktree-sidebar-border': 'var(--wilde-border)',
+    '--worktree-sidebar-ring': 'var(--wilde-mint)',
+    '--sidebar': 'var(--wilde-panel)',
+    '--sidebar-foreground': 'var(--wilde-canvas)',
+    '--sidebar-accent': 'var(--wilde-raised)',
+    '--sidebar-accent-foreground': 'var(--wilde-canvas)',
+    '--sidebar-border': 'var(--wilde-border)',
+    '--sidebar-ring': 'var(--wilde-mint)'
+  }
+}
+
+function resolveWildeSidebarVariables(
+  settings: LeftSidebarAppearanceSettings,
+  systemPrefersDark: boolean
+): LeftSidebarStyleVariables | undefined {
+  const wilde = normalizeWildeAppearance(settings.wildeAppearance)
+  const resolvedDark = settings.theme === 'system' ? systemPrefersDark : settings.theme === 'dark'
+  // `version !== 1` keeps a future-version passthrough payload inert here.
+  if (wilde?.version !== 1 || !wilde.enabled || !resolvedDark) {
+    return undefined
+  }
+  return buildWildeSidebarVariables()
+}
+
 export function resolveLeftSidebarStyleVariables(
   settings: LeftSidebarAppearanceSettings | null | undefined,
   systemPrefersDark: boolean
 ): LeftSidebarStyleVariables | undefined {
   if (!settings) {
     return undefined
+  }
+  const wildeVariables = resolveWildeSidebarVariables(settings, systemPrefersDark)
+  if (wildeVariables) {
+    return wildeVariables
   }
   switch (settings.leftSidebarAppearanceMode) {
     case 'default':
