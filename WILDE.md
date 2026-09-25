@@ -10,6 +10,24 @@ sign-ins and the `orca` CLI carry over unchanged. Wilde turns on the first time 
 profile; switch it off (or tune sidebar material, intensity and motion) in
 **Settings > Appearance > Wilde Systems**. Light mode always shows stock Orca.
 
+## Spotify mini-player
+
+On Windows, a Spotify player is docked at the bottom of the right sidebar. Now playing and
+play/pause/previous/next come from the Spotify desktop app through Windows' media controls, so they
+work with no login. Seeking, the Liked Songs heart and the "Recently played" menu (which plays an
+album or playlist on this PC) use the Spotify Web API and need a one-time connection (Premium for
+playback control):
+
+1. At https://developer.spotify.com/dashboard, create an app and select **Web API**.
+2. Add the redirect URI `http://127.0.0.1:43117/callback`.
+3. Paste the app's **Client ID** into **Settings > Appearance > Wilde Systems > Spotify account**
+   and click **Connect Spotify**. No client secret is needed (PKCE); the refresh token is sealed
+   with Windows secure storage in the Orca profile.
+
+Turn the player off with the **Spotify player** switch in the same section. Code:
+`src/main/wilde/spotify/`, `native/wilde-spotify-windows/media-session.ps1`,
+`src/renderer/src/components/wilde-spotify/`.
+
 ## Updates
 
 Auto-update is disabled in this build (`src/main/updater/fork-update-feed.ts`): stock Orca's update

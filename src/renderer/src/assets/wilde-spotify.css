@@ -1,0 +1,304 @@
+/* Wilde Spotify mini-player (components/wilde-spotify). The component only mounts while Wilde
+   is painting, so these rules use Wilde tokens directly and need no root gate. */
+
+.wilde-spotify {
+  flex-shrink: 0;
+  padding: 8px 10px 10px;
+  /* Same lift-off-the-contours glow as the sidebar text (wilde-sidebar.css). */
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.95),
+    0 0 6px rgb(0 0 0 / 0.9);
+}
+
+.wilde-spotify-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px 8px;
+  border: 1px solid color-mix(in srgb, var(--wilde-lavender) 22%, transparent);
+  border-radius: 12px;
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--wilde-lavender) 10%, transparent),
+      color-mix(in srgb, var(--wilde-mint) 5%, transparent) 60%,
+      transparent
+    ),
+    color-mix(in srgb, var(--wilde-harbour) 78%, transparent);
+  box-shadow:
+    0 8px 24px rgb(0 0 0 / 0.45),
+    inset 0 1px 0 color-mix(in srgb, var(--wilde-canvas) 8%, transparent);
+  backdrop-filter: blur(10px) saturate(1.2);
+}
+
+.wilde-spotify-card-idle {
+  flex-direction: row;
+  align-items: center;
+  padding: 8px 8px 8px 12px;
+}
+
+.wilde-spotify-idle-icon {
+  color: var(--wilde-lavender);
+  flex-shrink: 0;
+}
+
+.wilde-spotify-idle-text {
+  flex: 1;
+  color: var(--wilde-muted);
+  font-size: 12px;
+}
+
+.wilde-spotify-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.wilde-spotify-art {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  object-fit: cover;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--wilde-mint) 30%, transparent),
+    0 4px 14px rgb(0 0 0 / 0.5);
+}
+
+.wilde-spotify-art-empty {
+  display: grid;
+  place-items: center;
+  color: var(--wilde-lavender);
+  background: var(--wilde-raised);
+}
+
+.wilde-spotify-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.wilde-spotify-title,
+.wilde-spotify-artist {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wilde-spotify-title {
+  color: var(--wilde-canvas);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.wilde-spotify-artist {
+  color: var(--wilde-muted);
+  font-size: 11.5px;
+}
+
+.wilde-spotify-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  color: var(--wilde-canvas);
+  filter: drop-shadow(0 0 3px rgb(0 0 0 / 0.9));
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+
+.wilde-spotify-icon-button:hover:not(:disabled) {
+  color: var(--wilde-mint);
+  background: color-mix(in srgb, var(--wilde-mint) 10%, transparent);
+}
+
+.wilde-spotify-icon-button:disabled {
+  opacity: 0.4;
+}
+
+.wilde-spotify-icon-button.is-liked {
+  color: var(--wilde-mint);
+}
+
+.wilde-spotify-icon-button:focus-visible,
+.wilde-spotify-play:focus-visible,
+.wilde-spotify-bar:focus-visible {
+  outline: 2px solid var(--wilde-mint);
+  outline-offset: 2px;
+}
+
+/* Progress line: thin mint track that thickens on hover when seekable. */
+.wilde-spotify-bar {
+  position: relative;
+  height: 4px;
+  margin: 6px 0 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wilde-canvas) 14%, transparent);
+  touch-action: none;
+  transition: height 120ms ease;
+}
+
+.wilde-spotify-bar.is-seekable {
+  cursor: pointer;
+}
+
+.wilde-spotify-bar.is-seekable:hover {
+  height: 6px;
+}
+
+.wilde-spotify-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--wilde-lavender), var(--wilde-mint));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--wilde-mint) 55%, transparent);
+}
+
+.wilde-spotify-bar-thumb {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--wilde-canvas);
+  box-shadow: 0 0 8px var(--wilde-mint);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 120ms ease;
+}
+
+.wilde-spotify-bar.is-seekable:hover .wilde-spotify-bar-thumb,
+.wilde-spotify-bar.is-seekable:focus-visible .wilde-spotify-bar-thumb {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.wilde-spotify-times {
+  display: flex;
+  justify-content: space-between;
+  color: var(--wilde-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wilde-spotify-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding-top: 2px;
+}
+
+.wilde-spotify-play {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--wilde-harbour);
+  background: radial-gradient(circle at 35% 30%, #b9f0d2, var(--wilde-mint) 60%);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--wilde-mint) 60%, transparent),
+    0 0 16px color-mix(in srgb, var(--wilde-mint) 55%, transparent);
+  text-shadow: none;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.wilde-spotify-play:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 0 1px var(--wilde-mint),
+    0 0 22px color-mix(in srgb, var(--wilde-mint) 75%, transparent);
+}
+
+.wilde-spotify-error {
+  margin-top: 6px;
+  padding: 0 4px;
+  color: var(--wilde-lavender);
+  font-size: 11px;
+}
+
+/* Recently played flyout (portaled out of the sidebar, hence unscoped). */
+.wilde-spotify-menu {
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--wilde-lavender) 25%, transparent);
+  background: color-mix(in srgb, var(--wilde-panel) 96%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.wilde-spotify-menu-header {
+  padding: 10px 12px 6px;
+  color: var(--wilde-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wilde-spotify-menu-note {
+  display: flex;
+  justify-content: center;
+  padding: 10px 12px 14px;
+  color: var(--wilde-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.wilde-spotify-menu-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0 6px 6px;
+}
+
+.wilde-spotify-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.wilde-spotify-menu-item:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--wilde-mint) 10%, transparent);
+}
+
+.wilde-spotify-menu-item:disabled {
+  opacity: 0.6;
+}
+
+.wilde-spotify-menu-art {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  background: var(--wilde-raised);
+  object-fit: cover;
+}
+
+.wilde-spotify-menu-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.wilde-spotify-menu-name,
+.wilde-spotify-menu-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wilde-spotify-menu-name {
+  color: var(--wilde-canvas);
+  font-size: 12.5px;
+}
+
+.wilde-spotify-menu-subtitle {
+  color: var(--wilde-muted);
+  font-size: 11px;
+}

@@ -18368,5 +18368,35 @@
   },
   "common": {
     "retry": "Retry"
+  },
+  "wildeSpotify": {
+    "idle": "Spotify isn’t playing",
+    "seek": "Seek",
+    "like": "Save to Liked Songs",
+    "unlike": "Remove from Liked Songs",
+    "connectHint": "Connect Spotify in Settings → Appearance → Wilde Systems",
+    "previous": "Previous",
+    "next": "Next",
+    "play": "Play",
+    "pause": "Pause",
+    "recent": {
+      "title": "Recently played",
+      "connect": "Connect Spotify in Settings → Appearance → Wilde Systems to see your recent albums.",
+      "empty": "Nothing played recently."
+    },
+    "settings": {
+      "title": "Spotify player",
+      "description": "Now playing and controls for the Spotify desktop app, docked at the bottom of the right sidebar.",
+      "account": "Spotify account",
+      "accountDescription": "Needed for seeking, Liked Songs and the recently played menu (Premium for playback control). Create an app at {{value0}}, add the redirect URI {{value1}}, and paste its Client ID here.",
+      "clientId": "Spotify Client ID",
+      "clientIdPlaceholder": "Client ID",
+      "connect": "Connect Spotify",
+      "disconnect": "Disconnect",
+      "connectedAs": "Connected as {{value0}}",
+      "connecting": "Waiting for Spotify in your browser…",
+      "needsClientId": "Add your Client ID to connect.",
+      "notConnected": "Not connected."
+    }
   }
 }

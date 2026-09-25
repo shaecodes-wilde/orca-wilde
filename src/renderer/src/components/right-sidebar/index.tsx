@@ -27,6 +27,7 @@ import { RightSidebarTopActivityBar } from './right-sidebar-top-activity-bar'
 import { useRightSidebarActivityItems } from './use-right-sidebar-activity-items'
 import { useRightSidebarTabRouting } from './use-right-sidebar-tab-routing'
 import { useWindowWidth } from './use-window-width'
+import { WildeSpotifyPlayer } from '../wilde-spotify/WildeSpotifyPlayer'
 
 const ACTIVITY_BAR_SIDE_WIDTH = 40
 
@@ -189,6 +190,9 @@ function RightSidebarInner(): React.JSX.Element {
         )}
 
         {panelContent}
+
+        {/* Wilde build: Spotify mini-player docked under the panel (renders nothing when off). */}
+        <WildeSpotifyPlayer />
 
         {/* Resize handle on LEFT side */}
         <div

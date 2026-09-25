@@ -453,6 +453,11 @@ module.exports = {
         from: 'native/computer-use-windows/runtime.ps1',
         to: 'computer-use-windows/runtime.ps1'
       },
+      {
+        // Wilde Spotify mini-player: Windows media-session bridge (src/main/wilde/spotify).
+        from: 'native/wilde-spotify-windows/media-session.ps1',
+        to: 'wilde-spotify-windows/media-session.ps1'
+      },
       featureWallResources
     ]
   },

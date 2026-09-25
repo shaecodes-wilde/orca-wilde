@@ -8,6 +8,7 @@ import {
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 import { useWildeAppearance } from '@/hooks/use-wilde-appearance'
+import { WildeSpotifySettings } from '../wilde-spotify/WildeSpotifySettings'
 import {
   SettingsRow,
   SettingsSegmentedControl,
@@ -124,6 +125,7 @@ export function WildeAppearanceSetting({
             />
           }
         />
+        <WildeSpotifySettings />
       </div>
       {wilde.enabled && !resolvedDark ? (
         <p className="text-[11px] text-muted-foreground">
