@@ -1,3 +1,5 @@
+> **This is a Wilde Systems-themed build of Orca, not official Orca.** See [WILDE.md](WILDE.md) for what changes, how it is built, and its trademark note. Official Orca: [stablyai/orca](https://github.com/stablyai/orca).
+
 <h1 align="center">
   <a href="https://onOrca.dev"><img src="resources/build/icon.png" alt="Orca" width="64" valign="middle" /></a> Orca
 </h1>

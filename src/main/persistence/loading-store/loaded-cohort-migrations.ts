@@ -12,9 +12,13 @@ type LoadedCohortMigrationOperationsRuntime = Pick<StoreRuntimeState, 'loadNeeds
 export class LoadedCohortMigrationOperations {
   constructor(private readonly runtime: LoadedCohortMigrationOperationsRuntime) {}
 
-  /** Fresh profiles get the Wilde fork enabled; existing/imported files are left untouched. */
+  /**
+   * The Wilde-themed build installs over stock Orca and shares its profile, so Wilde turns on the
+   * first time this build loads a profile without a stored choice — existing profiles included.
+   * Once `wildeAppearance` is stored (including "off"), it is the user's setting and never re-seeded.
+   */
   seedWildeAppearance(state: PersistedState, fileExistedOnLoad: boolean): PersistedState {
-    if (fileExistedOnLoad || state.settings?.wildeAppearance !== undefined) {
+    if (state.settings?.wildeAppearance !== undefined) {
       return state
     }
     // Why: mark dirty so the seed persists; else a fresh install re-reads as "existing" once its file lands.
@@ -24,9 +28,9 @@ export class LoadedCohortMigrationOperations {
       settings: {
         ...state.settings,
         wildeAppearance: NEW_WILDE_PROFILE_APPEARANCE,
-        // Why safe: this branch only runs for a brand-new profile, so the stored terminal theme
-        // is still the stock default rather than a user choice.
-        terminalThemeDark: NEW_WILDE_PROFILE_TERMINAL_THEME_DARK
+        // Why fresh profiles only: an existing profile's terminal theme is the user's choice; a
+        // brand-new one still holds the stock default.
+        ...(fileExistedOnLoad ? {} : { terminalThemeDark: NEW_WILDE_PROFILE_TERMINAL_THEME_DARK })
       }
     }
   }
