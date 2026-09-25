@@ -30,3 +30,20 @@ of compliance with the standard minimum.
 The upstream MIT LICENSE (Lovecast Inc.) remains at the repo root and covers
 upstream code only. `resources/logo.svg` (the Orca mark) is untouched; both
 marks ship side by side.
+
+## App icon
+
+`app-icon-source.png` is the Orca Wilde desktop icon supplied by Wilde Systems on
+2026-09-25 (1254×1252, transparent corners), kept unmodified. The shipped icons are
+derived from it: the visible tile is cropped, centred on a square canvas and scaled
+to 87% of the canvas to match the stock Orca icon's padding.
+
+| File | Size |
+|---|---|
+| `resources/build/icon.ico` | 16, 24, 32, 48, 64, 128, 256 |
+| `resources/build/icon.png` | 1024 |
+| `resources/build/icon.icns` | 16–1024 |
+| `resources/icon.png`, `resources/icon-dev.png` | 256 (window/taskbar, "Classic" app icon) |
+
+These replace the stock Orca "Classic" icon files in place, so upstream merges only
+conflict if upstream changes those same binaries (keep ours).
