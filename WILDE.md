@@ -77,11 +77,12 @@ Systems. Code: `src/main/wilde/obs/`, `src/renderer/src/components/wilde-obs/`.
 ## Updates
 
 Auto-update is disabled in this build (`src/main/updater/fork-update-feed.ts`): stock Orca's update
-feed would replace the themed build with stock Orca. To pick up a new Orca release, merge upstream and
-rebuild:
+feed would replace the themed build with stock Orca.
+
+This is a hard fork (since 2026-09-26): upstream stablyai/orca is no longer merged, and core files may
+change freely. Cherry-pick a specific upstream fix only when it's worth it. Rebuild:
 
 ```sh
-git fetch origin && git merge origin/main   # origin = stablyai/orca
 corepack pnpm install --frozen-lockfile
 corepack pnpm build:win                     # or build:mac / build:linux
 ```
