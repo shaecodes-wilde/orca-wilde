@@ -89,7 +89,9 @@ export function appendOrderedGroups(
             tone: PROJECT_GROUP_META.tone,
             icon: PROJECT_GROUP_META.icon,
             repo,
-            projectGroupDepth
+            projectGroupDepth,
+            // Wilde: attention cards read a collapsed project's workspaces from its header.
+            worktreeIds: group.items.map((worktree) => worktree.id)
           }
         : groupBy === 'workspace-status'
           ? (() => {

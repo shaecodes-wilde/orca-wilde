@@ -1,0 +1,36 @@
+/* Wilde sidebar attention cards. Lavender = a workspace needs you (permission prompt, question,
+   error, unread output) and breathes; mint = an agent finished and you haven't looked yet.
+   Group cards are painted behind whole sidebar groups by
+   components/sidebar/worktree-list/attention/GroupAttentionCards.tsx; in the flat ('none')
+   sidebar the workspace card itself carries [data-wilde-attention]. Gated on Wilde appearance,
+   so "off" stays stock. The shape follows the selected-card surface in main.css. */
+
+:root[data-wilde-appearance='on'] [data-wilde-group-attention],
+:root[data-wilde-appearance='on'] [data-worktree-card-surface][data-wilde-attention] {
+  --wilde-attention-color: var(--wilde-mint);
+  border: 1px solid color-mix(in srgb, var(--wilde-attention-color) 40%, transparent);
+  background: color-mix(in srgb, var(--wilde-attention-color) 12%, transparent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--wilde-attention-color) 10%, transparent);
+}
+
+:root[data-wilde-appearance='on'] [data-wilde-group-attention] {
+  border-radius: 0.75rem;
+}
+
+:root[data-wilde-appearance='on'] [data-wilde-group-attention='lavender'],
+:root[data-wilde-appearance='on'] [data-worktree-card-surface][data-wilde-attention='lavender'] {
+  --wilde-attention-color: var(--wilde-lavender);
+  animation: wilde-attention-breathe 2.5s ease-in-out infinite;
+}
+
+@keyframes wilde-attention-breathe {
+  0%,
+  100% {
+    border-color: color-mix(in srgb, var(--wilde-attention-color) 30%, transparent);
+    background-color: color-mix(in srgb, var(--wilde-attention-color) 8%, transparent);
+  }
+  50% {
+    border-color: color-mix(in srgb, var(--wilde-attention-color) 60%, transparent);
+    background-color: color-mix(in srgb, var(--wilde-attention-color) 18%, transparent);
+  }
+}

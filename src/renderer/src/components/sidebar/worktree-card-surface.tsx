@@ -8,6 +8,7 @@ import { useIsSleepingWorktree } from './use-worktree-sleep-state'
 import { WorktreeCardParentContent } from './worktree-card-parent-content'
 import { buildWorktreeCardPresentation } from './worktree-card-presentation'
 import type { WorktreeCardController } from './use-worktree-card-controller'
+import { useWorktreeCardAttention } from './worktree-list/attention/use-sidebar-attention'
 
 export function WorktreeCardSurface({ card }: { card: WorktreeCardController }): React.JSX.Element {
   const presentation = buildWorktreeCardPresentation(card)
@@ -42,6 +43,7 @@ export function WorktreeCardSurface({ card }: { card: WorktreeCardController }):
   } = card
   const { titleOnlyCard, cardStyle } = presentation
   const isSleeping = useIsSleepingWorktree(worktree.id)
+  const wildeAttention = useWorktreeCardAttention(worktree)
 
   const parentCardContent = <WorktreeCardParentContent card={card} presentation={presentation} />
 
@@ -81,6 +83,7 @@ export function WorktreeCardSurface({ card }: { card: WorktreeCardController }):
         isActiveSurface && !isLineageDropTarget ? activeSurfaceVariant : undefined
       }
       data-worktree-lineage-drop-target={isLineageDropTarget || undefined}
+      data-wilde-attention={wildeAttention ?? undefined}
       onClick={handleClick}
       onDoubleClick={affiliateListMode ? undefined : handleDoubleClick}
       draggable={!affiliateListMode && nativeDragEnabled && !isDeleting && !titleRenaming}

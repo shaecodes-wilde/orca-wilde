@@ -25,6 +25,7 @@ import {
 import { persistPassiveWorktreeMetaForOwner } from '../listing/worktree-owner-settings'
 import { resolveActivatedWorktreeSurface } from './active-worktree-surface'
 import { clearWorktreeSleepIntent } from '@/lib/worktree-sleep-intent'
+import { markWorktreeViewed } from '@/lib/wilde-attention-viewed'
 import {
   pendingActivationTerminalPrepCancels,
   shouldDeferActivationTerminalPrep
@@ -43,6 +44,10 @@ export function createSetActiveWorktree(
       return false
     }
     const workspaceScope = worktreeId ? parseWorkspaceKey(worktreeId) : null
+    if (worktreeId) {
+      // Wilde: opening a workspace clears its mint "agent finished" card.
+      markWorktreeViewed(worktreeId)
+    }
     if (worktreeId && shouldDeferActivationTerminalPrep()) {
       markInputQuietSchedulerInput()
     }

@@ -17,6 +17,7 @@ import {
 import { persistWorktreeMeta } from '../metadata/worktree-meta-persist'
 import { isRuntimeSelectorNotFoundError } from '../listing/runtime-worktree-rpc-errors'
 import { isGitHubPRSuppressed } from '../../../../../../shared/worktree/github-pr-suppression'
+import { markWorktreeViewed } from '@/lib/wilde-attention-viewed'
 
 export function createMarkWorktreeUnread(
   set: WorktreeSliceSet,
@@ -174,6 +175,8 @@ export function createClearWorktreeUnread(
   get: WorktreeSliceGet
 ): WorktreeSlice['clearWorktreeUnread'] {
   return (worktreeId) => {
+    // Wilde: a click or keypress in the workspace also counts as seeing its finished agents.
+    markWorktreeViewed(worktreeId)
     const workspaceScope = parseWorkspaceKey(worktreeId)
     if (workspaceScope?.type === 'folder') {
       const folderWorkspaceId = workspaceScope.folderWorkspaceId
