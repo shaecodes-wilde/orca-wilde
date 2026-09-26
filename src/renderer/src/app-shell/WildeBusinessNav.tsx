@@ -5,7 +5,6 @@ import { useBusinessNavigationContext } from './business-navigation-context'
 
 export function WildeBusinessNav(): React.JSX.Element | null {
   const activeView = useAppStore((state) => state.activeView)
-  const returnTo = useBusinessNavigationContext((state) => state.returnTo)
   const current = useBusinessNavigationContext((state) => state.current)
   const selectedView =
     activeView.startsWith('wilde-') && current ? `wilde-${current.page}` : activeView
@@ -21,13 +20,15 @@ export function WildeBusinessNav(): React.JSX.Element | null {
   return (
     <nav
       aria-label="Wilde business"
-      className="grid gap-1 border-b border-sidebar-border pb-2 mb-1"
+      className="flex items-center justify-center gap-1 border-b border-sidebar-border pb-2 mb-1"
     >
       {entries.map(([view, label, Icon]) => (
         <Button
           key={view}
           variant={selectedView === view ? 'secondary' : 'ghost'}
-          size="sm"
+          size="icon-sm"
+          title={label}
+          aria-label={label}
           aria-current={selectedView === view ? 'page' : undefined}
           onClick={() => {
             const state = useAppStore.getState()
@@ -36,22 +37,8 @@ export function WildeBusinessNav(): React.JSX.Element | null {
           }}
         >
           <Icon />
-          {label}
         </Button>
       ))}
-      {activeView === 'terminal' && returnTo ? (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            const state = useAppStore.getState()
-            state.recordViewVisit(`wilde-${returnTo.page}`)
-            state.setActiveView(`wilde-${returnTo.page}`)
-          }}
-        >
-          {returnTo.clientId ? 'Return to client' : 'Return to business view'}
-        </Button>
-      ) : null}
     </nav>
   )
 }
