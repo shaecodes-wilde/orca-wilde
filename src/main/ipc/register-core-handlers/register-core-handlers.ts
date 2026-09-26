@@ -29,6 +29,7 @@ import { registerAiVaultSearchHandlers } from '../ai-vault-search'
 import { registerNativeChatHandlers } from '../native-chat'
 import { registerNotificationHandlers } from '../notifications'
 import { registerWildeSpotifyHandlers } from '../../wilde/spotify/ipc'
+import { registerWildeObsHandlers } from '../../wilde/obs/ipc'
 import { registerWildeDriveHandlers } from '../../wilde/drive/ipc'
 import { registerNotebookHandlers } from '../notebook'
 import { registerOnboardingHandlers } from '../onboarding'
@@ -183,6 +184,7 @@ export function registerCoreHandlers(
   registerComputerUsePermissionHandlers()
   registerSettingsHandlers(store, agentAwakeService)
   registerWildeSpotifyHandlers()
+  registerWildeObsHandlers()
   registerWildeDriveHandlers()
   registerSkillsHandlers(store, runtime)
   registerSkillDeleteIpcHandlers(store, runtime)

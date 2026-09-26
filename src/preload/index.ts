@@ -35,6 +35,7 @@ import { diagnosticsApi } from './api/diagnostics-bridge'
 import { settingsApi } from './api/settings-bridge'
 import { agentAwakeApi } from './api/agent-awake-bridge'
 import { wildeSpotifyApi } from './api/wilde-spotify-bridge'
+import { wildeObsApi } from './api/wilde-obs-bridge'
 import { wildeDriveApi } from './api/wilde-drive-bridge'
 import { localhostWorktreeLabelsApi } from './api/localhost-worktree-labels-bridge'
 import { keybindingsApi } from './api/keybindings-bridge'
@@ -136,6 +137,7 @@ const api = {
   settings: settingsApi,
   agentAwake: agentAwakeApi,
   wildeSpotify: wildeSpotifyApi,
+  wildeObs: wildeObsApi,
   wildeDrive: wildeDriveApi,
   localhostWorktreeLabels: localhostWorktreeLabelsApi,
   keybindings: keybindingsApi,

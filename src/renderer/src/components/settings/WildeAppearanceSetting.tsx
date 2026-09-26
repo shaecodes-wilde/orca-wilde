@@ -9,12 +9,9 @@ import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 import { useWildeAppearance } from '@/hooks/use-wilde-appearance'
 import { WildeSpotifySettings } from '../wilde-spotify/WildeSpotifySettings'
+import { WildeObsSettings } from '../wilde-obs/WildeObsSettings'
 import { WildeDriveSettings } from '../wilde-drive/WildeDriveSettings'
-import {
-  SettingsRow,
-  SettingsSegmentedControl,
-  SettingsSwitchRow
-} from './SettingsFormControls'
+import { SettingsRow, SettingsSegmentedControl, SettingsSwitchRow } from './SettingsFormControls'
 
 type WildeAppearanceSettingProps = {
   settings: GlobalSettings
@@ -110,6 +107,8 @@ export function WildeAppearanceSetting({
       </div>
       {/* The Drive tab works with or without the Wilde look, so it stays editable either way. */}
       <WildeDriveSettings />
+      {/* OBS controls are functional, not decorative — editable with the Wilde look off too. */}
+      <WildeObsSettings />
       {wilde.enabled && !resolvedDark ? (
         <p className="text-[11px] text-muted-foreground">
           {translate(

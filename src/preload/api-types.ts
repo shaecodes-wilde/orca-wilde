@@ -17,6 +17,7 @@ import type {
 } from './api/agent-usage-api'
 import type { AiVaultApi } from './api/ai-vault-api'
 import type { WildeSpotifyApi } from './api/wilde-spotify-api'
+import type { WildeObsApi } from './api/wilde-obs-api'
 import type { WildeDriveApi } from './api/wilde-drive-api'
 import type { AppApi, E2EApi, PlatformApi } from './api/app-api'
 import type { AutomationsApi } from './api/automation-api'
@@ -103,6 +104,8 @@ export type PreloadApi = {
   agentAwake: AgentAwakeApi
   /** Wilde Spotify mini-player; desktop-only, so optional for the web client. */
   wildeSpotify?: WildeSpotifyApi
+  /** Wilde OBS scene bar; desktop-only like the Spotify player. */
+  wildeObs?: WildeObsApi
   wildeDrive?: WildeDriveApi
   localhostWorktreeLabels: LocalhostWorktreeLabelsApi
   keybindings: KeybindingsApi

@@ -18448,5 +18448,23 @@
       "placeholder": "H:')}",
       "browse": "Browse…"
     }
+  },
+  "wildeObs": {
+    "bar": {
+      "offline": "OBS offline",
+      "connecting": "Connecting…",
+      "mic": "Microphone",
+      "mute": "Mute {{value0}}",
+      "unmute": "Unmute {{value0}}",
+      "actionFailed": "OBS action failed: {{value0}}"
+    },
+    "settings": {
+      "title": "OBS controls",
+      "description": "Scene preset buttons and a mic mute docked above the left sidebar’s settings gear. Connects to OBS’s websocket using the port and password from OBS’s own config.",
+      "connecting": "Connecting to OBS…",
+      "connectedMic": "Connected. Mic input: {{value0}}",
+      "connectedNoMic": "Connected. No mic input found in OBS.",
+      "offlineHint": "OBS unreachable. In OBS, enable Tools → WebSocket Server Settings → Enable WebSocket Server."
+    }
   }
 }

@@ -20,6 +20,7 @@ import { useSystemPrefersDark } from '@/components/terminal-pane/use-system-pref
 import { lazyWithRetry } from '@/lib/lazy-with-retry'
 import { LocalGitToolchainScanBanner } from './LocalGitToolchainScanBanner'
 import { useWildeAppearance } from '@/hooks/use-wilde-appearance'
+import { WildeObsBar } from '../wilde-obs/WildeObsBar'
 
 // Why lazy: the Agents list pulls the whole activity pipeline (virtualizer, markdown
 // previews, thread derivation); users on the workspace view should not load or render any of it.
@@ -206,6 +207,9 @@ function Sidebar({
 
             <div className="relative shrink-0">
               <SetupScriptPromptCard />
+
+              {/* Wilde build: OBS scene presets + mic mute above the settings gear (renders nothing when off). */}
+              <WildeObsBar />
 
               {/* Fixed bottom toolbar */}
               <SidebarToolbar

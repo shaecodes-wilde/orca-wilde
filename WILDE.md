@@ -37,6 +37,26 @@ Turn the player off with the **Spotify player** switch in the same section. Code
 `src/main/wilde/spotify/`, `native/wilde-spotify-windows/media-session.ps1`,
 `src/renderer/src/components/wilde-spotify/`.
 
+## OBS scene bar
+
+A strip of OBS controls sits in the left sidebar above the settings gear: three numbered
+scene-preset buttons, a microphone mute, and a small status readout. It talks to OBS over the
+built-in obs-websocket v5 server (OBS ≥ 28) — the button presses are ordinary scene switches,
+and the mic button toggles your Mic/Aux input inside OBS.
+
+One-time setup: in OBS, open **Tools → WebSocket Server Settings** and tick **Enable WebSocket
+Server**. Orca reads the port and password from OBS's own config file
+(`%APPDATA%\obs-studio\plugin_config\obs-websocket\config.json`), so there's nothing else to
+enter. While OBS is unreachable the bar dims and shows "OBS offline"; it reconnects on its own
+every few seconds.
+
+The presets map to `Orca Capture` (1), `Display 1 Scene 2` (2) and `Camera Full Screen` (3) —
+the active scene's button stays highlighted, and the mic icon goes red while muted. Renaming a
+scene in OBS or changing which preset points where lives in `wilde-obs.json` in the Orca
+profile (`presets`, plus `host`/`port`/`micInputName` overrides if the auto-detect ever picks
+the wrong input). Turn the bar off with **OBS controls** in Settings → Appearance → Wilde
+Systems. Code: `src/main/wilde/obs/`, `src/renderer/src/components/wilde-obs/`.
+
 ## Updates
 
 Auto-update is disabled in this build (`src/main/updater/fork-update-feed.ts`): stock Orca's update
@@ -60,6 +80,13 @@ restores stock styling. The sidebar material is `assets/wilde/oil-slick-photo.jp
 `background-attachment: fixed` layer so both sidebars show one continuous image. The main files:
 
 - `src/renderer/src/assets/wilde-theme.css`, `wilde-sidebar.css`: palette tokens, sidebar material, title bar lockup
+- `src/renderer/src/assets/wilde-attention.css`, `components/sidebar/worktree-list/attention/`,
+  `lib/wilde-attention-viewed.ts`: sidebar attention cards. A breathing lavender card wraps a
+  group whose workspace needs you (permission prompt, question, error, unread output). A mint card
+  marks an agent that finished since you last opened or typed in that workspace. In the flat
+  ('none') grouping the workspace card itself is tinted. Small upstream hooks:
+  `set-active-worktree.ts` / `worktree-unread-activity.ts` (mark viewed), `group-sections.ts`
+  (project header `worktreeIds`), `worktree-card-surface.tsx`, `VirtualizedWorktreeViewport.tsx`
 - `src/renderer/src/app-shell/WildeBrandLockup.tsx`: WS mark and wordmark in the title bar
 - `src/shared/wilde-appearance.ts` and `components/settings/WildeAppearanceSetting.tsx`: the setting
 - `src/renderer/src/lib/terminal-themes/wilde.ts`: the "Wilde Systems Dark" terminal theme
