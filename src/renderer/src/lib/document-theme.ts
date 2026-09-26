@@ -9,6 +9,7 @@ export const WILDE_APPEARANCE_ATTRIBUTE = 'data-wilde-appearance'
 export const WILDE_MATERIAL_ATTRIBUTE = 'data-wilde-material'
 export const WILDE_INTENSITY_ATTRIBUTE = 'data-wilde-intensity'
 export const WILDE_MOTION_ATTRIBUTE = 'data-wilde-motion'
+export const AMBIENT_MOTION_ATTRIBUTE = 'data-ambient-motion'
 
 const WILDE_ATTRIBUTES = [
   WILDE_APPEARANCE_ATTRIBUTE,
@@ -26,6 +27,8 @@ export function applyWildeDocumentAttributes(
   root: WildeAttributeRoot = document.documentElement
 ): void {
   const appearance = normalizeWildeAppearance(wilde)
+  // Why always set: most looping animations are stock UI, so the opt-in gates them even with the Wilde look off.
+  root.setAttribute(AMBIENT_MOTION_ATTRIBUTE, appearance?.motion === 'slow' ? 'on' : 'off')
   if (appearance?.version === 1 && appearance.enabled) {
     root.setAttribute(WILDE_APPEARANCE_ATTRIBUTE, 'on')
     root.setAttribute(WILDE_MATERIAL_ATTRIBUTE, appearance.sidebarTreatment)

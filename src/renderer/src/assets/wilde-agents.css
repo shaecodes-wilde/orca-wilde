@@ -4,11 +4,7 @@
    One accent: the lavender→mint gradient. Cards waiting on you pulse instead of turning orange. */
 
 :root[data-wilde-appearance='on'].dark {
-  --wilde-agents-gradient: linear-gradient(
-    135deg,
-    var(--wilde-lavender),
-    var(--wilde-mint)
-  );
+  --wilde-agents-gradient: linear-gradient(135deg, var(--wilde-lavender), var(--wilde-mint));
   --wilde-agents-glass: color-mix(in srgb, var(--wilde-panel) 70%, transparent);
   --wilde-agents-line: color-mix(in srgb, var(--wilde-lavender) 22%, transparent);
 }
@@ -49,8 +45,12 @@
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--wilde-mint) 45%, transparent);
 }
 
-:root[data-wilde-appearance='on'].dark [data-wilde-agents] button[data-slot='dropdown-menu-trigger'],
-:root[data-wilde-appearance='on'].dark [data-wilde-agents] [data-slot='button'][aria-haspopup='menu'] {
+:root[data-wilde-appearance='on'].dark
+  [data-wilde-agents]
+  button[data-slot='dropdown-menu-trigger'],
+:root[data-wilde-appearance='on'].dark
+  [data-wilde-agents]
+  [data-slot='button'][aria-haspopup='menu'] {
   border-color: var(--wilde-agents-line);
   background: var(--wilde-agents-glass);
 }
@@ -136,6 +136,12 @@
     animation: none;
     box-shadow: 0 0 14px color-mix(in srgb, var(--wilde-lavender) 38%, transparent);
   }
+}
+
+:root[data-wilde-appearance='on'][data-ambient-motion='off'].dark
+  [data-wilde-agent-card='needs-you'] {
+  animation: none;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--wilde-lavender) 38%, transparent);
 }
 
 /* Done check marks and review pills follow the palette (closed stays destructive). */

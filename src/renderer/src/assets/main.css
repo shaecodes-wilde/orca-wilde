@@ -1923,6 +1923,11 @@ html.native-shell .app-layout {
   }
 }
 
+:root[data-ambient-motion='off']
+  [data-workspace-board-trigger][data-workspace-board-preview='true'] {
+  animation: none;
+}
+
 @keyframes workspace-kanban-sheet-in {
   from {
     clip-path: inset(0 100% 0 0);
@@ -2430,6 +2435,16 @@ html.native-shell .app-layout {
   transform-origin: center;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-waveform {
+    animation: none;
+  }
+}
+
+:root[data-ambient-motion='off'] .animate-waveform {
+  animation: none;
+}
+
 /* CLI feature tip — terminal cursor inside the agent-control command. */
 @keyframes cli-tip-caret {
   0%,
@@ -2444,6 +2459,11 @@ html.native-shell .app-layout {
 
 .animate-cli-tip-caret {
   animation: cli-tip-caret 0.9s steps(1, end) infinite;
+}
+
+:root[data-ambient-motion='off'] .animate-cli-tip-caret {
+  animation: none;
+  opacity: 1;
 }
 
 @keyframes cli-tip-command-line {
@@ -2524,6 +2544,11 @@ html.native-shell .app-layout {
   animation: cmd-j-tip-caret 1s step-end infinite;
 }
 
+:root[data-ambient-motion='off'] .animate-cmd-j-tip-caret {
+  animation: none;
+  opacity: 1;
+}
+
 /* Worktree rows fade in when the palette opens — mirrors the real palette,
    which shows recent worktrees on empty query and filters synchronously. */
 @keyframes cmd-j-tip-result-in {
@@ -2569,6 +2594,16 @@ html.native-shell .app-layout {
 
 .feature-wall-marquee-track {
   animation: feature-wall-marquee-flow 36s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-wall-marquee-track {
+    animation: none;
+  }
+}
+
+:root[data-ambient-motion='off'] .feature-wall-marquee-track {
+  animation: none;
 }
 
 /* Shared click pulse for feature-wall fake cursors. Matches the Editor tour
@@ -2800,6 +2835,12 @@ html.native-shell .app-layout {
     opacity: 0.72;
     transform: scale(1.28);
   }
+}
+
+:root[data-ambient-motion='off'] .orca-contextual-tour-target-rings::before {
+  animation: none;
+  opacity: 0.72;
+  transform: scale(1.28);
 }
 
 /* ── Diff comment decorations ────────────────────────────────────── */

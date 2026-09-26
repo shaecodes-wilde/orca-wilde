@@ -34,3 +34,22 @@
     background-color: color-mix(in srgb, var(--wilde-attention-color) 18%, transparent);
   }
 }
+
+/* Static glow when motion is reduced or ambient motion is off. */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-wilde-appearance='on'] [data-wilde-group-attention='lavender'],
+  :root[data-wilde-appearance='on'] [data-worktree-card-surface][data-wilde-attention='lavender'] {
+    animation: none;
+    border-color: color-mix(in srgb, var(--wilde-attention-color) 50%, transparent);
+    background-color: color-mix(in srgb, var(--wilde-attention-color) 14%, transparent);
+  }
+}
+
+:root[data-wilde-appearance='on'][data-ambient-motion='off']
+  [data-wilde-group-attention='lavender'],
+:root[data-wilde-appearance='on'][data-ambient-motion='off']
+  [data-worktree-card-surface][data-wilde-attention='lavender'] {
+  animation: none;
+  border-color: color-mix(in srgb, var(--wilde-attention-color) 50%, transparent);
+  background-color: color-mix(in srgb, var(--wilde-attention-color) 14%, transparent);
+}

@@ -102,9 +102,18 @@ export function WildeAppearanceSetting({
             />
           }
         />
-        {/* Motion (slow drift) retired with the photo material; the stored field stays for profile compat. */}
         <WildeSpotifySettings />
       </div>
+      {/* The stored `motion` field now gates looping UI animations app-wide, so it stays editable with the Wilde look off. */}
+      <SettingsSwitchRow
+        label={translate('settings.appearance.wilde.ambientMotion.title', 'Ambient motion')}
+        description={translate(
+          'settings.appearance.wilde.ambientMotion.description',
+          'Allow looping decorative animations (pulses, marquees, blinking carets). Off saves CPU/GPU.'
+        )}
+        checked={wilde.motion === 'slow'}
+        onChange={() => update({ motion: wilde.motion === 'slow' ? 'off' : 'slow' })}
+      />
       {/* The Drive tab works with or without the Wilde look, so it stays editable either way. */}
       <WildeDriveSettings />
       {/* OBS controls are functional, not decorative — editable with the Wilde look off too. */}

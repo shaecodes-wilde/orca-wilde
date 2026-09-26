@@ -373,10 +373,12 @@ export function PetOverlay(): React.JSX.Element {
   }, [dragging, position])
 
   const motionAllowed = documentVisible && !reducedMotion
+  // Why bob only: the idle bob is decorative loop motion; sprite frames are the pet itself.
+  const ambientMotion = useAppStore((s) => s.settings?.wildeAppearance?.motion === 'slow')
   // Why: a still/vertical grab freezes on frame 0 (Codex grab-and-hold); a
   // horizontal drag keeps animating so the running rows show. Bob always pauses.
   const spriteAnimate = motionAllowed && (!dragging || dragAnimation !== null)
-  const bobAnimate = motionAllowed && !dragging
+  const bobAnimate = motionAllowed && ambientMotion && !dragging
   const animationName = usePetAnimationName(dragging, dragAnimation, hovering)
 
   return (
