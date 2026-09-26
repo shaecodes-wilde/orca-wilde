@@ -188,11 +188,11 @@ export function AutomationsView({
       )}
       <div className="flex flex-wrap items-end gap-4">
         <Choice
-          label="Client scope"
+          label="Owner scope"
           value={clientId}
           onChange={setClientId}
           options={[
-            { value: 'all', label: 'All clients and unassigned' },
+            { value: 'all', label: 'All owners and unassigned' },
             ...clients.map((client) => ({ value: client.id, label: client.name }))
           ]}
         />
@@ -240,7 +240,7 @@ export function AutomationsView({
                     {workflow.purpose && <p className="text-sm text-pretty">{workflow.purpose}</p>}
                     <p className="text-xs text-muted-foreground">
                       {clients.find((client) => client.id === workflow.clientId)?.name ??
-                        'No exclusive client'}{' '}
+                        'No exclusive owner'}{' '}
                       · Observed {timestamp(workflow.observedAt)}
                     </p>
                   </div>

@@ -52,6 +52,24 @@ export function TextField({
   )
 }
 
+export function CheckField({
+  label,
+  name,
+  checked
+}: {
+  label: string
+  name: string
+  checked: boolean
+}): React.JSX.Element {
+  const id = useId()
+  return (
+    <div className="flex items-center gap-2">
+      <input id={id} name={name} type="checkbox" defaultChecked={checked} className="size-4" />
+      <Label htmlFor={id}>{label}</Label>
+    </div>
+  )
+}
+
 export function Choice({
   label,
   name,

@@ -24,22 +24,22 @@ export function ClientDirectory({
     <section className="space-y-5">
       <header className="flex flex-wrap justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-balance">Clients</h1>
+          <h1 className="text-2xl font-semibold text-balance">Owners</h1>
           <p className="text-sm text-muted-foreground">
-            Delivery, knowledge and workspaces in one client context.
+            Delivery, knowledge and workspaces in one owner context.
           </p>
         </div>
         <Button size="sm" disabled={busy} onClick={onNewClient}>
-          New client
+          New owner
         </Button>
       </header>
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-48 flex-1">
           <Input
-            aria-label="Search clients"
+            aria-label="Search owners"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search clients, contacts and tags"
+            placeholder="Search owners, contacts and tags"
           />
         </div>
         <Button size="sm" variant="outline" onClick={() => setShowArchived(!showArchived)}>
@@ -80,7 +80,7 @@ export function ClientDirectory({
       </div>
       {!clients.length && (
         <EmptyState>
-          Create your first client to organize delivery projects and connect existing workspaces.
+          Create your first owner to organize delivery projects and connect existing workspaces.
         </EmptyState>
       )}
     </section>

@@ -34,7 +34,7 @@ export function HomeView({
       </header>
       <div className="flex flex-wrap gap-3">
         <Button size="sm" onClick={onNewClient}>
-          New client
+          New owner
         </Button>
         <Button size="sm" variant="outline" onClick={onWorkspaces}>
           Open Workspaces
@@ -42,7 +42,7 @@ export function HomeView({
       </div>
       <dl className="flex flex-wrap gap-8 border-y border-border py-5">
         <div>
-          <dt className="text-xs text-muted-foreground">Active clients</dt>
+          <dt className="text-xs text-muted-foreground">Active owners</dt>
           <dd className="text-2xl font-semibold tabular-nums">
             {clients.filter((client) => !client.archivedAt && client.status === 'active').length}
           </dd>
@@ -62,7 +62,7 @@ export function HomeView({
         <h2 className="text-base font-semibold text-balance">Delivery queue</h2>
         {!active.length && (
           <EmptyState>
-            No open delivery projects. Open a client to record a delivery outcome and next action.
+            No open delivery projects. Open an owner to record a delivery outcome and next action.
           </EmptyState>
         )}
         <div className="divide-y divide-border">
@@ -79,7 +79,7 @@ export function HomeView({
                 </p>
               </div>
               <Button size="sm" variant="link" onClick={() => onClient(project.clientId)}>
-                {clients.find((client) => client.id === project.clientId)?.name ?? 'Open client'}
+                {clients.find((client) => client.id === project.clientId)?.name ?? 'Open owner'}
               </Button>
             </div>
           ))}

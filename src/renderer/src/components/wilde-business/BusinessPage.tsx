@@ -18,7 +18,7 @@ import { BusinessDataDialogs } from './BusinessDataDialogs'
 import { AssignmentEditor, TargetPicker, WorkspaceAssignments } from './WorkspaceAssignments'
 import { AutomationsView } from './AutomationsView'
 import { EmptyState } from './business-fields'
-import { clientDraft, projectDraft, knowledgeDraft } from './record-drafts'
+import { clientDraft, projectDraft, knowledgeDraft, taskDraft } from './record-drafts'
 import { useBusinessAction } from './use-business-action'
 import type { BusinessAction } from '../../../../shared/wilde/navigation-commands'
 
@@ -56,8 +56,9 @@ function BusinessPageContent({
   const [assignment, setAssignment] = useState<{
     target: BusinessTarget
     existing?: Assignment
+    projectId?: string
   } | null>(null)
-  const [pickTarget, setPickTarget] = useState(false)
+  const [pickTarget, setPickTarget] = useState<{ projectId?: string } | null>(null)
   const [backup, setBackup] = useState(false)
   const records = data.snapshot?.records ?? []
   const clients = records.filter((record): record is Client => record.type === 'client')
@@ -145,8 +146,13 @@ function BusinessPageContent({
       setEditor(knowledgeDraft(client.id, projectId))
     }
   }
-  function assign(target: BusinessTarget, existing?: Assignment): void {
-    setAssignment({ target, existing })
+  function newTask(projectId: string | null): void {
+    if (client) {
+      setEditor(taskDraft(client.id, projectId))
+    }
+  }
+  function assign(target: BusinessTarget, existing?: Assignment, projectId?: string): void {
+    setAssignment({ target, existing, projectId })
   }
   if (!api) {
     return (
@@ -179,7 +185,9 @@ function BusinessPageContent({
                 aria-current={page === destination ? 'page' : undefined}
                 onClick={() => navigate(destination)}
               >
-                {destination[0].toUpperCase() + destination.slice(1)}
+                {destination === 'clients'
+                  ? 'Owners'
+                  : destination[0].toUpperCase() + destination.slice(1)}
               </Button>
             ))}
           </nav>
@@ -260,7 +268,7 @@ function BusinessPageContent({
                 }}
               >
                 <ArrowLeft />
-                All clients
+                All owners
               </Button>
               <ClientDetail
                 key={`${client.id}:${commandGeneration}`}
@@ -278,8 +286,12 @@ function BusinessPageContent({
                 onDelete={remove}
                 onNewProject={newProject}
                 onNewNote={newNote}
+                onNewTask={newTask}
+                onToggleTask={(task) => {
+                  void save({ ...task, done: !task.done })
+                }}
                 onAssign={assign}
-                onPickTarget={() => setPickTarget(true)}
+                onPickTarget={(projectId) => setPickTarget({ projectId })}
                 onOpenTarget={onOpenTarget}
               />
             </>
@@ -351,6 +363,7 @@ function BusinessPageContent({
           clients={clients}
           projects={projects}
           initialClientId={client?.id}
+          initialProjectId={assignment.projectId}
           busy={data.busy}
           onSave={(record) => review([{ operation: 'save', record }])}
           onClose={() => setAssignment(null)}
@@ -359,20 +372,12 @@ function BusinessPageContent({
       {pickTarget && (
         <TargetPicker
           targets={data.targets}
-          onClose={() => setPickTarget(false)}
-          onChoose={(target) => {
-            setPickTarget(false)
-            assign(
-              target,
-              assignments.find(
-                (item) =>
-                  !item.archivedAt &&
-                  item.target.kind === target.kind &&
-                  item.target.ownerId === target.ownerId &&
-                  item.target.hostId === target.hostId &&
-                  item.target.stableId === target.stableId
-              )
-            )
+          assignments={assignments}
+          projectId={pickTarget.projectId}
+          onClose={() => setPickTarget(null)}
+          onChoose={(target, existing) => {
+            setPickTarget(null)
+            assign(target, existing, pickTarget.projectId)
           }}
         />
       )}

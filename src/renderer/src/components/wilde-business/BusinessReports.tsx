@@ -110,7 +110,7 @@ export function BusinessReports({
       : 'title' in scope
         ? scope.title
         : 'Selected scope'
-    : 'All clients and unattributed observations'
+    : 'All owners and unattributed observations'
   const summary = [
     `${scopeName} — observed activity`,
     `Window: ${formatTime(window.from)} to ${formatTime(window.to)} (${timezone})`,

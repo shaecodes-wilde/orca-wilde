@@ -225,7 +225,7 @@ export class BusinessDatabase {
                 .map((record) =>
                   'title' in record ? record.title : 'name' in record ? record.name : record.type
                 )
-                .join(', ')}. Historical evidence keeps its original client.`
+                .join(', ')}. Historical evidence keeps its original owner.`
       }
     }
   }

@@ -85,10 +85,10 @@ describe('Scoped report and context evidence', () => {
     expect(screen.queryByText('Other client secret')).toBeNull()
     expect(screen.queryByText('Unreviewed draft')).toBeNull()
     expect(
-      screen.getByRole('textbox', { name: 'Prepared client context' }).textContent
+      screen.getByRole('textbox', { name: 'Prepared owner context' }).textContent
     ).not.toContain('Approved fixture procedure')
     fireEvent.click(screen.getByRole('checkbox', { name: /Selected decision/ }))
-    expect(screen.getByRole('textbox', { name: 'Prepared client context' }).textContent).toContain(
+    expect(screen.getByRole('textbox', { name: 'Prepared owner context' }).textContent).toContain(
       'Approved fixture procedure'
     )
     expect(copy).not.toHaveBeenCalled()

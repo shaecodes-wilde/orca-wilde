@@ -42,7 +42,7 @@ export function resolveBusinessCommand(
     (record) => record.type === 'client' && !record.archivedAt
   )
   if (input.clientId && !clients.some((record) => record.id === input.clientId)) {
-    return { status: 'stale-context', message: 'Client context changed. Choose a current client.' }
+    return { status: 'stale-context', message: 'Owner context changed. Choose a current owner.' }
   }
   if (text === 'go back') {
     return { status: 'success', action: { id: 'navigation.back' } }
@@ -59,7 +59,7 @@ export function resolveBusinessCommand(
     }
     return {
       status: 'needs-choice',
-      message: 'Choose the client whose projects you want.',
+      message: 'Choose the owner whose projects you want.',
       choices: clients.map((client) => ({
         label: client.type === 'client' ? client.name : '',
         action: { id: 'project.list', clientId: client.id }
@@ -92,7 +92,7 @@ export function resolveBusinessCommand(
   }
   if (text.startsWith('search client knowledge')) {
     if (!input.clientId) {
-      return { status: 'unavailable', message: 'Open a client before searching their knowledge.' }
+      return { status: 'unavailable', message: 'Open an owner before searching their knowledge.' }
     }
     return {
       status: 'success',
@@ -135,13 +135,13 @@ export function resolveBusinessCommand(
           ? [{ label: client.name, action: { id: 'client.open' as const, clientId: client.id } }]
           : []
       ),
-      'More than one client has that name. Choose one.'
+      'More than one owner has that name. Choose one.'
     )
   }
   return {
     status: 'rejected',
     message:
-      'Supported commands open clients, projects, workspaces, knowledge, failures, or a note draft. Shell commands and changes require their own reviewed controls.'
+      'Supported commands open owners, projects, workspaces, knowledge, failures, or a note draft. Shell commands and changes require their own reviewed controls.'
   }
 }
 function choose(

@@ -180,6 +180,35 @@ it('retains original delivery and outcome attribution when project/workflow move
   expect(restore.snapshot().activity.length).toBe(store.snapshot().activity.length + 1)
 })
 
+it('saves project tasks without preview, keeps history, and round-trips through backup', () => {
+  const store = database()
+  const owner = customer(store, 'Maritime Solar')
+  const task = {
+    ...newRecordFields(),
+    type: 'task' as const,
+    clientId: owner.id,
+    projectId: null,
+    title: 'Confirm checklist scope',
+    done: false,
+    dueDate: '2026-10-01'
+  }
+  expect(execute(store, { operation: 'save', record: task }).status).toBe('success')
+  expect(
+    execute(store, { operation: 'save', record: { ...task, revision: 1, done: true } }).status
+  ).toBe('success')
+  expect(saved(store, task.id)).toMatchObject({ done: true, revision: 2 })
+  const content = execute(store, { operation: 'export' }).exported!
+  expect(JSON.parse(content).history).toEqual(
+    expect.arrayContaining([expect.objectContaining({ entityId: task.id })])
+  )
+  const restore = database()
+  const preview = execute(restore, { operation: 'import-preview', mode: 'replace', content })
+  expect(execute(restore, { operation: 'commit', token: preview.preview!.token }).status).toBe(
+    'success'
+  )
+  expect(saved(restore, task.id)).toEqual(saved(store, task.id))
+})
+
 it('rolls back failed change sets, refuses stale preview and permits reviewed unreferenced deletion', () => {
   const store = database()
   const client = customer(store, 'Disposable')

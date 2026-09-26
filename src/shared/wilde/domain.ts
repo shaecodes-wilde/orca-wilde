@@ -62,6 +62,16 @@ export const knowledgeSchema = z
     url: safeLink.nullable()
   })
   .strict()
+export const taskSchema = z
+  .object({
+    ...base,
+    ...scope,
+    type: z.literal('task'),
+    title: short.min(1),
+    done: z.boolean(),
+    dueDate: z.iso.date().nullable()
+  })
+  .strict()
 export const targetSchema = z
   .object({
     kind: z.enum(['worktree', 'folder', 'orca-project', 'folder-project']),
@@ -143,6 +153,7 @@ export const recordSchema = z.discriminatedUnion('type', [
   clientSchema,
   projectSchema,
   knowledgeSchema,
+  taskSchema,
   assignmentSchema,
   workflowSchema,
   executionSchema,
@@ -152,6 +163,7 @@ export type BusinessRecord = z.infer<typeof recordSchema>
 export type Client = z.infer<typeof clientSchema>
 export type DeliveryProject = z.infer<typeof projectSchema>
 export type Knowledge = z.infer<typeof knowledgeSchema>
+export type Task = z.infer<typeof taskSchema>
 export type Assignment = z.infer<typeof assignmentSchema>
 export type Workflow = z.infer<typeof workflowSchema>
 export type Execution = z.infer<typeof executionSchema>

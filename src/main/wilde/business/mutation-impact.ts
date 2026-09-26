@@ -17,7 +17,7 @@ export function mutationImpact(
     const project = projectId ? readRecord(db, projectId) : undefined
     const ownership = record.type === 'workflow' ? record.ownership : ''
     return [
-      client?.type === 'client' ? `${client.name} (${client.id})` : ownership || 'No client',
+      client?.type === 'client' ? `${client.name} (${client.id})` : ownership || 'No owner',
       project?.type === 'project' ? `${project.title} (${project.id})` : null,
       record.archivedAt ? 'Archived' : 'Active'
     ]

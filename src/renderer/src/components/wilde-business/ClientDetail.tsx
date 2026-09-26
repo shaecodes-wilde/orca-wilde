@@ -13,6 +13,7 @@ import type {
   Client,
   DeliveryProject,
   Knowledge,
+  Task,
   TargetState
 } from '../../../../shared/wilde/domain'
 import { EmptyState, timestamp } from './business-fields'
@@ -20,6 +21,7 @@ import { WorkspaceAssignments } from './WorkspaceAssignments'
 import { BusinessReports } from './BusinessReports'
 import type { EditableRecord } from './RecordEditor'
 import { ScopedContext } from './ScopedContext'
+import { ProjectChecklist } from './ProjectChecklist'
 
 export function ClientDetail({
   action,
@@ -34,6 +36,8 @@ export function ClientDetail({
   onDelete,
   onNewProject,
   onNewNote,
+  onNewTask,
+  onToggleTask,
   onAssign,
   onPickTarget,
   onOpenTarget,
@@ -52,8 +56,10 @@ export function ClientDetail({
   onDelete: (record: BusinessRecord) => void
   onNewProject: () => void
   onNewNote: (projectId?: string) => void
+  onNewTask: (projectId: string | null) => void
+  onToggleTask: (task: Task) => void
   onAssign: (target: BusinessTarget, assignment?: Assignment) => void
-  onPickTarget: () => void
+  onPickTarget: (projectId?: string) => void
   onOpenTarget?: (target: BusinessTarget) => void
   initialProjectId?: string
   onProjectChange?: (id: string | undefined) => void
@@ -72,6 +78,10 @@ export function ClientDetail({
     (record): record is Knowledge => record.type === 'knowledge' && record.clientId === client.id
   )
   const assignments = records.filter((record): record is Assignment => record.type === 'assignment')
+  const tasks = records.filter(
+    (record): record is Task =>
+      record.type === 'task' && record.clientId === client.id && !record.archivedAt
+  )
   const matching = (record: DeliveryProject | Knowledge) =>
     (!record.archivedAt || archived) &&
     (record.type !== 'project' || !onlyActive || record.status === 'active') &&
@@ -92,7 +102,9 @@ export function ClientDetail({
               </Badge>
             ))}
           </div>
-          {client.owner && <p className="text-sm text-muted-foreground">Owner: {client.owner}</p>}
+          {client.owner && (
+            <p className="text-sm text-muted-foreground">Account manager: {client.owner}</p>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           <ScopedContext
@@ -102,14 +114,14 @@ export function ClientDetail({
             initialProjectId={initialProjectId}
           />
           <Button variant="outline" size="sm" disabled={busy} onClick={() => onEdit(client)}>
-            Edit client
+            Edit owner
           </Button>
           <Button variant="ghost" size="sm" disabled={busy} onClick={() => onArchive(client)}>
-            {client.archivedAt ? 'Restore client' : 'Archive client'}
+            {client.archivedAt ? 'Restore owner' : 'Archive owner'}
           </Button>
           {client.archivedAt && (
             <Button variant="ghost" size="sm" disabled={busy} onClick={() => onDelete(client)}>
-              Delete client permanently
+              Delete owner permanently
             </Button>
           )}
         </div>
@@ -146,7 +158,7 @@ export function ClientDetail({
               </Button>
             </div>
             <Input
-              aria-label="Search client projects"
+              aria-label="Search owner projects"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search projects, outcomes and next actions"
@@ -195,6 +207,16 @@ export function ClientDetail({
                     </details>
                   )}
                   <ReferenceLinks links={project.links} />
+                  <ProjectChecklist
+                    project={project}
+                    assignments={assignments}
+                    tasks={tasks}
+                    busy={busy}
+                    onEditTask={onEdit}
+                    onToggleTask={onToggleTask}
+                    onNewTask={onNewTask}
+                    onLinkTarget={onPickTarget}
+                  />
                   <div className="flex flex-wrap gap-2">
                     <Button
                       variant="outline"
@@ -241,7 +263,7 @@ export function ClientDetail({
               </Button>
             </div>
             <Input
-              aria-label="Search client knowledge"
+              aria-label="Search owner knowledge"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search notes, decisions, delivery and handoff"
@@ -256,7 +278,7 @@ export function ClientDetail({
           </div>
         </TabsContent>
         <TabsContent value="workspaces">
-          <Button size="sm" disabled={busy || !!client.archivedAt} onClick={onPickTarget}>
+          <Button size="sm" disabled={busy || !!client.archivedAt} onClick={() => onPickTarget()}>
             Assign existing workspace
           </Button>
           <WorkspaceAssignments

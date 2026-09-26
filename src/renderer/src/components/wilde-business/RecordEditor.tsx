@@ -11,15 +11,17 @@ import {
   clientSchema,
   projectSchema,
   knowledgeSchema,
+  taskSchema,
   workflowSchema,
   type Client,
   type DeliveryProject,
   type Knowledge,
+  type Task,
   type Workflow
 } from '../../../../shared/wilde/domain'
-import { Choice, TextField, choices } from './business-fields'
+import { CheckField, Choice, TextField, choices } from './business-fields'
 
-export type EditableRecord = Client | DeliveryProject | Knowledge | Workflow
+export type EditableRecord = Client | DeliveryProject | Knowledge | Task | Workflow
 const read = (data: FormData, name: string): string => String(data.get(name) ?? '')
 const lines = (data: FormData, name: string): string[] =>
   read(data, name)
@@ -68,6 +70,14 @@ function buildRecord(record: EditableRecord, data: FormData): EditableRecord {
         provenance: read(data, 'provenance'),
         url: read(data, 'url') || null
       })
+    case 'task':
+      return taskSchema.parse({
+        ...record,
+        title: read(data, 'title'),
+        projectId: read(data, 'projectId') === 'none' ? null : read(data, 'projectId'),
+        done: data.get('done') === 'on',
+        dueDate: read(data, 'dueDate') || null
+      })
     case 'workflow': {
       const ownership = read(data, 'ownership')
       const clientId = read(data, 'clientId')
@@ -88,7 +98,7 @@ function buildRecord(record: EditableRecord, data: FormData): EditableRecord {
 function ClientFields({ record }: { record: Client }): React.JSX.Element {
   return (
     <>
-      <TextField label="Client name" name="name" value={record.name} required />
+      <TextField label="Owner name" name="name" value={record.name} required />
       <div className="flex flex-wrap gap-4">
         <Choice
           label="Status"
@@ -97,16 +107,16 @@ function ClientFields({ record }: { record: Client }): React.JSX.Element {
           options={choices(['prospect', 'active', 'paused', 'former'])}
         />
         <Choice
-          label="Client type"
+          label="Owner type"
           name="kind"
           value={record.kind}
           options={choices(['external', 'internal'])}
         />
       </div>
-      <TextField label="Owner" name="owner" value={record.owner} />
+      <TextField label="Account manager" name="owner" value={record.owner} />
       <TextField label="Contacts" name="contacts" value={record.contacts} multiline />
       <TextField label="Tags, separated by commas" name="tags" value={record.tags.join(', ')} />
-      <TextField label="Client notes" name="notes" value={record.notes} multiline />
+      <TextField label="Owner notes" name="notes" value={record.notes} multiline />
       <TextField
         label="Links, one per line"
         name="links"
@@ -128,7 +138,7 @@ function ProjectFields({
     <>
       <TextField label="Project title" name="title" value={record.title} required />
       <Choice
-        label="Client"
+        label="Owner"
         name="clientId"
         value={record.clientId}
         options={clients.map((client) => ({ value: client.id, label: client.name }))}
@@ -176,7 +186,7 @@ function KnowledgeFields({
         name="projectId"
         value={record.projectId ?? 'none'}
         options={[
-          { value: 'none', label: 'Client-wide' },
+          { value: 'none', label: 'Owner-wide' },
           ...projects
             .filter((project) => project.clientId === record.clientId && !project.archivedAt)
             .map((project) => ({ value: project.id, label: project.title }))
@@ -210,6 +220,33 @@ function KnowledgeFields({
   )
 }
 
+function TaskFields({
+  record,
+  projects
+}: {
+  record: Task
+  projects: DeliveryProject[]
+}): React.JSX.Element {
+  return (
+    <>
+      <TextField label="Task" name="title" value={record.title} required />
+      <Choice
+        label="Project"
+        name="projectId"
+        value={record.projectId ?? 'none'}
+        options={[
+          { value: 'none', label: 'Owner-wide' },
+          ...projects
+            .filter((project) => project.clientId === record.clientId && !project.archivedAt)
+            .map((project) => ({ value: project.id, label: project.title }))
+        ]}
+      />
+      <TextField label="Due date" name="dueDate" value={record.dueDate ?? ''} type="date" />
+      <CheckField label="Done" name="done" checked={record.done} />
+    </>
+  )
+}
+
 function WorkflowFields({
   record,
   clients,
@@ -225,7 +262,7 @@ function WorkflowFields({
     <>
       <p className="text-sm text-pretty text-muted-foreground">
         Assignment changes apply to future collected evidence. Existing executions keep their
-        recorded client.
+        recorded owner.
       </p>
       <TextField label="Purpose" name="purpose" value={record.purpose} multiline />
       <TextField label="Maintainer" name="maintainer" value={record.maintainer} />
@@ -242,7 +279,7 @@ function WorkflowFields({
         options={choices(['exclusive', 'shared', 'unassigned'])}
       />
       <Choice
-        label="Client (exclusive ownership only)"
+        label="Owner (exclusive ownership only)"
         name="clientId"
         value={clientId}
         onChange={(value) => {
@@ -250,7 +287,7 @@ function WorkflowFields({
           setProjectId('none')
         }}
         options={[
-          { value: 'none', label: 'No client' },
+          { value: 'none', label: 'No owner' },
           ...clients
             .filter((client) => !client.archivedAt)
             .map((client) => ({ value: client.id, label: client.name }))
@@ -262,7 +299,7 @@ function WorkflowFields({
         value={projectId}
         onChange={setProjectId}
         options={[
-          { value: 'none', label: 'Client-wide' },
+          { value: 'none', label: 'Owner-wide' },
           ...projects
             .filter((project) => project.clientId === clientId && !project.archivedAt)
             .map((project) => ({ value: project.id, label: project.title }))
@@ -319,11 +356,10 @@ export function RecordEditor({
         <div className="max-h-[85dvh] overflow-y-auto scrollbar-sleek">
           <DialogHeader>
             <DialogTitle>
-              {record.revision ? 'Edit' : 'Save'}{' '}
-              {record.type === 'knowledge' ? 'knowledge' : record.type}
+              {record.revision ? 'Edit' : 'Save'} {record.type === 'client' ? 'owner' : record.type}
             </DialogTitle>
             <DialogDescription>
-              Saved locally in this Orca profile. Client and assignment changes require an impact
+              Saved locally in this Orca profile. Owner and assignment changes require an impact
               review.
             </DialogDescription>
           </DialogHeader>
@@ -339,6 +375,7 @@ export function RecordEditor({
               {record.type === 'knowledge' && (
                 <KnowledgeFields record={record} projects={projects} />
               )}
+              {record.type === 'task' && <TaskFields record={record} projects={projects} />}
               {record.type === 'workflow' && (
                 <WorkflowFields record={record} clients={clients} projects={projects} />
               )}
@@ -353,7 +390,12 @@ export function RecordEditor({
                 Cancel
               </Button>
               <Button type="submit" disabled={busy}>
-                Save {record.type === 'knowledge' ? 'note' : record.type}
+                Save{' '}
+                {record.type === 'knowledge'
+                  ? 'note'
+                  : record.type === 'client'
+                    ? 'owner'
+                    : record.type}
               </Button>
             </div>
           </form>

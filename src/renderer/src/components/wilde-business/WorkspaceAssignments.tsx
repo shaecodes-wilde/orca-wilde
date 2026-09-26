@@ -25,6 +25,7 @@ export function AssignmentEditor({
   clients,
   projects,
   initialClientId,
+  initialProjectId,
   busy,
   onSave,
   onClose
@@ -34,14 +35,19 @@ export function AssignmentEditor({
   clients: Client[]
   projects: DeliveryProject[]
   initialClientId?: string
+  initialProjectId?: string
   busy: boolean
   onSave: (assignment: Assignment) => Promise<boolean>
   onClose: () => void
 }): React.JSX.Element {
   const [clientId, setClientId] = useState(
-    existing?.clientId ?? initialClientId ?? clients.find((client) => !client.archivedAt)?.id ?? ''
+    (initialProjectId && initialClientId) ||
+      (existing?.clientId ??
+        initialClientId ??
+        clients.find((client) => !client.archivedAt)?.id ??
+        '')
   )
-  const [projectId, setProjectId] = useState(existing?.projectId ?? 'none')
+  const [projectId, setProjectId] = useState(initialProjectId ?? existing?.projectId ?? 'none')
   return (
     <Dialog
       open
@@ -55,14 +61,14 @@ export function AssignmentEditor({
         <DialogHeader>
           <DialogTitle>Assign {target.name}</DialogTitle>
           <DialogDescription>
-            Choose an existing client. Host: {target.hostId}. Ownership changes are reviewed before
+            Choose an existing owner. Host: {target.hostId}. Ownership changes are reviewed before
             saving.
           </DialogDescription>
         </DialogHeader>
         {clients.some((client) => !client.archivedAt) ? (
           <div className="space-y-4">
             <Choice
-              label="Client"
+              label="Owner"
               value={clientId}
               onChange={(value) => {
                 setClientId(value)
@@ -78,7 +84,7 @@ export function AssignmentEditor({
               value={projectId}
               onChange={setProjectId}
               options={[
-                { value: 'none', label: 'Client-wide' },
+                { value: 'none', label: 'Owner-wide' },
                 ...projects
                   .filter((project) => project.clientId === clientId && !project.archivedAt)
                   .map((project) => ({ value: project.id, label: project.title }))
@@ -87,7 +93,7 @@ export function AssignmentEditor({
             />
             <p className="text-sm text-pretty text-muted-foreground">
               The workspace stays in Orca. Historical activity and execution evidence keep their
-              original client attribution.
+              original owner attribution.
             </p>
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={onClose} disabled={busy}>
@@ -116,7 +122,7 @@ export function AssignmentEditor({
             </div>
           </div>
         ) : (
-          <EmptyState>Create a client first, then return here to assign this workspace.</EmptyState>
+          <EmptyState>Create an owner first, then return here to assign this workspace.</EmptyState>
         )}
       </DialogContent>
     </Dialog>
@@ -208,7 +214,7 @@ export function WorkspaceAssignments({
               disabled={busy}
               onClick={() => onAssign(target, assignment)}
             >
-              {assignment ? 'Reassign' : 'Assign client'}
+              {assignment ? 'Reassign' : 'Assign owner'}
             </Button>
             {assignment && (
               <Button
@@ -227,15 +233,26 @@ export function WorkspaceAssignments({
   )
 }
 
+// With projectId, only Orca projects are offered: linking a CRM project to the Orca project
+// its workspaces sit in.
 export function TargetPicker({
-  targets,
+  targets: allTargets,
+  assignments,
+  projectId,
   onChoose,
   onClose
 }: {
   targets: TargetState[]
-  onChoose: (target: BusinessTarget) => void
+  assignments: Assignment[]
+  projectId?: string
+  onChoose: (target: BusinessTarget, existing?: Assignment) => void
   onClose: () => void
 }): React.JSX.Element {
+  const targets = projectId
+    ? allTargets.filter((target) => ['orca-project', 'folder-project'].includes(target.kind))
+    : allTargets
+  const existingFor = (target: BusinessTarget): Assignment | undefined =>
+    assignments.find((item) => !item.archivedAt && targetKey(item.target) === targetKey(target))
   return (
     <Dialog
       open
@@ -268,7 +285,11 @@ export function TargetPicker({
                     {target.kind} · {target.hostId}
                   </p>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => onChoose(target)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onChoose(target, existingFor(target))}
+                >
                   Choose
                 </Button>
               </div>

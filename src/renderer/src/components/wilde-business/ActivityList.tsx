@@ -2,9 +2,9 @@ import type { Activity, BusinessRecord } from '../../../../shared/wilde/domain'
 import { EmptyState, timestamp } from './business-fields'
 
 const commandLabels: Record<string, string> = {
-  'client.open': 'open client',
+  'client.open': 'open owner',
   'project.list': 'show projects',
-  'knowledge.search': 'search client knowledge',
+  'knowledge.search': 'search owner knowledge',
   'workspace.open': 'open workspace',
   'executions.list': 'show failed automations',
   'navigation.back': 'go back',

@@ -77,16 +77,18 @@ describe('Business desktop journeys (renderer with fixture bridge)', () => {
     const { api } = fixture()
     render(<BusinessPage initialPage="clients" />)
     await waitFor(() => expect(screen.queryByText('Loading local business records…')).toBeNull())
-    fireEvent.click(screen.getByRole('button', { name: 'New client' }))
-    fireEvent.change(screen.getByLabelText('Client name'), {
+    fireEvent.click(screen.getByRole('button', { name: 'New owner' }))
+    fireEvent.change(screen.getByLabelText('Owner name'), {
       target: { value: 'Harbour Electrical' }
     })
-    fireEvent.change(screen.getByLabelText('Owner'), { target: { value: 'Fixture operator' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Save client' }))
+    fireEvent.change(screen.getByLabelText('Account manager'), {
+      target: { value: 'Fixture operator' }
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Save owner' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
     fireEvent.click(screen.getByRole('button', { name: 'Harbour Electrical' }))
     expect(screen.getByRole('heading', { name: 'Harbour Electrical' })).toBeTruthy()
-    expect(screen.getByText('Owner: Fixture operator')).toBeTruthy()
+    expect(screen.getByText('Account manager: Fixture operator')).toBeTruthy()
     expect(api.execute).toHaveBeenCalledWith(
       expect.objectContaining({
         command: expect.objectContaining({
@@ -172,7 +174,7 @@ describe('Business desktop journeys (renderer with fixture bridge)', () => {
         : { status: 'success', message: '', snapshot }
     )
     render(<BusinessPage initialPage="clients" initialClientId={client.id} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Archive client' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Archive owner' }))
     const dialog = await screen.findByRole('alertdialog')
     expect(
       within(dialog).getByText('Archive one client. Delivery history remains available.')
@@ -199,7 +201,7 @@ describe('Business desktop journeys (renderer with fixture bridge)', () => {
         : { status: 'success', message: '', snapshot }
     )
     const rendered = render(<BusinessPage initialPage="clients" initialClientId={first.id} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Archive client' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Archive owner' }))
     rendered.rerender(<BusinessPage initialPage="clients" initialClientId={second.id} />)
     await act(async () =>
       pending.resolve({

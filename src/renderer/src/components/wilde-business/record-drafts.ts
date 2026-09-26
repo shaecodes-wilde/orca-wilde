@@ -2,7 +2,8 @@ import {
   newRecordFields,
   type Client,
   type DeliveryProject,
-  type Knowledge
+  type Knowledge,
+  type Task
 } from '../../../../shared/wilde/domain'
 
 export function clientDraft(): Client {
@@ -48,6 +49,18 @@ export function knowledgeDraft(clientId: string, projectId?: string): Knowledge 
     state: 'curated',
     provenance: 'Operator',
     url: null
+  }
+}
+
+export function taskDraft(clientId: string, projectId: string | null): Task {
+  return {
+    ...newRecordFields(),
+    type: 'task',
+    clientId,
+    projectId,
+    title: '',
+    done: false,
+    dueDate: null
   }
 }
 

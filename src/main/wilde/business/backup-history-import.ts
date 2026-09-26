@@ -22,7 +22,7 @@ function validateHistoricalRecord(store: BusinessDatabase, record: BusinessRecor
   }
   const clientId = historicalScope(record)
   if (clientId && readRecord(store.db, clientId)?.type !== 'client') {
-    throw new Error('Historical evidence references an invalid client.')
+    throw new Error('Historical evidence references an invalid owner.')
   }
   if (
     'projectId' in record &&
@@ -111,7 +111,7 @@ function validateActivityScope(
             )
             .get(entry.clientId, entry.clientId))
       if (entry.entityId !== entry.clientId || (client?.type !== 'client' && !deletedClient)) {
-        throw new Error('Command audit client scope conflicts with its entity.')
+        throw new Error('Command audit owner scope conflicts with its entity.')
       }
     }
     if (

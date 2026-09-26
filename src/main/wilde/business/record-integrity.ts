@@ -18,6 +18,7 @@ export function uniqueRecordKey(record: BusinessRecord): string | null {
     case 'client':
     case 'knowledge':
     case 'project':
+    case 'task':
       return null
   }
 }
@@ -29,10 +30,10 @@ export function validateRecordRelations(
   if ('clientId' in record && record.clientId) {
     const client = readRecord(db, record.clientId)
     if (client?.type !== 'client') {
-      throw new Error('Select an existing client.')
+      throw new Error('Select an existing owner.')
     }
     if (client.archivedAt && !importing) {
-      throw new Error('Restore the client before adding or changing work.')
+      throw new Error('Restore the owner before adding or changing work.')
     }
   }
   if ('projectId' in record && record.projectId) {
@@ -46,7 +47,7 @@ export function validateRecordRelations(
         prior.clientId === record.clientId &&
         prior.projectId === record.projectId)
     if (project?.type !== 'project' || (!historical && project.clientId !== record.clientId)) {
-      throw new Error('The delivery project must belong to the selected client.')
+      throw new Error('The delivery project must belong to the selected owner.')
     }
     if (project.archivedAt && !importing) {
       throw new Error('Restore the delivery project before changing work.')
@@ -57,7 +58,7 @@ export function validateRecordRelations(
     (record.ownership === 'exclusive') !== Boolean(record.clientId)
   ) {
     throw new Error(
-      'Exclusive workflow ownership requires a client; shared/unassigned workflows cannot claim one client.'
+      'Exclusive workflow ownership requires an owner; shared/unassigned workflows cannot claim one owner.'
     )
   }
   if (record.type === 'outcome') {
@@ -67,7 +68,7 @@ export function validateRecordRelations(
         workflow?.type !== 'workflow' ||
         (!importing && workflow.ownership === 'exclusive' && workflow.clientId !== record.clientId)
       ) {
-        throw new Error('Outcome workflow ownership does not match the client.')
+        throw new Error('Outcome workflow ownership does not match the owner.')
       }
     }
     for (const reference of [record.correctsId, record.voidsId]) {
@@ -80,7 +81,7 @@ export function validateRecordRelations(
         original.clientId !== record.clientId ||
         original.id === record.id
       ) {
-        throw new Error('Correction must reference an existing outcome for this client.')
+        throw new Error('Correction must reference an existing outcome for this owner.')
       }
     }
   }
