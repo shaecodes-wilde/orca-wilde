@@ -113,6 +113,10 @@ export type ManualRepoOrderEntry = {
 
 /** The active top-level section shown in the main content area. */
 export type TopLevelView =
+  | 'wilde-home'
+  | 'wilde-clients'
+  | 'wilde-automations'
+  | 'wilde-workspaces'
   | 'terminal'
   | 'settings'
   | 'tasks'

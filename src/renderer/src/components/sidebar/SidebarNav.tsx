@@ -15,6 +15,7 @@ import { HideSidebarMenu } from './sidebar-nav-controls'
 import { translate } from '@/i18n/i18n'
 import { lazyWithRetry } from '@/lib/lazy-with-retry'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
+import { WildeBusinessNav } from '@/app-shell/WildeBusinessNav'
 
 export { getSetupGuideSidebarEntryReady, shouldShowSetupGuideEntry } from './SetupGuideSidebarEntry'
 
@@ -120,6 +121,7 @@ const SidebarNav = React.memo(function SidebarNav() {
         </span>
       </button>
       <SetupGuideSidebarEntry />
+      <WildeBusinessNav />
       <SidebarTaskNavButton />
       {showArtifactsButton ? (
         <ContextMenu>
@@ -201,7 +203,9 @@ const SidebarNav = React.memo(function SidebarNav() {
                 strokeWidth={automationsActive ? 2.25 : 1.75}
               />
               <span className="flex-1">
-                {translate('auto.components.sidebar.SidebarNav.f323383e9a', 'Automations')}
+                {window.api?.wildeBusiness
+                  ? 'Agent automations'
+                  : translate('auto.components.sidebar.SidebarNav.f323383e9a', 'Automations')}
               </span>
             </button>
           </ContextMenuTrigger>

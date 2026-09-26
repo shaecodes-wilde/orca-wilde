@@ -107,6 +107,10 @@ export type NewWorkspaceDraft = {
 }
 
 export type UiViewHistory =
+  | 'wilde-home'
+  | 'wilde-clients'
+  | 'wilde-workspaces'
+  | 'wilde-automations'
   | 'terminal'
   | 'settings'
   | 'tasks'

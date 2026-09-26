@@ -31,6 +31,7 @@ import { registerNotificationHandlers } from '../notifications'
 import { registerWildeSpotifyHandlers } from '../../wilde/spotify/ipc'
 import { registerWildeObsHandlers } from '../../wilde/obs/ipc'
 import { registerWildeDriveHandlers } from '../../wilde/drive/ipc'
+import { registerWildeBusinessHandlers } from '../../wilde/business/ipc'
 import { registerNotebookHandlers } from '../notebook'
 import { registerOnboardingHandlers } from '../onboarding'
 import { registerDashboardPopoutHandlers } from '../dashboard-popout'
@@ -186,6 +187,7 @@ export function registerCoreHandlers(
   registerWildeSpotifyHandlers()
   registerWildeObsHandlers()
   registerWildeDriveHandlers()
+  registerWildeBusinessHandlers(store, runtime)
   registerSkillsHandlers(store, runtime)
   registerSkillDeleteIpcHandlers(store, runtime)
   if (automations) {

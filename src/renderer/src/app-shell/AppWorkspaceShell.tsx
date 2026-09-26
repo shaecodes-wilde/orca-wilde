@@ -25,6 +25,7 @@ const ArtifactsPage = lazy(() => import('../components/artifacts/ArtifactsPage')
 const WorkspaceSpacePage = lazy(() => import('../components/workspace-space/WorkspaceSpacePage'))
 const MobilePage = lazy(() => import('../components/mobile/MobilePage'))
 const Terminal = lazy(() => import('../components/Terminal'))
+const WildeBusinessSurface = lazy(() => import('./WildeBusinessSurface'))
 
 type WorktreeSidebarScrollRefs = {
   scrollOffsetRef: React.MutableRefObject<number>
@@ -68,6 +69,10 @@ function ActivePage({ layout }: { layout: AppChromeLayout }): React.JSX.Element 
   const { activeView, activeWorktreeId, activePendingCreationId, creationLayoutActive } = layout
   return (
     <>
+      {activeView === 'wilde-home' ? <WildeBusinessSurface key="home" page="home" /> : null}
+      {activeView === 'wilde-clients' ? <WildeBusinessSurface key="clients" page="clients" /> : null}
+      {activeView === 'wilde-workspaces' ? <WildeBusinessSurface key="workspaces" page="workspaces" /> : null}
+      {activeView === 'wilde-automations' ? <WildeBusinessSurface key="automations" page="automations" /> : null}
       {activeView === 'settings' ? <Settings /> : null}
       {activeView === 'skills' ? <SkillsPage /> : null}
       {activeView === 'artifacts' ? <ArtifactsPage /> : null}

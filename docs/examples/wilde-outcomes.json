@@ -1,0 +1,19 @@
+{
+  "format": "wilde-outcomes",
+  "version": 1,
+  "events": [
+    {
+      "clientId": "11111111-1111-4111-8111-111111111111",
+      "projectId": null,
+      "eventType": "appointment_booked",
+      "occurredAt": "2026-09-25T13:00:00.000Z",
+      "sourceNamespace": "disposable-example-booking-system",
+      "sourceReference": "example-appointment-001",
+      "idempotencyKey": "appointment_booked:example-appointment-001",
+      "workflowId": null,
+      "executionId": null,
+      "correctsId": null,
+      "voidsId": null
+    }
+  ]
+}

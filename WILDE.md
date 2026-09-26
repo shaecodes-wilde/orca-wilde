@@ -11,6 +11,23 @@ profile; switch it off (or tune sidebar material and intensity) in
 **Settings > Appearance > Wilde Systems**. In light mode the sidebars stay Wilde-dark and the rest
 of the app is stock Orca.
 
+## Business workspace
+
+Home, Clients, Workspaces and Automations add a local single-operator business workspace.
+Client records, delivery notes and reviewed workspace assignments live in a separate
+SQLite database inside the active profile. Automations reads an existing n8n server;
+it does not install n8n or deploy workflows. Existing scheduled agent automations remain
+available. Local push-to-talk navigation uses an already installed Parakeet model.
+
+See [setup, privacy, backup and voice coverage](docs/wilde-super-app-setup.md) and
+[verification evidence](docs/audits/wilde-super-app/README.md). Set
+`ORCA_WILDE_BUSINESS_DISABLED=1` before launching to disable the business interface and
+collector independently of the appearance theme. Keep the business database for recovery;
+disabling does not delete it. The installed app/profile are not a test environment.
+
+Code: `src/main/wilde/business/`, `src/main/wilde/n8n/`, `src/shared/wilde/`,
+`src/renderer/src/components/wilde-business/`, and `src/renderer/src/app-shell/WildeBusiness*`.
+
 ## Spotify mini-player
 
 On Windows, a Spotify player is docked at the bottom of the right sidebar. Now playing and

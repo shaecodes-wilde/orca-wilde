@@ -108,6 +108,10 @@ export const FeatureInteractionIdParam = z.custom<FeatureInteractionId>(isFeatur
 })
 
 export const TopLevelViewSchema = z.enum([
+  'wilde-home',
+  'wilde-clients',
+  'wilde-workspaces',
+  'wilde-automations',
   'terminal',
   'settings',
   'tasks',

@@ -19,6 +19,7 @@ import type { AiVaultApi } from './api/ai-vault-api'
 import type { WildeSpotifyApi } from './api/wilde-spotify-api'
 import type { WildeObsApi } from './api/wilde-obs-api'
 import type { WildeDriveApi } from './api/wilde-drive-api'
+import type { WildeBusinessApi } from '../shared/wilde/commands'
 import type { AppApi, E2EApi, PlatformApi } from './api/app-api'
 import type { AutomationsApi } from './api/automation-api'
 import type { BrowserApi } from './api/browser-api'
@@ -107,6 +108,7 @@ export type PreloadApi = {
   /** Wilde OBS scene bar; desktop-only like the Spotify player. */
   wildeObs?: WildeObsApi
   wildeDrive?: WildeDriveApi
+  wildeBusiness?: WildeBusinessApi
   localhostWorktreeLabels: LocalhostWorktreeLabelsApi
   keybindings: KeybindingsApi
   codexAccounts: CodexAccountsApi
