@@ -153,7 +153,8 @@ export async function connectToApp(cdpPort) {
   await waitForCdp(cdpPort)
   const browser = await chromium.connectOverCDP(`http://127.0.0.1:${cdpPort}`)
   const page = await getMainPage(browser)
-  await page.waitForLoadState('domcontentloaded', { timeout: 30_000 })
+  // Why 120s: unbundled vite dev load on a 2014-era 4-core box overruns 30s.
+  await page.waitForLoadState('domcontentloaded', { timeout: 120_000 })
   return { browser, page }
 }
 
