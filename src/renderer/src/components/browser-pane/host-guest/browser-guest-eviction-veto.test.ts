@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { BrowserWorkspace } from '../../../../../shared/browser-workspace-types'
-import {
-  browserTabsVetoGuestEviction,
-  selectBrowserGuestEvictionWorktreeIds
-} from './browser-guest-worktree-retention'
+import { browserPageProtectionReason } from './browser-guest-worktree-retention'
 import { hydrateBrowserDrivers } from '../../../lib/pane-manager/browser-mobile-driver-state'
 import { hydrateBrowserRemoteViewerPages } from '../../../lib/pane-manager/browser-remote-viewer-state'
 import {
@@ -11,72 +7,50 @@ import {
   releaseBrowserAutomationVisibility
 } from './browser-automation-visibility'
 import { installBrowserPageDownloadActivityTracking } from '../navigate/browser-page-download-activity'
+import { installBrowserPageAudibleTracking } from '../navigate/browser-page-audible-activity'
 
-// The retention budget DESTROYS a hidden worktree's guests rather than parking them, so a page a
-// paired client is streaming has to veto here too: a destroyed guest kills the screencast for good.
+// The retention budget DESTROYS a hidden page's guest rather than parking it, so every signal that
+// needs the guest alive has to protect the page here — per page, not per worktree.
 const WATCHED_PAGE = 'page-watched'
-const WATCHED_WORKTREE = 'wt-watched'
 
-function tabsFor(pageId: string): BrowserWorkspace[] {
-  return [{ id: 'tab-1', pageIds: [pageId] } as unknown as BrowserWorkspace]
-}
-
-/** Six over-budget hidden worktrees, so only the veto can spare the watched one. */
-function evictionRun(tabs: readonly BrowserWorkspace[]): string[] {
-  return selectBrowserGuestEvictionWorktreeIds({
-    orderedWorktreeIds: ['wt-a', 'wt-b', 'wt-c', 'wt-d', 'wt-e', WATCHED_WORKTREE],
-    activeWorktreeId: 'wt-active',
-    isRetained: () => true,
-    holdsLiveGuests: () => true,
-    isEvictable: (worktreeId) =>
-      worktreeId === WATCHED_WORKTREE ? !browserTabsVetoGuestEviction(tabs) : true
-  })
-}
-
-describe('browser guest eviction veto', () => {
+describe('browser guest eviction protection', () => {
   beforeEach(() => {
     hydrateBrowserDrivers([])
     hydrateBrowserRemoteViewerPages([])
   })
 
-  it('evicts a hidden over-budget worktree no signal is holding', () => {
-    expect(browserTabsVetoGuestEviction(tabsFor(WATCHED_PAGE))).toBe(false)
-    expect(evictionRun(tabsFor(WATCHED_PAGE))).toContain(WATCHED_WORKTREE)
+  it('leaves a page no signal is holding unprotected', () => {
+    expect(browserPageProtectionReason(WATCHED_PAGE)).toBeNull()
   })
 
-  it('spares a page a paired client is streaming', () => {
+  it('protects a page a paired client is streaming, until the last viewer leaves', () => {
     hydrateBrowserRemoteViewerPages([WATCHED_PAGE])
-    expect(evictionRun(tabsFor(WATCHED_PAGE))).not.toContain(WATCHED_WORKTREE)
+    expect(browserPageProtectionReason(WATCHED_PAGE)).toBe('remote-viewer')
+    expect(browserPageProtectionReason('page-sibling')).toBeNull()
+    hydrateBrowserRemoteViewerPages([])
+    expect(browserPageProtectionReason(WATCHED_PAGE)).toBeNull()
   })
 
-  it('spares a page a phone is driving', () => {
+  it('protects a page a phone is driving', () => {
     hydrateBrowserDrivers([
       { browserPageId: WATCHED_PAGE, driver: { kind: 'mobile', clientId: 'conn-phone' } }
     ])
-    expect(evictionRun(tabsFor(WATCHED_PAGE))).not.toContain(WATCHED_WORKTREE)
+    expect(browserPageProtectionReason(WATCHED_PAGE)).toBe('mobile')
   })
 
-  it('spares a page an agent is driving through an automation lease', () => {
+  it('protects a page an agent is driving through an automation lease', () => {
     const token = acquireBrowserAutomationVisibility(WATCHED_PAGE)
-    expect(evictionRun(tabsFor(WATCHED_PAGE))).not.toContain(WATCHED_WORKTREE)
+    expect(browserPageProtectionReason(WATCHED_PAGE)).toBe('automation')
     releaseBrowserAutomationVisibility(token)
-    expect(evictionRun(tabsFor(WATCHED_PAGE))).toContain(WATCHED_WORKTREE)
+    expect(browserPageProtectionReason(WATCHED_PAGE)).toBeNull()
   })
 
-  it('releases the veto when the last remote viewer leaves', () => {
-    hydrateBrowserRemoteViewerPages([WATCHED_PAGE])
-    expect(browserTabsVetoGuestEviction(tabsFor(WATCHED_PAGE))).toBe(true)
-    hydrateBrowserRemoteViewerPages([])
-    expect(evictionRun(tabsFor(WATCHED_PAGE))).toContain(WATCHED_WORKTREE)
-  })
-
-  // Downloads are the one veto term that is not a paint term: parking a guest keeps the download
-  // alive, but eviction unregisters it and main cancels its downloads (tab-close semantics).
-  it('spares a page that is still writing a download', () => {
-    let emitDownloadRequested: (event: {
-      downloadId: string
-      browserPageId: string
-    }) => void = () => {}
+  // Downloads and audio are not paint terms: parking keeps them alive, eviction ends them
+  // (main cancels a page's downloads when its guest unregisters).
+  it('protects a page that is still writing a download or playing audio', () => {
+    let emitDownloadRequested: (event: { downloadId: string; browserPageId: string }) => void =
+      () => {}
+    let emitAudible: (event: { browserPageId: string; audible: boolean }) => void = () => {}
     const noop = (): void => {}
     vi.stubGlobal('window', {
       api: {
@@ -86,29 +60,30 @@ describe('browser guest eviction veto', () => {
             return noop
           },
           onDownloadProgress: () => noop,
-          onDownloadFinished: () => noop
+          onDownloadFinished: () => noop,
+          onAudibleChanged: (callback: typeof emitAudible) => {
+            emitAudible = callback
+            return noop
+          }
         }
       }
     })
+    const onChange = vi.fn()
     const stopDownloadTracking = installBrowserPageDownloadActivityTracking()
+    const stopAudibleTracking = installBrowserPageAudibleTracking(onChange)
     try {
-      expect(browserTabsVetoGuestEviction(tabsFor(WATCHED_PAGE))).toBe(false)
-      expect(evictionRun(tabsFor(WATCHED_PAGE))).toContain(WATCHED_WORKTREE)
-
+      emitAudible({ browserPageId: WATCHED_PAGE, audible: true })
+      expect(browserPageProtectionReason(WATCHED_PAGE)).toBe('audible')
+      expect(onChange).toHaveBeenCalledTimes(1)
       emitDownloadRequested({ downloadId: 'dl-1', browserPageId: WATCHED_PAGE })
-      expect(browserTabsVetoGuestEviction(tabsFor(WATCHED_PAGE))).toBe(true)
-      expect(evictionRun(tabsFor(WATCHED_PAGE))).not.toContain(WATCHED_WORKTREE)
+      expect(browserPageProtectionReason(WATCHED_PAGE)).toBe('download')
+      stopDownloadTracking()
+      emitAudible({ browserPageId: WATCHED_PAGE, audible: false })
+      expect(browserPageProtectionReason(WATCHED_PAGE)).toBeNull()
     } finally {
       stopDownloadTracking()
+      stopAudibleTracking()
       vi.unstubAllGlobals()
     }
-  })
-
-  it('holds the veto for a viewer on a non-active page of the same tab', () => {
-    const tabs = [
-      { id: 'tab-1', activePageId: 'page-front', pageIds: ['page-front', WATCHED_PAGE] }
-    ] as unknown as BrowserWorkspace[]
-    hydrateBrowserRemoteViewerPages([WATCHED_PAGE])
-    expect(evictionRun(tabs)).not.toContain(WATCHED_WORKTREE)
   })
 })

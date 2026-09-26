@@ -1,10 +1,43 @@
 import { webContents } from 'electron'
+import { resolveRendererWebContents } from './browser-guest-renderer-target'
 import { browserDownloadDestinationReservations } from './browser-download-destination'
 import { isWorkspaceDocPageId } from './doc-preview-guest-policy'
 import type { BrowserGuestRegistration } from './browser-manager-types'
 import { BrowserManagerGuestPolicy } from './browser-manager-guest-policy'
 
 export abstract class BrowserManagerRegistration extends BrowserManagerGuestPolicy {
+  private readonly audibleCleanupByTabId = new Map<string, () => void>()
+
+  // Why: the renderer's guest budget must not evict a hidden page that is playing audio.
+  // ponytail: media-started-playing/media-paused per element; switch to audio-state-changed if
+  // multi-element pages report paused while another element still plays.
+  private setupAudibleTracking(browserTabId: string, guest: Electron.WebContents): void {
+    this.audibleCleanupByTabId.get(browserTabId)?.()
+    let audible = false
+    const send = (next: boolean): void => {
+      if (audible === next) {
+        return
+      }
+      audible = next
+      resolveRendererWebContents(this.rendererWebContentsIdByTabId, browserTabId)?.send(
+        'browser:audible-changed',
+        { browserPageId: browserTabId, audible }
+      )
+    }
+    const onStarted = (): void => send(true)
+    const onPaused = (): void => send(false)
+    guest.on('media-started-playing', onStarted)
+    guest.on('media-paused', onPaused)
+    this.audibleCleanupByTabId.set(browserTabId, () => {
+      this.audibleCleanupByTabId.delete(browserTabId)
+      if (!guest.isDestroyed()) {
+        guest.off('media-started-playing', onStarted)
+        guest.off('media-paused', onPaused)
+      }
+      send(false)
+    })
+  }
+
   registerGuest({
     browserPageId,
     browserTabId: legacyBrowserTabId,
@@ -65,6 +98,7 @@ export abstract class BrowserManagerRegistration extends BrowserManagerGuestPoli
     this.setupGrabShortcut(browserTabId, guest)
     this.setupShortcutForwarding(browserTabId, guest)
     this.setupMouseWheelZoomForwarding(browserTabId, guest)
+    this.setupAudibleTracking(browserTabId, guest)
     this.flushPendingLoadFailure(browserTabId, webContentsId)
     this.flushPendingPermissionEvents(browserTabId, webContentsId)
     this.flushPendingPopupEvents(browserTabId, webContentsId)
@@ -96,6 +130,7 @@ export abstract class BrowserManagerRegistration extends BrowserManagerGuestPoli
       cleanup()
       this.contextMenuCleanupByTabId.delete(browserTabId)
     }
+    this.audibleCleanupByTabId.get(browserTabId)?.()
     const shortcutCleanup = this.grabShortcutCleanupByTabId.get(browserTabId)
     if (shortcutCleanup) {
       shortcutCleanup()

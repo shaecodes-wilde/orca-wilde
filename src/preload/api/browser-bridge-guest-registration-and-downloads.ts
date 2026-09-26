@@ -194,5 +194,15 @@ export const browserGuestRegistrationAndDownloadsApi = {
     ) => callback(data)
     ipcRenderer.on('browser:download-finished', listener)
     return () => ipcRenderer.removeListener('browser:download-finished', listener)
+  },
+  onAudibleChanged: (
+    callback: (event: { browserPageId: string; audible: boolean }) => void
+  ): (() => void) => {
+    const listener = (
+      _event: Electron.IpcRendererEvent,
+      data: { browserPageId: string; audible: boolean }
+    ) => callback(data)
+    ipcRenderer.on('browser:audible-changed', listener)
+    return () => ipcRenderer.removeListener('browser:audible-changed', listener)
   }
 } satisfies Partial<PreloadApi['browser']>

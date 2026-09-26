@@ -50,7 +50,8 @@ const RETENTION_HELPER_SYMBOLS = [
   'useBrowserGuestPaintRetention',
   'browserPageNeedsPaintRetention',
   'onBrowserGuestPaintRetentionChange',
-  'browserTabsVetoGuestEviction'
+  'browserPagePaintRetentionReason',
+  'browserPageProtectionReason'
 ]
 
 // Every place that decides whether a browser guest keeps painting, and the helper it must use.
@@ -67,11 +68,11 @@ const RETENTION_SITES = new Map<string, readonly string[]>([
   ],
   [
     'components/browser-pane/host-guest/browser-guest-worktree-retention.ts',
-    ['browserPageNeedsPaintRetention']
+    ['browserPagePaintRetentionReason']
   ],
   [
     'components/use-terminal-browser-retention.ts',
-    ['browserTabsVetoGuestEviction', 'onBrowserGuestPaintRetentionChange']
+    ['browserPageProtectionReason', 'onBrowserGuestPaintRetentionChange']
   ]
 ])
 

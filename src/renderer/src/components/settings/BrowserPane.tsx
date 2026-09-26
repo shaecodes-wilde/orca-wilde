@@ -17,6 +17,7 @@ import { BrowserLocalhostWorktreeLabelsSetting } from './BrowserLocalhostWorktre
 import { BrowserClientHostedRemoteSetting } from './BrowserClientHostedRemoteSetting'
 import { BrowserSshWorkspaceRoutingSetting } from './BrowserSshWorkspaceRoutingSetting'
 import { BrowserUserAgentSetting } from './BrowserUserAgentSetting'
+import { BrowserLivePageBudgetSetting } from './BrowserLivePageBudgetSetting'
 import { SettingsSubsectionHeader } from './SettingsFormControls'
 import { BrowserSessionCookiesSection } from './BrowserSessionCookiesSection'
 import { BrowserNewProfileDialog } from './BrowserNewProfileDialog'
@@ -121,6 +122,9 @@ export function BrowserPane({
     getBrowserPaneSearchEntries()[9]
   ])
   const showUserAgent = matchesSettingsSearch(searchQuery, [getBrowserPaneSearchEntries()[10]])
+  const showLivePageBudget = matchesSettingsSearch(searchQuery, [
+    getBrowserPaneSearchEntries()[11]
+  ])
   const showBrowserUse = matchesSettingsSearch(searchQuery, getBrowserUsePaneSearchEntries())
   const isMac = isMacUserAgent()
   const linkRoutingDescription = getBrowserLinkRoutingDescription(
@@ -253,6 +257,10 @@ export function BrowserPane({
       ) : null}
 
       {showUserAgent ? <BrowserUserAgentSetting hostId={settingsFocusedHostId} /> : null}
+
+      {showLivePageBudget ? (
+        <BrowserLivePageBudgetSetting settings={settings} updateSettings={updateSettings} />
+      ) : null}
 
       {showLinkRouting ? (
         <BrowserLinkRoutingSetting

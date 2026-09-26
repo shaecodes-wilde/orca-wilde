@@ -107,6 +107,9 @@ export type BrowserApi = {
   onDownloadRequested: (callback: (event: BrowserDownloadRequestedEvent) => void) => () => void
   onDownloadProgress: (callback: (event: BrowserDownloadProgressEvent) => void) => () => void
   onDownloadFinished: (callback: (event: BrowserDownloadFinishedEvent) => void) => () => void
+  onAudibleChanged: (
+    callback: (event: { browserPageId: string; audible: boolean }) => void
+  ) => () => void
   onContextMenuRequested: (
     callback: (event: BrowserContextMenuRequestedEvent) => void
   ) => () => void

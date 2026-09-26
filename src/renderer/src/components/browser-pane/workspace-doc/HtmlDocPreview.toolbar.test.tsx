@@ -229,9 +229,10 @@ describe('HtmlDocPreview browser chrome', () => {
 
   it('counts document guests in the workspace budget and restores only on activation', async () => {
     const { hasLiveBrowserGuest, webviewRegistry } = await import('../host-guest/webview-registry')
-    const { worktreeHoldsLiveBrowserGuests, selectBrowserGuestEvictionWorktreeIds } =
+    const { selectBrowserGuestEvictionPages } =
       await import('../host-guest/browser-guest-worktree-retention')
-    const { destroyWorktreeBrowserGuests } = await import('@/store/slices/browser-webview-cleanup')
+    const { destroyEvictedBrowserGuest, worktreeBrowserGuestIds } =
+      await import('@/store/slices/browser-webview-cleanup')
     const guest = await renderPreview(container, root)
     expect(hasLiveBrowserGuest('preview-1')).toBe(true)
     expect(await renderPreview(container, root, { isActive: false })).toBe(guest)
@@ -251,17 +252,21 @@ describe('HtmlDocPreview browser chrome', () => {
     }
     const browsers: BrowserWorkspace[] = [{ ...page, id: 'browser-1', pageIds: [page.id] }]
     const pages: Record<string, BrowserPage[]> = { 'browser-1': [page] }
-    const evicted = selectBrowserGuestEvictionWorktreeIds({
-      orderedWorktreeIds: ['wt-1'],
+    const { evictedPageIds } = selectBrowserGuestEvictionPages({
+      candidates: worktreeBrowserGuestIds(browsers, pages).map((pageId) => ({
+        pageId,
+        worktreeId: 'wt-1',
+        live: hasLiveBrowserGuest(pageId)
+      })),
+      recency: [],
       activeWorktreeId: 'wt-2',
       limit: 0,
       isRetained: () => true,
-      isEvictable: () => true,
-      holdsLiveGuests: () => worktreeHoldsLiveBrowserGuests(browsers, pages, hasLiveBrowserGuest)
+      protectionReason: () => null
     })
-    expect(evicted).toEqual(['wt-1'])
+    expect(evictedPageIds).toEqual(['preview-1'])
     await act(async () => {
-      destroyWorktreeBrowserGuests({ 'wt-1': browsers }, pages, 'wt-1')
+      destroyEvictedBrowserGuest('preview-1')
     })
     expect(guest.isConnected).toBe(false)
     expect(hasLiveBrowserGuest('preview-1')).toBe(false)

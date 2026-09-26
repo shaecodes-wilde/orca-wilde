@@ -63,11 +63,20 @@ export function useBrowserGuestPaintRetention(browserPageIds: readonly string[])
 // remote-viewer term reached the panes while four copies in Terminal.tsx still had three terms.
 // browser-guest-retention-site-census.test.ts holds the sites to this function.
 export function browserPageNeedsPaintRetention(browserPageId: string): boolean {
-  return (
-    isBrowserAutomationVisible(browserPageId) ||
-    isBrowserPageMobileDriven(browserPageId) ||
-    isBrowserPageRemotelyViewed(browserPageId)
-  )
+  return browserPagePaintRetentionReason(browserPageId) !== null
+}
+
+/** Which paint term holds a page, for callers that report why a page stays live. */
+export function browserPagePaintRetentionReason(
+  browserPageId: string
+): 'automation' | 'mobile' | 'remote-viewer' | null {
+  if (isBrowserAutomationVisible(browserPageId)) {
+    return 'automation'
+  }
+  if (isBrowserPageMobileDriven(browserPageId)) {
+    return 'mobile'
+  }
+  return isBrowserPageRemotelyViewed(browserPageId) ? 'remote-viewer' : null
 }
 
 /** Fires whenever any retention term flips, for callers that cache a retention decision. */

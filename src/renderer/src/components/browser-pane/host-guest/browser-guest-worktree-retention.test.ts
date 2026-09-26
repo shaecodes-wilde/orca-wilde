@@ -1,177 +1,81 @@
 import { describe, expect, it } from 'vitest'
-import type { BrowserPage, BrowserWorkspace } from '../../../../../shared/browser-workspace-types'
 import {
-  BROWSER_GUEST_HIDDEN_WORKTREE_RETENTION_LIMIT,
-  browserTabVisibilityPageIds,
-  selectBrowserGuestEvictionWorktreeIds,
-  touchBrowserGuestWorktreeRecency,
-  worktreeHoldsLiveBrowserGuests
+  selectBrowserGuestEvictionPages,
+  touchBrowserGuestRecency,
+  type BrowserGuestRetentionCandidate
 } from './browser-guest-worktree-retention'
 
-function browserTab(
-  id: string,
-  pageIds: string[] = [],
-  activePageId: string | null = null
-): BrowserWorkspace {
-  return {
-    id,
-    worktreeId: 'wt-1',
-    label: id,
-    sessionProfileId: null,
-    pageIds,
-    activePageId,
-    url: 'about:blank',
-    title: id,
-    loading: false,
-    faviconUrl: null,
-    canGoBack: false,
-    canGoForward: false,
-    loadError: null,
-    createdAt: 1
-  }
-}
+// Six live pages across two hidden worktrees plus two in the active one.
+const CANDIDATES: BrowserGuestRetentionCandidate[] = [
+  { pageId: 'a1', worktreeId: 'wt-a', live: true },
+  { pageId: 'a2', worktreeId: 'wt-a', live: true },
+  { pageId: 'a3', worktreeId: 'wt-a', live: true },
+  { pageId: 'b1', worktreeId: 'wt-b', live: true },
+  { pageId: 'b2', worktreeId: 'wt-b', live: true },
+  { pageId: 'b3', worktreeId: 'wt-b', live: true },
+  { pageId: 'act1', worktreeId: 'wt-active', live: true },
+  { pageId: 'act2', worktreeId: 'wt-active', live: true }
+]
 
-function page(id: string, workspaceId: string): BrowserPage {
-  return {
-    id,
-    workspaceId,
-    worktreeId: 'wt-1',
-    url: 'about:blank',
-    title: id,
-    loading: false,
-    faviconUrl: null,
-    canGoBack: false,
-    canGoForward: false,
-    loadError: null,
-    createdAt: 1
-  }
-}
-
-type SelectionOverrides = Partial<Parameters<typeof selectBrowserGuestEvictionWorktreeIds>[0]>
-
-function selectEvicted(overrides: SelectionOverrides): string[] {
-  return selectBrowserGuestEvictionWorktreeIds({
-    orderedWorktreeIds: [],
-    activeWorktreeId: null,
+function select(
+  overrides: Partial<Parameters<typeof selectBrowserGuestEvictionPages>[0]> = {}
+): ReturnType<typeof selectBrowserGuestEvictionPages> {
+  return selectBrowserGuestEvictionPages({
+    candidates: CANDIDATES,
+    recency: ['act1', 'act2', 'b1', 'b2', 'b3', 'a1', 'a2', 'a3'],
+    activeWorktreeId: 'wt-active',
     isRetained: () => true,
-    holdsLiveGuests: () => true,
-    isEvictable: () => true,
+    protectionReason: () => null,
+    limit: 4,
     ...overrides
   })
 }
 
-describe('selectBrowserGuestEvictionWorktreeIds', () => {
-  const sixWorktrees = ['wt-1', 'wt-2', 'wt-3', 'wt-4', 'wt-5', 'wt-6']
-
-  it('is a no-op while retained guest-holding worktrees fit the budget', () => {
-    expect(
-      selectEvicted({
-        orderedWorktreeIds: sixWorktrees.slice(0, BROWSER_GUEST_HIDDEN_WORKTREE_RETENTION_LIMIT)
-      })
-    ).toEqual([])
+describe('selectBrowserGuestEvictionPages', () => {
+  it('evicts hidden pages beyond the budget in LRU order, sparing active-worktree pages', () => {
+    const { entries, evictedPageIds } = select()
+    expect(evictedPageIds).toEqual(['a2', 'a3'])
+    const reasons = Object.fromEntries(entries.map((entry) => [entry.pageId, entry.reason]))
+    expect(reasons).toMatchObject({ act1: 'visible', act2: 'visible', b1: 'warm', a1: 'warm' })
+    expect(entries.find((entry) => entry.pageId === 'a3')).toMatchObject({
+      live: false,
+      reason: null
+    })
   })
 
-  it('evicts the least-recently-activated worktrees beyond the budget', () => {
-    expect(selectEvicted({ orderedWorktreeIds: sixWorktrees })).toEqual(['wt-5', 'wt-6'])
+  it('is a no-op within budget', () => {
+    expect(select({ limit: 6 }).evictedPageIds).toEqual([])
   })
 
-  it('never evicts or counts the active worktree', () => {
-    // Active most-recent: five hidden holders remain, so only the LRU one goes.
-    expect(selectEvicted({ orderedWorktreeIds: sixWorktrees, activeWorktreeId: 'wt-1' })).toEqual([
-      'wt-6'
-    ])
-    // Active in LRU position: it is spared even though it ranks past the budget.
-    expect(selectEvicted({ orderedWorktreeIds: sixWorktrees, activeWorktreeId: 'wt-6' })).toEqual([
-      'wt-5'
-    ])
+  it('protects pages individually without shielding siblings or taking a warm slot', () => {
+    const { entries, evictedPageIds } = select({
+      protectionReason: (pageId) => (pageId === 'a3' || pageId === 'b1' ? 'audible' : null)
+    })
+    // b1 is protected, so b2, b3, a1, a2 fill the four warm slots; a3 is protected.
+    expect(evictedPageIds).toEqual([])
+    expect(select({ limit: 2, protectionReason: (id) => (id === 'a3' ? 'download' : null) }))
+      .toMatchObject({ evictedPageIds: ['b3', 'a1', 'a2'] })
+    expect(entries.find((entry) => entry.pageId === 'a3')?.reason).toBe('audible')
   })
 
-  it('counts only worktrees that actually hold live guests', () => {
-    const holders = new Set(['wt-5', 'wt-6'])
-    expect(
-      selectEvicted({
-        orderedWorktreeIds: sixWorktrees,
-        holdsLiveGuests: (worktreeId) => holders.has(worktreeId)
-      })
-    ).toEqual([])
-  })
-
-  it('skips worktrees that are no longer retained', () => {
-    expect(
-      selectEvicted({
-        orderedWorktreeIds: sixWorktrees,
-        isRetained: (worktreeId) => worktreeId !== 'wt-1' && worktreeId !== 'wt-2'
-      })
-    ).toEqual([])
-  })
-
-  it('keeps a non-evictable worktree retained over budget instead of evicting it', () => {
-    expect(
-      selectEvicted({
-        orderedWorktreeIds: sixWorktrees,
-        isEvictable: (worktreeId) => worktreeId !== 'wt-5'
-      })
-    ).toEqual(['wt-6'])
-  })
-
-  it('lets a protected worktree within the budget occupy a retained slot', () => {
-    expect(
-      selectEvicted({
-        orderedWorktreeIds: ['wt-1', 'wt-2', 'wt-3', 'wt-4', 'wt-5'],
-        isEvictable: (worktreeId) => worktreeId !== 'wt-3'
-      })
-    ).toEqual(['wt-5'])
-  })
-
-  it('counts duplicated recency entries once', () => {
-    expect(
-      selectEvicted({ orderedWorktreeIds: ['wt-1', 'wt-1', 'wt-2', 'wt-3', 'wt-4', 'wt-5'] })
-    ).toEqual(['wt-5'])
-  })
-
-  it('honors a custom limit', () => {
-    expect(selectEvicted({ orderedWorktreeIds: sixWorktrees.slice(0, 3), limit: 1 })).toEqual([
-      'wt-2',
-      'wt-3'
-    ])
+  it('ranks untouched pages last and skips dead pages and unmounted worktrees', () => {
+    const { evictedPageIds, entries } = select({
+      recency: ['a1'],
+      limit: 1,
+      isRetained: (worktreeId) => worktreeId !== 'wt-b',
+      candidates: CANDIDATES.map((c) => (c.pageId === 'a2' ? { ...c, live: false } : c))
+    })
+    expect(evictedPageIds).toEqual(['a3'])
+    expect(entries.find((entry) => entry.pageId === 'b1')).toMatchObject({ live: true, reason: null })
   })
 })
 
-describe('worktreeHoldsLiveBrowserGuests', () => {
-  it('detects live guests keyed by page id', () => {
-    const tabs = [browserTab('workspace-1', ['page-1'])]
-    const pages = { 'workspace-1': [page('page-1', 'workspace-1')] }
-
-    expect(worktreeHoldsLiveBrowserGuests(tabs, pages, (id) => id === 'page-1')).toBe(true)
-    expect(worktreeHoldsLiveBrowserGuests(tabs, pages, () => false)).toBe(false)
-  })
-
-  it('falls back to the workspace tab id for legacy sessions without pages', () => {
-    const tabs = [browserTab('legacy-workspace')]
-
-    expect(worktreeHoldsLiveBrowserGuests(tabs, {}, (id) => id === 'legacy-workspace')).toBe(true)
-  })
-})
-
-describe('browserTabVisibilityPageIds', () => {
-  it('mirrors the overlay slot derivation: pageIds, then activePageId, then tab id', () => {
-    expect(browserTabVisibilityPageIds(browserTab('tab-1', ['page-1', 'page-2']))).toEqual([
-      'page-1',
-      'page-2'
-    ])
-    expect(browserTabVisibilityPageIds(browserTab('tab-1', [], 'page-3'))).toEqual(['page-3'])
-    expect(browserTabVisibilityPageIds(browserTab('tab-1'))).toEqual(['tab-1'])
-  })
-})
-
-describe('touchBrowserGuestWorktreeRecency', () => {
-  it('moves a re-activated worktree to the front without duplicating it', () => {
-    const recency = ['wt-2', 'wt-1']
-
-    touchBrowserGuestWorktreeRecency(recency, 'wt-1')
-    expect(recency).toEqual(['wt-1', 'wt-2'])
-
-    touchBrowserGuestWorktreeRecency(recency, 'wt-3')
-    expect(recency).toEqual(['wt-3', 'wt-1', 'wt-2'])
+describe('touchBrowserGuestRecency', () => {
+  it('moves a touched page to the front without duplicating it', () => {
+    const recency = ['p2', 'p1']
+    touchBrowserGuestRecency(recency, 'p1')
+    expect(recency).toEqual(['p1', 'p2'])
+    touchBrowserGuestRecency(recency, 'p3')
+    expect(recency).toEqual(['p3', 'p1', 'p2'])
   })
 })

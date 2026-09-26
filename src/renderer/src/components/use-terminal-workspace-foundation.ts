@@ -9,6 +9,7 @@ import { projectWorkspaceSurfaces } from './workspace-surface-projection'
 import { useReusedArrayIdentity } from './sidebar/worktree-list/listing/use-reused-array-identity'
 import { selectPairedRuntimeParkingEnvironmentIds } from './terminal-pane/terminal-hidden-view-parking'
 import { createTerminalWorktreeTopologyProjection } from './terminal-pane/terminal-hidden-worktree-retention'
+import { DEFAULT_BROWSER_GUEST_LIVE_PAGE_BUDGET } from './browser-pane/host-guest/browser-guest-worktree-retention'
 import { isMainTerminalSideEffectAuthorityForPty } from './terminal-pane/terminal-side-effect-facts-handler'
 
 export function useTerminalWorkspaceFoundation() {
@@ -18,7 +19,7 @@ export function useTerminalWorkspaceFoundation() {
   > | null>(null)
   terminalTopologyProjectionRef.current ??= createTerminalWorktreeTopologyProjection()
   const mountedWorktreeIdsRef = useRef(new Set<string>())
-  const browserGuestWorktreeRecencyRef = useRef<string[]>([])
+  const browserGuestPageRecencyRef = useRef<string[]>([])
   const measurableBackgroundWorktreeIdsRef = useRef(new Set<string>())
   const terminalWorktreeHiddenSinceRef = useRef(new Map<string, number>())
   const measuringTerminalWorktreeIdsRef = useRef(new Set<string>())
@@ -87,6 +88,9 @@ export function useTerminalWorkspaceFoundation() {
   const browserGuestRetentionBudgetEnabled = useAppStore(
     (state) => state.settings?.browserGuestWorktreeRetentionBudget !== false
   )
+  const browserGuestLivePageBudget = useAppStore(
+    (state) => state.settings?.browserGuestLivePageBudget ?? DEFAULT_BROWSER_GUEST_LIVE_PAGE_BUDGET
+  )
   const terminalTitleSnapshotAuthorityEnabled = useAppStore((state) =>
     isMainTerminalSideEffectAuthorityForPty({
       settings: state.settings,
@@ -96,7 +100,7 @@ export function useTerminalWorkspaceFoundation() {
 
   return {
     mountedWorktreeIdsRef,
-    browserGuestWorktreeRecencyRef,
+    browserGuestPageRecencyRef,
     measurableBackgroundWorktreeIdsRef,
     terminalWorktreeHiddenSinceRef,
     measuringTerminalWorktreeIdsRef,
@@ -118,6 +122,7 @@ export function useTerminalWorkspaceFoundation() {
     pairedRuntimeParkingEnvironmentIds,
     terminalRetentionBudgetEnabled,
     browserGuestRetentionBudgetEnabled,
+    browserGuestLivePageBudget,
     terminalTitleSnapshotAuthorityEnabled
   }
 }

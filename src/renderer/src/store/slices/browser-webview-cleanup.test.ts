@@ -8,8 +8,9 @@ vi.mock('../../components/browser-pane/host-guest/webview-registry', () => ({
 import {
   collectBrowserWebviewIds,
   destroyRemovedBrowserWebview,
+  destroyEvictedBrowserGuest,
   destroyWorkspaceWebviews,
-  destroyWorktreeBrowserGuests
+  worktreeBrowserGuestIds
 } from './browser-webview-cleanup'
 import { destroyPersistentWebview } from '../../components/browser-pane/host-guest/webview-registry'
 import {
@@ -107,36 +108,19 @@ describe('destroyWorkspaceWebviews', () => {
   })
 })
 
-describe('destroyWorktreeBrowserGuests', () => {
+describe('worktreeBrowserGuestIds', () => {
+  it('lists page guests, falling back to the tab id for legacy tabs without pages', () => {
+    expect(
+      worktreeBrowserGuestIds([workspace('workspace-1'), workspace('legacy-workspace')], {
+        'workspace-1': [page('page-1', 'workspace-1'), page('page-2', 'workspace-1')]
+      })
+    ).toEqual(['page-1', 'page-2', 'legacy-workspace'])
+  })
+})
+
+describe('destroyEvictedBrowserGuest', () => {
   beforeEach(() => {
     vi.mocked(destroyPersistentWebview).mockClear()
-  })
-
-  it('destroys every guest across all of one worktree tabs, leaving other worktrees alone', () => {
-    destroyWorktreeBrowserGuests(
-      {
-        'wt-1': [workspace('workspace-1'), workspace('legacy-workspace')],
-        'wt-2': [workspace('workspace-2')]
-      },
-      {
-        'workspace-1': [page('page-1', 'workspace-1'), page('page-2', 'workspace-1')],
-        'workspace-2': [page('page-3', 'workspace-2')]
-      },
-      'wt-1'
-    )
-
-    expect(destroyPersistentWebview).toHaveBeenCalledTimes(3)
-    expect(destroyPersistentWebview).toHaveBeenCalledWith('page-1')
-    expect(destroyPersistentWebview).toHaveBeenCalledWith('page-2')
-    // Legacy tabs without page records key their webview by the tab id.
-    expect(destroyPersistentWebview).toHaveBeenCalledWith('legacy-workspace')
-    expect(destroyPersistentWebview).not.toHaveBeenCalledWith('page-3')
-  })
-
-  it('is a no-op for a worktree without browser tabs', () => {
-    destroyWorktreeBrowserGuests({}, {}, 'wt-1')
-
-    expect(destroyPersistentWebview).not.toHaveBeenCalled()
   })
 
   it('re-remembers explicit zoom past the destroy-path forget (eviction is not a close)', () => {
@@ -146,21 +130,16 @@ describe('destroyWorktreeBrowserGuests', () => {
       return Promise.resolve()
     })
     rememberExplicitBrowserPageZoomLevel('page-1', 1.5)
-    rememberExplicitBrowserPageZoomLevel('legacy-workspace', 0.5)
 
-    destroyWorktreeBrowserGuests(
-      { 'wt-1': [workspace('workspace-1'), workspace('legacy-workspace')] },
-      { 'workspace-1': [page('page-1', 'workspace-1'), page('page-2', 'workspace-1')] },
-      'wt-1'
-    )
+    destroyEvictedBrowserGuest('page-1')
+    destroyEvictedBrowserGuest('page-2')
 
+    expect(destroyPersistentWebview).toHaveBeenCalledWith('page-1')
     expect(getExplicitBrowserPageZoomLevel('page-1')).toBe(1.5)
-    expect(getExplicitBrowserPageZoomLevel('legacy-workspace')).toBe(0.5)
     // A page the user never zoomed stays unremembered.
     expect(getExplicitBrowserPageZoomLevel('page-2')).toBeNull()
 
     forgetExplicitBrowserPageZoomLevel('page-1')
-    forgetExplicitBrowserPageZoomLevel('legacy-workspace')
     vi.mocked(destroyPersistentWebview).mockReset()
   })
 })
