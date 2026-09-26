@@ -39,11 +39,24 @@ export type ProcessCommitMetric = 'private-bytes'
 
 export type HostAvailableMemorySource = 'memory-pressure' | 'proc-meminfo' | 'free-memory'
 
-/** The top-level cpu/memory are the sum of main + renderer + other. */
+export type BrowserGuestPageMemory = {
+  pageId: string
+  worktreeId: string | null
+  cpu: number
+  memory: number
+}
+
+/** The top-level cpu/memory are the sum of main + renderer + other + browserGuests. */
 export type AppMemory = UsageValues & {
   main: UsageValues
   renderer: UsageValues
   other: UsageValues
+  /**
+   * Browser-pane guest processes, split out of `renderer`. Absent from hosts
+   * that cannot map guest PIDs (CLI runtime, older builds). A process shared by
+   * several pages is listed once, under the first page.
+   */
+  browserGuests?: UsageValues & { pages: BrowserGuestPageMemory[] }
   /** Oldest-first memory samples (bytes) for the whole Orca app; empty before the first snapshot. */
   history: number[]
 }

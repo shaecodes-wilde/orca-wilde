@@ -199,6 +199,10 @@
             "spotify": "spotify",
             "googleDrive": "google drive"
           }
+        },
+        "ambientMotion": {
+          "title": "Ambient motion",
+          "description": "Allow looping decorative animations (pulses, marquees, blinking carets). Off saves CPU/GPU."
         }
       }
     },
@@ -245,6 +249,13 @@
         "optionNativeTooltip": "Keeps Electron's built-in identity for sites that reject the cleaned identity. Google sign-in is unavailable in Native mode.",
         "restartRequired": "Restart required",
         "unavailable": "Browser identity is unavailable."
+      },
+      "livePageBudget": {
+        "title": "Background pages kept live",
+        "description": "Browser pages in other workspaces stay loaded up to this limit. Older ones reload when you return. Pages playing audio, downloading, or driven by an agent always stay live.",
+        "low": "Low-memory (4)",
+        "balanced": "Balanced (8)",
+        "keepWarm": "Keep-warm (16)"
       }
     }
   },
@@ -18465,6 +18476,22 @@
       "connectedMic": "Connected. Mic input: {{value0}}",
       "connectedNoMic": "Connected. No mic input found in OBS.",
       "offlineHint": "OBS unreachable. In OBS, enable Tools → WebSocket Server Settings → Enable WebSocket Server."
+    }
+  },
+  "wilde": {
+    "resourceUsage": {
+      "browserPages": "Browser pages",
+      "browserRetention": {
+        "visible": "Visible",
+        "automation": "Kept live: agent is driving it",
+        "mobile": "Kept live: mobile preview",
+        "remoteViewer": "Kept live: remote viewer attached",
+        "download": "Kept live: downloading",
+        "audible": "Kept live: playing audio",
+        "warm": "Recently used",
+        "unloaded": "Unloaded",
+        "live": "Live"
+      }
     }
   }
 }

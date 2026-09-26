@@ -7,8 +7,20 @@ import { ORPHAN_WORKTREE_ID } from '../../../../shared/constants'
 import type { BrowserWorkspace } from '../../../../shared/browser-workspace-types'
 import type { UnifiedSessionRow, UnifiedWorktreeRow } from './resource-usage-merge-types'
 
+const { storeState, retentionEntries } = vi.hoisted(() => ({
+  storeState: {
+    browserPagesByWorkspace: {} as Record<string, unknown[]>,
+    memorySnapshot: null as unknown
+  },
+  retentionEntries: [] as unknown[]
+}))
+
+vi.mock('@/components/browser-pane/host-guest/browser-page-retention-state', () => ({
+  getBrowserPageRetentionEntries: () => retentionEntries,
+  onBrowserPageRetentionChange: () => () => {}
+}))
+
 vi.mock('@/store', () => {
-  const storeState = {}
   const useAppStore = Object.assign(
     (selector: (state: typeof storeState) => unknown) => selector(storeState),
     { getState: () => storeState }
@@ -158,5 +170,32 @@ describe('resource manager row presentation', () => {
     expect(container.textContent).toContain('Orca docs')
     expect(container.querySelector('.lucide-globe')).not.toBeNull()
     expect(container.querySelector('button[aria-label^="Open browser"]')).toBeNull()
+  })
+
+  it('lists browser pages with retention status and guest memory', () => {
+    storeState.browserPagesByWorkspace = {
+      'browser-1': [
+        { id: 'page-a', title: 'Player', url: 'https://a.test' },
+        { id: 'page-b', title: 'Docs', url: 'https://b.test' }
+      ]
+    }
+    storeState.memorySnapshot = {
+      app: { browserGuests: { pages: [{ pageId: 'page-a', cpu: 1, memory: 2 * 1024 * 1024 }] } }
+    }
+    retentionEntries.push(
+      { pageId: 'page-a', worktreeId: 'wt-1', live: true, reason: 'audible' },
+      { pageId: 'page-b', worktreeId: 'wt-1', live: false, reason: null }
+    )
+    renderWorktreeRow(
+      makeWorktree({
+        browsers: [
+          { id: 'browser-1', worktreeId: 'wt-1', title: 'Web', url: '' } as BrowserWorkspace
+        ]
+      })
+    )
+
+    expect(container.textContent).toContain('PlayerKept live: playing audio')
+    expect(container.textContent).toContain('2.0 MB')
+    expect(container.textContent).toContain('DocsUnloaded')
   })
 })

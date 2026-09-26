@@ -1,8 +1,15 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronRight, Globe, Trash2, X } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
+import { useAppStore } from '@/store'
+import {
+  getBrowserPageRetentionEntries,
+  onBrowserPageRetentionChange,
+  type BrowserPageRetentionEntry,
+  type BrowserPageRetentionReason
+} from '@/components/browser-pane/host-guest/browser-page-retention-state'
 import type { BrowserWorkspace } from '../../../../shared/browser-workspace-types'
 import { ORPHAN_WORKTREE_ID } from '../../../../shared/constants'
 import type { Worktree } from '../../../../shared/worktree/types'
@@ -89,15 +96,76 @@ export function SessionRow({
   )
 }
 
-function BrowserRow({ browser }: { browser: BrowserWorkspace }): React.JSX.Element {
+// Why literal keys: the localization extractor only sees string-literal translate() calls.
+const RETENTION_REASON_COPY: Record<BrowserPageRetentionReason, () => string> = {
+  visible: () => translate('wilde.resourceUsage.browserRetention.visible', 'Visible'),
+  automation: () =>
+    translate('wilde.resourceUsage.browserRetention.automation', 'Kept live: agent is driving it'),
+  mobile: () =>
+    translate('wilde.resourceUsage.browserRetention.mobile', 'Kept live: mobile preview'),
+  'remote-viewer': () =>
+    translate(
+      'wilde.resourceUsage.browserRetention.remoteViewer',
+      'Kept live: remote viewer attached'
+    ),
+  download: () =>
+    translate('wilde.resourceUsage.browserRetention.download', 'Kept live: downloading'),
+  audible: () =>
+    translate('wilde.resourceUsage.browserRetention.audible', 'Kept live: playing audio'),
+  warm: () => translate('wilde.resourceUsage.browserRetention.warm', 'Recently used')
+}
+
+function retentionLabel(entry: BrowserPageRetentionEntry | undefined): string | null {
+  if (!entry) {
+    return null
+  }
+  if (!entry.live) {
+    return translate('wilde.resourceUsage.browserRetention.unloaded', 'Unloaded')
+  }
+  return entry.reason
+    ? RETENTION_REASON_COPY[entry.reason]()
+    : translate('wilde.resourceUsage.browserRetention.live', 'Live')
+}
+
+function useBrowserPageRetention(): Map<string, BrowserPageRetentionEntry> {
+  const [entries, setEntries] = useState(getBrowserPageRetentionEntries)
+  useEffect(
+    () => onBrowserPageRetentionChange(() => setEntries(getBrowserPageRetentionEntries())),
+    []
+  )
+  return useMemo(() => new Map(entries.map((entry) => [entry.pageId, entry])), [entries])
+}
+
+export function BrowserRow({ browser }: { browser: BrowserWorkspace }): React.JSX.Element {
   const label = browser.title?.trim() || browser.label?.trim() || browser.url
+  const pages = useAppStore((s) => s.browserPagesByWorkspace[browser.id])
+  const guestPages = useAppStore((s) => s.memorySnapshot?.app.browserGuests?.pages)
+  const retention = useBrowserPageRetention()
   return (
-    <div className="flex items-center gap-2 pl-10 pr-3 py-1.5">
-      <Globe className="size-3 shrink-0 text-muted-foreground" aria-hidden />
-      <span className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground">{label}</span>
-      <MetricPair cpu={null} memory={null} size="small" />
-      <span className={ROW_TRAILING_GUTTER_CLS} aria-hidden />
-    </div>
+    <>
+      <div className="flex items-center gap-2 pl-10 pr-3 py-1.5">
+        <Globe className="size-3 shrink-0 text-muted-foreground" aria-hidden />
+        <span className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground">{label}</span>
+        <MetricPair cpu={null} memory={null} size="small" />
+        <span className={ROW_TRAILING_GUTTER_CLS} aria-hidden />
+      </div>
+      {pages?.map((page) => {
+        const usage = guestPages?.find((guest) => guest.pageId === page.id)
+        const status = retentionLabel(retention.get(page.id))
+        return (
+          <div key={page.id} className="flex items-center gap-2 pl-14 pr-3 py-1">
+            <span className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground">
+              {page.title?.trim() || page.url}
+            </span>
+            {status && (
+              <span className="shrink-0 text-[10px] text-muted-foreground/70">{status}</span>
+            )}
+            <MetricPair cpu={usage?.cpu ?? null} memory={usage?.memory ?? null} size="small" />
+            <span className={ROW_TRAILING_GUTTER_CLS} aria-hidden />
+          </div>
+        )
+      })}
+    </>
   )
 }
 

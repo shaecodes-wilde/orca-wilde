@@ -12,6 +12,10 @@
 //   off — parking disabled: every hidden terminal stays fully mounted
 //   on  — parking enabled: hidden terminals past the (shrunk) hysteresis park
 // The off−on delta is the resource win parking buys.
+//
+// --wilde-baseline swaps the parking comparison for a Wilde memory baseline:
+// open --browser-pages across the worktrees, time --switches worktree switches
+// (p50/p95), idle --idle-minutes, then print the memory snapshot by bucket.
 
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
@@ -53,17 +57,26 @@ function parseArgs() {
     worktrees: 8,
     scrollbackLines: 5000,
     reportPath: null,
-    keep: false
+    keep: false,
+    baseline: false,
+    browserPages: 6,
+    browserUrl: 'https://example.com',
+    switches: 20,
+    idleMinutes: 5
   }
   for (const arg of process.argv.slice(2)) {
     if (arg === '--help' || arg === '-h') {
       console.log(
-        'Usage: node tests/tools/benchmarks/terminal-cold-park-resource-bench.mjs [--label=name] [--worktrees=N] [--scrollback-lines=N] [--report=path] [--keep]'
+        'Usage: node tests/tools/benchmarks/terminal-cold-park-resource-bench.mjs [--label=name] [--worktrees=N] [--scrollback-lines=N] [--report=path] [--keep] [--wilde-baseline [--browser-pages=N] [--browser-url=url] [--switches=N] [--idle-minutes=N]]'
       )
       process.exit(0)
     }
     if (arg === '--keep') {
       args.keep = true
+      continue
+    }
+    if (arg === '--wilde-baseline') {
+      args.baseline = true
       continue
     }
     const [name, value] = arg.split('=', 2)
@@ -75,6 +88,14 @@ function parseArgs() {
       args.scrollbackLines = Math.max(0, Number(value) || 0)
     } else if (name === '--report') {
       args.reportPath = value
+    } else if (name === '--browser-pages') {
+      args.browserPages = Math.max(0, Number(value) || 0)
+    } else if (name === '--browser-url') {
+      args.browserUrl = value || args.browserUrl
+    } else if (name === '--switches') {
+      args.switches = Math.max(1, Number(value) || 20)
+    } else if (name === '--idle-minutes') {
+      args.idleMinutes = Math.max(0, Number(value) || 0)
     }
   }
   return args
@@ -332,6 +353,67 @@ async function measureResources(page, cdp) {
   }
 }
 
+const percentile = (sorted, q) =>
+  sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] : null
+
+async function runWildeBaseline(page, worktrees, args) {
+  // Why not activateWorktreeTerminal: a worktree whose active tab is a browser
+  // page never reports activeTabType 'terminal', so wait on the worktree only.
+  const activate = async (id) => {
+    await clickWorktreeCard(page, id)
+    await pollUntil(
+      `active worktree ${id}`,
+      () => page.evaluate((wt) => window.__store?.getState?.()?.activeWorktreeId === wt, id),
+      Boolean,
+      30_000,
+      10
+    )
+  }
+  for (let i = 0; i < args.browserPages; i++) {
+    const wt = worktrees[i % worktrees.length]
+    await activate(wt.id)
+    await page.evaluate(
+      ({ id, url }) => window.__store.getState().createBrowserTab(id, url, { activate: true }),
+      { id: wt.id, url: args.browserUrl }
+    )
+    await sleep(1_000)
+  }
+  const switchMs = []
+  for (let i = 0; i < args.switches; i++) {
+    const wt = worktrees[(i + 1) % worktrees.length]
+    const t0 = performance.now()
+    await activate(wt.id)
+    switchMs.push(Math.round(performance.now() - t0))
+  }
+  const sorted = [...switchMs].sort((a, b) => a - b)
+  console.log(`[wilde-baseline] idling ${args.idleMinutes} min`)
+  await sleep(args.idleMinutes * 60_000)
+  const snapshot = await page.evaluate(() => window.api.memory.getSnapshot())
+  const app = snapshot.app
+  const bucketMB = (v) => (v ? { memoryMB: toMB(v.memory), cpu: v.cpu } : null)
+  return {
+    browserPages: args.browserPages,
+    switches: {
+      samplesMs: switchMs,
+      p50Ms: percentile(sorted, 0.5),
+      p95Ms: percentile(sorted, 0.95)
+    },
+    idleMinutes: args.idleMinutes,
+    buckets: {
+      main: bucketMB(app.main),
+      renderer: bucketMB(app.renderer),
+      browserGuests: bucketMB(app.browserGuests),
+      browserGuestPages: app.browserGuests?.pages.length ?? null,
+      other: bucketMB(app.other),
+      appTotal: bucketMB(app),
+      terminals: {
+        memoryMB: toMB(snapshot.worktrees.reduce((sum, w) => sum + w.memory, 0))
+      },
+      totalMB: toMB(snapshot.totalMemory)
+    }
+  }
+}
+
 async function main() {
   const args = parseArgs()
   const startedAt = Date.now()
@@ -375,6 +457,11 @@ async function main() {
       500
     )
     console.log(`[cold-park-res] ${worktrees.length} worktrees registered`)
+    if (args.baseline) {
+      report.baseline = await runWildeBaseline(page, worktrees, args)
+      console.log(JSON.stringify(report.baseline, null, 2))
+      return
+    }
     const primary = worktrees.find((w) => w.isMainWorktree) ?? worktrees[0]
     const anotherWorktree = worktrees.find((w) => w.id !== primary.id)
 

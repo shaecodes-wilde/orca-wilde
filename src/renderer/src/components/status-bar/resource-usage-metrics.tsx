@@ -1,7 +1,8 @@
-import React, { memo, useMemo } from 'react'
+import React, { memo, useMemo, useState } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
+import { useAppStore } from '@/store'
 import type { AppMemory, UsageValues } from '../../../../shared/process-stats-types'
 import type { Metric } from './resource-usage-merge-types'
 
@@ -152,6 +153,50 @@ function AppSubRow({ label, values }: { label: string; values: UsageValues }): R
   )
 }
 
+function BrowserGuestsSubRow({
+  guests
+}: {
+  guests: NonNullable<AppMemory['browserGuests']>
+}): React.JSX.Element {
+  const [open, setOpen] = useState(false)
+  const pagesByWorkspace = useAppStore((s) => s.browserPagesByWorkspace)
+  const titleById = useMemo(
+    () =>
+      new Map(
+        Object.values(pagesByWorkspace)
+          .flat()
+          .map((page) => [page.id, page.title?.trim() || page.url])
+      ),
+    [pagesByWorkspace]
+  )
+  const label = translate('wilde.resourceUsage.browserPages', 'Browser pages')
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="w-full px-3 py-1.5 pl-6 flex items-center justify-between gap-2 text-left hover:bg-muted/50"
+      >
+        <span className="flex items-center gap-1 text-[11px] text-muted-foreground truncate">
+          {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          {label}
+        </span>
+        <div className="flex items-center gap-2 shrink-0">
+          <MetricPair cpu={guests.cpu} memory={guests.memory} size="small" />
+          <span className={ROW_TRAILING_GUTTER_CLS} aria-hidden />
+        </div>
+      </button>
+      {open &&
+        guests.pages.map((page) => (
+          <div key={page.pageId} className="pl-4">
+            <AppSubRow label={titleById.get(page.pageId) ?? page.pageId} values={page} />
+          </div>
+        ))}
+    </>
+  )
+}
+
 export function AppSection({
   app,
   isCollapsed,
@@ -214,6 +259,9 @@ export function AppSection({
             )}
             values={app.renderer}
           />
+          {app.browserGuests && app.browserGuests.pages.length > 0 && (
+            <BrowserGuestsSubRow guests={app.browserGuests} />
+          )}
           {(app.other.cpu > 0 || app.other.memory > 0) && (
             <AppSubRow
               label={translate(

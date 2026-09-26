@@ -21,12 +21,9 @@ import {
   getProcessOutputFields,
   iterateProcessOutputLines
 } from '../../shared/process-output-field-scanner'
-import { getAppEnvironment, type AppEnvironment } from '../../shared/app-environment'
 import type {
-  AppMemory,
   MemorySnapshot,
   SessionMemory,
-  UsageValues,
   WorktreeMemory
 } from '../../shared/process-stats-types'
 import { ORPHAN_WORKTREE_ID } from '../../shared/constants'
@@ -51,8 +48,11 @@ import {
   optionalCommitField,
   snapshotCommitFields
 } from './memory-snapshot-values'
+import { bucketElectronMetrics, type BrowserGuestPidMap } from './electron-app-buckets'
 
 export type { MemorySnapshotStore } from './memory-snapshot-buckets'
+
+export type { BrowserGuestPidMap } from './electron-app-buckets'
 
 // ─── Module state ───────────────────────────────────────────────────
 
@@ -60,7 +60,10 @@ let inflight: Promise<MemorySnapshot> | null = null
 
 // ─── Public API ─────────────────────────────────────────────────────
 
-export async function collectMemorySnapshot(store: MemorySnapshotStore): Promise<MemorySnapshot> {
+export async function collectMemorySnapshot(
+  store: MemorySnapshotStore,
+  lookupBrowserGuests?: () => BrowserGuestPidMap
+): Promise<MemorySnapshot> {
   // Why: coalescing relies on the persistence store being a process-wide
   // singleton at runtime. Concurrent callers all hand in the same instance,
   // so it is safe to return the existing in-flight promise (which was
@@ -68,7 +71,7 @@ export async function collectMemorySnapshot(store: MemorySnapshotStore): Promise
   if (inflight) {
     return inflight
   }
-  inflight = runSnapshot(store)
+  inflight = runSnapshot(store, lookupBrowserGuests)
     .catch((err) => {
       console.warn('[memory] snapshot failed; returning empty', err)
       return emptyMemorySnapshot()
@@ -98,7 +101,7 @@ type ProcRow = {
 }
 
 /** Indexed view of a single host process sweep. */
-type ProcIndex = {
+export type ProcIndex = {
   byPid: Map<number, ProcRow>
   childrenOf: Map<number, number[]>
   /**
@@ -212,74 +215,14 @@ export function collectSubtree(
   return result
 }
 
-// ─── Electron app process bucketing ─────────────────────────────────
-
-type AppBucketsRaw = Omit<AppMemory, 'history'>
-
-function electronMetricMemoryBytes(
-  proc: ReturnType<AppEnvironment['getAppMetrics']>[number],
-  processIndex: ProcIndex
-): number {
-  const hostMemory = processIndex.byPid.get(proc.pid)?.memory
-  if (typeof hostMemory === 'number' && Number.isFinite(hostMemory) && hostMemory > 0) {
-    return hostMemory
-  }
-  // Why: on macOS, getAppEnvironment().getAppMetrics().workingSetSize can include large shared
-  // Chromium/Electron mappings. Prefer the host RSS sweep used elsewhere, but
-  // keep workingSetSize as a fallback when the process disappears mid-snapshot.
-  return clampMemoryMetric(proc.memory?.workingSetSize) * 1024
-}
-
-function bucketElectronMetrics(processIndex: ProcIndex): AppBucketsRaw {
-  const main = { cpu: 0, memory: 0, privateMemory: 0 }
-  const renderer = { cpu: 0, memory: 0, privateMemory: 0 }
-  const other = { cpu: 0, memory: 0, privateMemory: 0 }
-
-  for (const proc of getAppEnvironment().getAppMetrics()) {
-    const cpu = clampMemoryMetric(proc.cpu?.percentCPUUsage)
-    const memoryBytes = electronMetricMemoryBytes(proc, processIndex)
-    // Why the host row rather than Electron's own metric: getAppMetrics has no
-    // commit figure for helper processes, and the sweep already indexed them.
-    const privateBytes = clampMemoryMetric(processIndex.byPid.get(proc.pid)?.privateMemory)
-
-    // Why: lowercase once so future Electron versions emitting different
-    // casing ('browser' vs 'Browser') still bucket correctly.
-    const type = (typeof proc.type === 'string' ? proc.type : '').toLowerCase()
-    let target = other
-    if (type === 'browser') {
-      target = main
-    } else if (type === 'renderer' || type === 'tab') {
-      target = renderer
-    }
-
-    target.cpu += cpu
-    target.memory += memoryBytes
-    target.privateMemory += privateBytes
-  }
-
-  const usage = (bucket: typeof main): UsageValues => ({
-    cpu: bucket.cpu,
-    memory: bucket.memory,
-    ...optionalCommitField(processIndex.hasPrivateMemory, bucket.privateMemory)
-  })
-
-  return {
-    main: usage(main),
-    renderer: usage(renderer),
-    other: usage(other),
-    ...usage({
-      cpu: main.cpu + renderer.cpu + other.cpu,
-      memory: main.memory + renderer.memory + other.memory,
-      privateMemory: main.privateMemory + renderer.privateMemory + other.privateMemory
-    })
-  }
-}
-
 // ─── Main collection path ───────────────────────────────────────────
 
-async function runSnapshot(store: MemorySnapshotStore): Promise<MemorySnapshot> {
+async function runSnapshot(
+  store: MemorySnapshotStore,
+  lookupBrowserGuests?: () => BrowserGuestPidMap
+): Promise<MemorySnapshot> {
   const [processIndex, host] = await Promise.all([enumerateProcesses(), collectHostMemory()])
-  const appBuckets = bucketElectronMetrics(processIndex)
+  const appBuckets = bucketElectronMetrics(processIndex, lookupBrowserGuests?.())
   const ptys = listRegisteredPtys()
 
   // Why: when two PTYs share an ancestor in the process tree (e.g. a

@@ -361,6 +361,27 @@ describe('collectMemorySnapshot', () => {
     expect(snap.totalMemory).toBe((111 + 222 + 333) * 1024)
   })
 
+  it('splits mapped browser guest Tab processes out of renderer', async () => {
+    mockPsResponse(['20 1 0 222', '40 1 0 444'].join('\n'))
+    appMetricsMock.mockReturnValue([
+      { pid: 20, type: 'Tab', cpu: { percentCPUUsage: 1 }, memory: { workingSetSize: 0 } },
+      { pid: 40, type: 'Tab', cpu: { percentCPUUsage: 2 }, memory: { workingSetSize: 0 } }
+    ])
+
+    const { collectMemorySnapshot } = await loadCollector()
+    const snap = await collectMemorySnapshot(
+      emptyStore,
+      () => new Map([[40, { pageId: 'page-1', worktreeId: 'wt-1' }]])
+    )
+
+    expect(snap.app.renderer.memory).toBe(222 * 1024)
+    expect(snap.app.browserGuests?.memory).toBe(444 * 1024)
+    expect(snap.app.browserGuests?.pages).toEqual([
+      { pageId: 'page-1', worktreeId: 'wt-1', cpu: 2, memory: 444 * 1024 }
+    ])
+    expect(snap.app.memory).toBe((222 + 444) * 1024)
+  })
+
   it('falls back to Electron working set when a host process row is missing', async () => {
     mockPsResponse('10 1 1.5 111')
     appMetricsMock.mockReturnValue([
