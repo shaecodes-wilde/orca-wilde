@@ -339,6 +339,26 @@ describe('git env forces untranslated diagnostics (issue #7808)', () => {
   })
 })
 
+describe('git env trusts ownerless file systems on Windows', () => {
+  const safeDirectoryValues = (env: NodeJS.ProcessEnv): string[] =>
+    Array.from({ length: Number(env.GIT_CONFIG_COUNT ?? 0) }, (_, i) => i)
+      .filter((i) => env[`GIT_CONFIG_KEY_${i}`] === 'safe.directory')
+      .map((i) => env[`GIT_CONFIG_VALUE_${i}`] as string)
+
+  it('adds safe.directory=* on win32 (exFAT drives record no ownership)', () => {
+    expect(safeDirectoryValues(untranslatedGitOutputEnv({ PATH: 'C:\\git' }, 'win32'))).toEqual([
+      '*'
+    ])
+    expect(safeDirectoryValues(nonInteractiveGitEnv({ PATH: 'C:\\git' }, 'win32'))).toEqual(['*'])
+  })
+
+  it('leaves other platforms untouched', () => {
+    expect(safeDirectoryValues(untranslatedGitOutputEnv({ PATH: '/usr/bin' }, 'linux'))).toEqual(
+      []
+    )
+  })
+})
+
 describe('redirectPortedHostnameToEnv WSLENV forwarding', () => {
   it('names GITLAB_HOST in WSLENV so it can cross into a distro', async () => {
     // A WSL-routed glab only sees Windows variables listed in WSLENV; without

@@ -24,15 +24,32 @@ export { appendGitConfigEnv }
  * Pin Orca-spawned git to untranslated English output so stderr/progress parsers
  * work under any user locale (issue #7808). Terminal git is untouched.
  */
-export function untranslatedGitOutputEnv(env: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
-  return { ...env, ...UNTRANSLATED_GIT_OUTPUT_ENV }
+export function untranslatedGitOutputEnv(
+  env: NodeJS.ProcessEnv = process.env,
+  platform: NodeJS.Platform = process.platform
+): NodeJS.ProcessEnv {
+  return ownershipAgnosticGitEnv({ ...env, ...UNTRANSLATED_GIT_OUTPUT_ENV }, platform)
+}
+
+/**
+ * Wilde: exFAT/FAT32/network drives don't record file ownership, so git's
+ * safe.directory check fails ("detected dubious ownership") for every repo and
+ * worktree on them — e.g. deleting a workspace on F:. Orca only runs git in
+ * repos the user added, so trust all directories for Orca-spawned git on
+ * Windows. Terminal git is untouched.
+ */
+export function ownershipAgnosticGitEnv(
+  env: NodeJS.ProcessEnv,
+  platform: NodeJS.Platform = process.platform
+): NodeJS.ProcessEnv {
+  return platform === 'win32' ? appendGitConfigEnv(env, [['safe.directory', '*']]) : env
 }
 
 export function promptGuardGitEnv(
   env: NodeJS.ProcessEnv = process.env,
   platform: NodeJS.Platform = process.platform
 ): NodeJS.ProcessEnv {
-  return gitCredentialPromptGuardEnv(untranslatedGitOutputEnv(env), platform)
+  return gitCredentialPromptGuardEnv(untranslatedGitOutputEnv(env, platform), platform)
 }
 
 /**
